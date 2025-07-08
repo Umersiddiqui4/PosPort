@@ -1,14 +1,13 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
-import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, Menu } from "lucide-react"
+import { useCallback } from "react"
+import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface NavbarProps {
   currentPage: string
   onPageChange: (page: string) => void
-  onToggle?: (isOpen: boolean) => void
 }
 
 const menuItems = [
@@ -20,40 +19,8 @@ const menuItems = [
   { id: "support", label: "Support", icon: HelpCircle },
 ] as const
 
-export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarProps) {
-  const [isOpen, setIsOpen] = useState(true)
-
-  // Persist navbar state in localStorage
-  useEffect(() => {
-    const savedState = localStorage.getItem("navbar-open")
-    if (savedState !== null) {
-      const isOpenSaved = JSON.parse(savedState)
-      setIsOpen(isOpenSaved)
-      onToggle?.(isOpenSaved)
-    }
-  }, [onToggle])
-
-  const toggleSidebar = useCallback(() => {
-    setIsOpen((prev) => {
-      const newState = !prev
-      localStorage.setItem("navbar-open", JSON.stringify(newState))
-      onToggle?.(newState)
-      return newState
-    })
-  }, [onToggle])
-
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === "b") {
-        event.preventDefault()
-        toggleSidebar()
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [toggleSidebar])
+export default function Navbar({ currentPage, onPageChange }: NavbarProps) {
+  const isOpen = true
 
   const handlePageChange = useCallback(
     (pageId: string) => {
@@ -66,25 +33,10 @@ export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarPr
     <>
       {/* Sidebar */}
       <aside
-        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out ${
-          isOpen ? "w-80" : "w-0"
-        } overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl`}
+        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out w-80 overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl`}
         aria-label="Main navigation"
       >
         <div className="p-6 h-full flex flex-col">
-          {/* Menu Toggle Button */}
-          <div className="p-4 border-b border-white/10">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="text-white hover:bg-white/10 p-2 rounded-xl transition-all duration-200 hover:scale-105"
-              aria-label={isOpen ? "Close navigation" : "Open navigation"}
-              title={`${isOpen ? "Close" : "Open"} navigation (Ctrl+B)`}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
           {/* Header */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
@@ -157,15 +109,6 @@ export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarPr
           </Button>
         </div>
       </aside>
-
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
-          onClick={toggleSidebar}
-          aria-hidden="true"
-        />
-      )}
     </>
   )
 }

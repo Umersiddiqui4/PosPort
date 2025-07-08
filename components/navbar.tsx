@@ -72,6 +72,19 @@ export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarPr
         aria-label="Main navigation"
       >
         <div className="p-6 h-full flex flex-col">
+          {/* Menu Toggle Button */}
+          <div className="p-4 border-b border-white/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="text-white hover:bg-white/10 p-2 rounded-xl transition-all duration-200 hover:scale-105"
+              aria-label={isOpen ? "Close navigation" : "Open navigation"}
+              title={`${isOpen ? "Close" : "Open"} navigation (Ctrl+B)`}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </div>
           {/* Header */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
@@ -153,35 +166,6 @@ export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarPr
           aria-hidden="true"
         />
       )}
-
-      {/* Header Bar */}
-      <header className={`fixed top-0 right-0 left-0 z-30 transition-all duration-300 ${isOpen ? "lg:ml-80" : "ml-0"}`}>
-        {/* Status Bar */}
-        <div className="bg-white/95 backdrop-blur-md px-6 py-3 flex justify-between items-center text-sm font-medium border-b border-gray-200/50 shadow-sm">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="text-[#1a72dd] hover:bg-[#1a72dd]/10 p-2 rounded-xl transition-all duration-200 hover:scale-105"
-              aria-label={isOpen ? "Close navigation" : "Open navigation"}
-              title={`${isOpen ? "Close" : "Open"} navigation (Ctrl+B)`}
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-            <time className="font-semibold text-gray-700">9:41</time>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1" aria-label="Signal strength">
-              {[1, 2, 3, 4].map((bar) => (
-                <div key={bar} className={`w-1 h-3 rounded-full ${bar <= 3 ? "bg-gray-800" : "bg-gray-400"}`} />
-              ))}
-            </div>
-            <div className="w-4 h-3 bg-gray-800 rounded-sm ml-2" aria-label="WiFi" />
-            <div className="w-6 h-3 bg-gray-600 rounded-sm ml-1" aria-label="Battery" />
-          </div>
-        </div>
-      </header>
     </>
   )
 }

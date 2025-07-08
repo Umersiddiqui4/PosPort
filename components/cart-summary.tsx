@@ -20,7 +20,9 @@ export default function CartSummary({ items, total, onCheckout }: CartSummaryPro
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <div className="bg-[#1a72dd] text-white p-4 flex items-center justify-between fixed bottom-0 left-0 right-0 z-30 shadow-lg">
+    <div
+      className={`bg-[#1a72dd] text-white p-4 flex items-center justify-between fixed bottom-0 right-0 z-30 shadow-lg transition-all duration-300 left-80`}
+    >
       <div className="flex items-center gap-3">
         <ShoppingCart className="w-5 h-5" />
         <span className="font-medium">{totalItems} Items</span>

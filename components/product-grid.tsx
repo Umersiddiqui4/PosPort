@@ -158,7 +158,7 @@ ProductCard.displayName = "ProductCard"
 export default function ProductGrid({ products, onQuantityChange, onAddToCart, viewMode }: ProductGridProps) {
   return (
     <section
-      className={viewMode === "list" ? "space-y-3 p-4" : "grid grid-cols-2 gap-4 p-4"}
+      className={`${viewMode === "list" ? "space-y-3 p-4 pt-6 pb-20" : "grid grid-cols-2 gap-4 p-4 pt-6 pb-20"}`}
       aria-label="Product catalog"
     >
       {products.map((product) => (

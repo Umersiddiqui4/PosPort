@@ -39,14 +39,9 @@ function PageSkeleton() {
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("cashier")
-  const [isNavbarOpen, setIsNavbarOpen] = useState(true)
 
   const handlePageChange = useCallback((page: string) => {
     setCurrentPage(page)
-  }, [])
-
-  const handleNavbarToggle = useCallback((isOpen: boolean) => {
-    setIsNavbarOpen(isOpen)
   }, [])
 
   const renderPage = () => {
@@ -70,15 +65,10 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] overflow-hidden">
-      <Navbar currentPage={currentPage} onPageChange={handlePageChange} onToggle={handleNavbarToggle} />
+      <Navbar currentPage={currentPage} onPageChange={handlePageChange} />
 
       {/* Main Content */}
-      <main
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isNavbarOpen ? "lg:ml-80" : "ml-0"
-        } pt-16 overflow-hidden`}
-        role="main"
-      >
+      <main className={`flex-1 transition-all duration-300 ease-in-out ml-80 overflow-hidden`} role="main">
         <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>
       </main>
     </div>

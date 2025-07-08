@@ -1,0 +1,187 @@
+"use client"
+
+import { useState, useCallback, useEffect } from "react"
+import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+interface NavbarProps {
+  currentPage: string
+  onPageChange: (page: string) => void
+  onToggle?: (isOpen: boolean) => void
+}
+
+const menuItems = [
+  { id: "cashier", label: "Cashier", icon: Calculator },
+  { id: "history", label: "History Transaction", icon: History },
+  { id: "report", label: "Report", icon: FileText },
+  { id: "manage-store", label: "Manage Store", icon: Store },
+  { id: "account", label: "Account", icon: User },
+  { id: "support", label: "Support", icon: HelpCircle },
+] as const
+
+export default function Navbar({ currentPage, onPageChange, onToggle }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(true)
+
+  // Persist navbar state in localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem("navbar-open")
+    if (savedState !== null) {
+      const isOpenSaved = JSON.parse(savedState)
+      setIsOpen(isOpenSaved)
+      onToggle?.(isOpenSaved)
+    }
+  }, [onToggle])
+
+  const toggleSidebar = useCallback(() => {
+    setIsOpen((prev) => {
+      const newState = !prev
+      localStorage.setItem("navbar-open", JSON.stringify(newState))
+      onToggle?.(newState)
+      return newState
+    })
+  }, [onToggle])
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "b") {
+        event.preventDefault()
+        toggleSidebar()
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [toggleSidebar])
+
+  const handlePageChange = useCallback(
+    (pageId: string) => {
+      onPageChange(pageId)
+    },
+    [onPageChange],
+  )
+
+  return (
+    <>
+      {/* Sidebar */}
+      <aside
+        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out ${
+          isOpen ? "w-80" : "w-0"
+        } overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl`}
+        aria-label="Main navigation"
+      >
+        <div className="p-6 h-full flex flex-col">
+          {/* Header */}
+          <header className="mb-8">
+            <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              Zaib Ka Dhaba
+            </h1>
+
+            {/* Branch Selector */}
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+              <Select defaultValue="branch1">
+                <SelectTrigger className="bg-transparent border-none text-white hover:bg-white/10 transition-colors">
+                  <SelectValue placeholder="Select Branch" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-none shadow-xl rounded-xl">
+                  <SelectItem value="branch1" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                    Branch 1
+                  </SelectItem>
+                  <SelectItem value="branch2" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                    Branch 2
+                  </SelectItem>
+                  <SelectItem value="branch3" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                    Branch 3
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </header>
+
+          {/* Navigation Menu */}
+          <nav className="space-y-2 flex-1" role="navigation" aria-label="Main menu">
+            {menuItems.map((item) => {
+              const Icon = item.icon
+              const isActive = currentPage === item.id
+              return (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  onClick={() => handlePageChange(item.id)}
+                  className={`w-full justify-start gap-4 p-3 h-auto rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "bg-white/20 backdrop-blur-sm shadow-lg border border-white/20"
+                      : "hover:bg-white/10 hover:backdrop-blur-sm"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <Icon className="w-6 h-6 flex-shrink-0" />
+                  <span className="text-lg font-medium">{item.label}</span>
+                </Button>
+              )
+            })}
+          </nav>
+
+          {/* Last Login Section */}
+          <div className="mt-8 mb-8 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10">
+            <div className="flex items-start gap-3">
+              <RotateCcw className="w-6 h-6 mt-1 text-blue-200" />
+              <div>
+                <div className="text-lg font-medium mb-1">Last Login:</div>
+                <div className="text-sm opacity-90">Saturday, 23 Nov 2023</div>
+                <div className="text-sm opacity-90">(02:00 AM)</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Upgrade Button */}
+          <Button
+            className="w-full bg-gradient-to-r from-white to-blue-50 text-[#1a72dd] hover:from-blue-50 hover:to-white font-bold py-4 text-lg rounded-xl shadow-lg border border-white/20 transition-all duration-200 hover:scale-105"
+            size="lg"
+          >
+            UPGRADE TO PREMIUM
+          </Button>
+        </div>
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Header Bar */}
+      <header className={`fixed top-0 right-0 left-0 z-30 transition-all duration-300 ${isOpen ? "lg:ml-80" : "ml-0"}`}>
+        {/* Status Bar */}
+        <div className="bg-white/95 backdrop-blur-md px-6 py-3 flex justify-between items-center text-sm font-medium border-b border-gray-200/50 shadow-sm">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="text-[#1a72dd] hover:bg-[#1a72dd]/10 p-2 rounded-xl transition-all duration-200 hover:scale-105"
+              aria-label={isOpen ? "Close navigation" : "Open navigation"}
+              title={`${isOpen ? "Close" : "Open"} navigation (Ctrl+B)`}
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+            <time className="font-semibold text-gray-700">9:41</time>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1" aria-label="Signal strength">
+              {[1, 2, 3, 4].map((bar) => (
+                <div key={bar} className={`w-1 h-3 rounded-full ${bar <= 3 ? "bg-gray-800" : "bg-gray-400"}`} />
+              ))}
+            </div>
+            <div className="w-4 h-3 bg-gray-800 rounded-sm ml-2" aria-label="WiFi" />
+            <div className="w-6 h-3 bg-gray-600 rounded-sm ml-1" aria-label="Battery" />
+          </div>
+        </div>
+      </header>
+    </>
+  )
+}

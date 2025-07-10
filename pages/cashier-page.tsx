@@ -5,12 +5,12 @@ import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu } from "lucide-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import ProductGrid from "../components/product-grid"
 import NumericKeypad from "../components/numeric-keypad"
 import PaymentMethod from "../components/payment-method"
 import SuccessScreen from "../components/success-screen"
 import CartSummary from "../components/cart-summary"
 import OrderSummary from "../components/order-summary"
+import ProductGrid from "@/components/product-grid"
 
 interface Product {
   id: number
@@ -40,7 +40,7 @@ const initialProducts: Product[] = [
     id: 1,
     name: "Salad Egg",
     price: 1150,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://www.daysoftheyear.com/cdn-cgi/image/dpr=1%2Cf=auto%2Cfit=cover%2Ch=675%2Cq=85%2Cw=1200/wp-content/uploads/national-fast-food-day.jpg",
     quantity: 0,
     category: "Special Menu",
   },
@@ -48,7 +48,7 @@ const initialProducts: Product[] = [
     id: 2,
     name: "Maggi Sale",
     price: 750,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://media.istockphoto.com/id/184354422/photo/club-sandwich.jpg?s=612x612&w=0&k=20&c=oekKP1LciqidyIPbTMe6CJp4M8iaasktEjqx2OcxpAU=",
     quantity: 0,
     category: "Main Course",
   },
@@ -56,7 +56,7 @@ const initialProducts: Product[] = [
     id: 3,
     name: "Maggi Black Paper",
     price: 1500,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://m-foodz.com/pk/wp-content/uploads/2023/05/Fast-Food-Restaurants-In-Karachi.jpg",
     quantity: 0,
     category: "Main Course",
   },
@@ -64,7 +64,7 @@ const initialProducts: Product[] = [
     id: 4,
     name: "Chicken Biryani",
     price: 2000,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://images.getrecipekit.com/20230606152327-25_Instant_ramen.jpg?aspect_ratio=16:9&quality=90&",
     quantity: 0,
     category: "Special Menu",
   },
@@ -72,7 +72,7 @@ const initialProducts: Product[] = [
     id: 5,
     name: "Beef Karahi",
     price: 1800,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://images.immediate.co.uk/production/volatile/sites/30/2024/12/Chicken-Karahi-847828f.jpg",
     quantity: 0,
     category: "Main Course",
   },
@@ -80,11 +80,35 @@ const initialProducts: Product[] = [
     id: 6,
     name: "Fish Curry",
     price: 1200,
-    image: "/placeholder.svg?height=120&width=120",
+    image: "https://i.ytimg.com/vi/NvQMLzhLm88/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLA5rGZOuqqg-bP7A21-rLdC4r3sOg",
     quantity: 0,
     category: "Special Menu",
   },
-]
+  {
+    id: 7,
+    name: "Pepperoni Pizza",
+    price: 1600,
+    image: "https://www.spiceandcolour.com/wp-content/uploads/2020/06/samosa-de-pollo-1.jpg",
+    quantity: 0,
+    category: "Fast Food",
+  },
+  {
+    id: 8,
+    name: "Cheese Burger",
+    price: 900,
+    image: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Momo_nepal.jpg",
+    quantity: 0,
+    category: "Fast Food",
+  },
+  {
+    id: 9,
+    name: "French Fries",
+    price: 500,
+    image: "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+    quantity: 0,
+    category: "Fast Food",
+  },
+];
 
 export default function CashierPage({ onMobileToggle }: CashierPageProps) {
   const [currentView, setCurrentView] = useState<ViewType>("products")
@@ -146,6 +170,15 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
     },
     [handleQuantityChange],
   )
+
+  const handleRemoveFromCart = useCallback((productId: number) => {
+    startTransition(() => {
+      setProductList((prev) =>
+        prev.map((product) => (product.id === productId ? { ...product, quantity: 0 } : product)),
+      )
+      setCart((prev) => prev.filter((item) => item.id !== productId))
+    })
+  }, [])
 
   const handleCheckout = useCallback(() => {
     setShowOrderSummary(true)
@@ -326,8 +359,11 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
         {currentView === "products" && (
           <ProductGrid
             products={filteredProducts}
+            cartItems={cart}
             onQuantityChange={handleQuantityChange}
             onAddToCart={handleAddToCart}
+            onRemoveFromCart={handleRemoveFromCart}
+            onProceedToPayment={handleProceedToPayment}
             viewMode={viewMode}
           />
         )}
@@ -345,7 +381,7 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
         )}
       </main>
 
-      {currentView === "products" && cart.length > 0 && (
+      {currentView === "products" && cart.length > 0 && viewMode === "list" && (
         <CartSummary items={cart} total={totalAmount} onCheckout={handleCheckout} />
       )}
 

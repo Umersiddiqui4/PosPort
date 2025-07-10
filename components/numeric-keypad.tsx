@@ -82,7 +82,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
           onChange={handleInputChange}
           onKeyDown={handleKeyPress}
           placeholder="Enter amount"
-          className="text-2xl sm:text-4xl font-bold text-center p-4 sm:p-6 bg-white rounded-2xl shadow-sm border-2 border-[#1a72dd]/20 min-h-[60px] sm:min-h-[80px] text-[#1a72dd] focus:border-[#1a72dd]"
+          className="text-2xl md:text-4xl sm:text-4xl font-bold text-center p-4 sm:p-6 bg-white rounded-2xl shadow-sm border-2 border-[#1a72dd]/20 min-h-[60px] sm:min-h-[80px] text-[#1a72dd] focus:border-[#1a72dd]"
           autoFocus
         />
       </div>

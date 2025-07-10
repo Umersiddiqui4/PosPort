@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, useTransition } from "react"
-import { ArrowLeft, Search, LayoutGrid, List } from "lucide-react"
+import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import ProductGrid from "../components/product-grid"
@@ -9,6 +9,8 @@ import NumericKeypad from "../components/numeric-keypad"
 import PaymentMethod from "../components/payment-method"
 import SuccessScreen from "../components/success-screen"
 import CartSummary from "../components/cart-summary"
+import { Input } from "@/components/ui/input"
+import OrderSummary from "@/components/order-summary"
 
 interface Product {
   id: number
@@ -115,6 +117,7 @@ export default function CashierPage() {
   const [productList, setProductList] = useState(initialProducts)
   const [searchQuery, setSearchQuery] = useState("")
   const [isPending, startTransition] = useTransition()
+  const [showOrderSummary, setShowOrderSummary] = useState(false)
 
   // Memoized filtered products
   const filteredProducts = useMemo(() => {
@@ -167,6 +170,11 @@ export default function CashierPage() {
   )
 
   const handleCheckout = useCallback(() => {
+     setShowOrderSummary(true)
+  }, [])
+
+   const handleProceedToPayment = useCallback(() => {
+    setShowOrderSummary(false)
     setCurrentView("payment")
   }, [])
 
@@ -204,8 +212,8 @@ export default function CashierPage() {
   }, [])
 
   const renderHeader = () => (
-    <header className="bg-white/95 backdrop-blur-md p-4 border-b border-gray-200/50 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
+    <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
         {currentView !== "products" && (
           <Button
             variant="ghost"
@@ -214,45 +222,67 @@ export default function CashierPage() {
             className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
             aria-label="Go back to products"
           >
-            <ArrowLeft className="w-5 h-5" />
+           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         )}
 
-        <h1 className="text-xl font-bold text-[#1a72dd] flex-1 text-center">
+        <h1 className="text-lg sm:text-xl font-bold text-[#1a72dd] flex-1 text-center">
           {currentView === "products" && "Cashier"}
           {currentView === "manual" && "Manual Input"}
           {currentView === "payment" && "Payment Method"}
         </h1>
 
         <div className="flex gap-2">
+           {currentView === "products" && cart.length > 0 && (
           <Button
             variant="ghost"
             size="icon"
-            className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-            aria-label="Search products"
+           onClick={() => setShowOrderSummary(true)}
+              className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200 relative"
+              aria-label="View cart"
           >
-            <Search className="w-5 h-5" />
+             <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)}
+              </span>
           </Button>
+            )}
 
           {currentView === "products" && (
             <Button
               variant="outline"
               size="sm"
               onClick={toggleViewMode}
-              className="text-[#1a72dd] border-[#1a72dd] bg-transparent hover:bg-[#1a72dd] hover:text-white px-3 rounded-xl transition-all duration-200 flex items-center gap-2"
+                className="text-[#1a72dd] border-[#1a72dd] bg-transparent hover:bg-[#1a72dd] hover:text-white px-2 sm:px-3 rounded-xl transition-all duration-200 flex items-center gap-1 sm:gap-2"
               aria-label={`Switch to ${viewMode === "grid" ? "list" : "grid"} view`}
             >
-              {viewMode === "grid" ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
-              {viewMode === "grid" ? "List" : "Grid"}
+              {viewMode === "grid" ? (
+                <List className="w-3 h-3 sm:w-4 sm:h-4" />
+              ) : (
+                <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4" />
+              )}
+              <span className="hidden sm:inline">{viewMode === "grid" ? "List" : "Grid"}</span>
             </Button>
           )}
         </div>
       </div>
 
       {currentView === "products" && (
-        <div className="flex items-center gap-4">
+         <div className="space-y-3 sm:space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              // onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 sm:pl-12 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 sm:gap-4">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="flex-1 h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+           <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
             <SelectContent className="rounded-xl border-2 border-gray-200 shadow-xl backdrop-blur-md">
@@ -280,11 +310,12 @@ export default function CashierPage() {
           <Button
             variant="outline"
             onClick={() => setCurrentView("manual")}
-            className="text-[#1a72dd] border-[#1a72dd] bg-transparent hover:bg-[#1a72dd] hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-sm"
+           className="text-[#1a72dd] border-[#1a72dd] bg-transparent hover:bg-[#1a72dd] hover:text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-sm text-sm sm:text-base"
           >
-            Manual Input
+            Manual
           </Button>
         </div>
+         </div>
       )}
     </header>
   )
@@ -323,6 +354,16 @@ export default function CashierPage() {
       {currentView === "products" && cart.length > 0 && (
         <CartSummary items={cart} total={totalAmount} onCheckout={handleCheckout} />
       )}
+
+      {showOrderSummary && (
+        <OrderSummary
+          items={cart}
+          total={totalAmount}
+          onClose={() => setShowOrderSummary(false)}
+          onProceedToPayment={handleProceedToPayment}
+        />
+      )}
+
     </div>
   )
 }

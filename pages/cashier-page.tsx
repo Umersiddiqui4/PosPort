@@ -275,7 +275,7 @@ export default function CashierPage() {
               type="text"
               placeholder="Search products..."
               value={searchQuery}
-              // onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 sm:pl-12 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm"
             />
           </div>

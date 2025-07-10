@@ -1,13 +1,15 @@
 "use client"
 
 import { useCallback } from "react"
-import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw } from "lucide-react"
+import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface NavbarProps {
   currentPage: string
   onPageChange: (page: string) => void
+  isMobileOpen: boolean
+  onMobileToggle: () => void
 }
 
 const menuItems = [
@@ -19,24 +21,44 @@ const menuItems = [
   { id: "support", label: "Support", icon: HelpCircle },
 ] as const
 
-export default function Navbar({ currentPage, onPageChange }: NavbarProps) {
-  const isOpen = true
-
+export default function Navbar({ currentPage, onPageChange, isMobileOpen, onMobileToggle }: NavbarProps) {
   const handlePageChange = useCallback(
     (pageId: string) => {
       onPageChange(pageId)
+      // Close mobile sidebar when navigating
+      if (isMobileOpen) {
+        onMobileToggle()
+      }
     },
-    [onPageChange],
+    [onPageChange, isMobileOpen, onMobileToggle],
   )
 
   return (
     <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={onMobileToggle} />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out w-80 overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl`}
+        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl
+          ${isMobileOpen ? "w-80 translate-x-0" : "w-80 -translate-x-full"} md:translate-x-0 md:w-80 lg:w-80`}
         aria-label="Main navigation"
       >
         <div className="p-6 h-full flex flex-col">
+          {/* Mobile Close Button */}
+          <div className="md:hidden flex justify-end mb-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onMobileToggle}
+              className="text-white hover:bg-white/20 rounded-full"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
           {/* Header */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">

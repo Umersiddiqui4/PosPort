@@ -12,6 +12,9 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		 width: {
+        inherit: 'inherit',
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

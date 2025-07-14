@@ -264,13 +264,12 @@ const CartItemCard = memo(
                   </span>
                   <br />
                   {/* <span className="text-xs text-white bg-gradient-to-r from-[#1a72dd] to-[#1557b8] px-2 py-1 rounded-full font-semibold shadow-sm w-fit">
-                    Total: {item.price * item.quantity} PKR
-                  </span> */}
+                  Total: {item.price * item.quantity} PKR
+                </span> */}
                 </div>
               </div>
             </div>
           </div>
-
         </div>
         <div className="flex items-center justify-center w-full gap-3 ml-3">
           <div className="flex items-center justify-between  w-3/4 gap-2 bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-gray-100">
@@ -347,10 +346,11 @@ export default function ProductGrid({
       <div className="flex gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6">
         {/* Products Section */}
         <section
-          className={`${viewMode === "list"
+          className={`${
+            viewMode === "list"
               ? "flex-1 space-y-3 sm:space-y-4"
               : `flex-1 grid gap-2 sm:gap-3 lg:gap-4 ${getGridColumns()}`
-            }`}
+          }`}
           aria-label="Product catalog"
         >
           {products.map((product) => (
@@ -366,8 +366,9 @@ export default function ProductGrid({
 
         {/* Desktop Cart Sidebar - Only show on large screens when in grid mode */}
         {cartItems.length > 0 && (
-          <aside className="hidden lg:block w-80 xl:w-96 sticky top-4 h-fit" aria-label="Selected items">
-            <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-2xl border border-[#1a72dd]/20 p-4 lg:p-6 relative overflow-hidden">
+          <aside className="hidden lg:block w-80 xl:w-96 top-4 h-[calc(100vh-2rem)]" aria-label="Selected items">
+            <div  className="bg-gradient-to-br  w-inherit
+ from-white h-3/4 to-blue-50 rounded-2xl shadow-2xl border border-[#1a72dd]/20 p-4 lg:p-6 absolute  overflow-hidden flex flex-col">
               <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a72dd]/5 rounded-full -translate-x-12 -translate-y-12 blur-xl opacity-50"></div>
               <div className="absolute bottom-0 right-0 w-20 h-20 bg-[#1557b8]/5 rounded-full translate-x-10 translate-y-10 blur-xl opacity-50"></div>
 
@@ -379,7 +380,7 @@ export default function ProductGrid({
                 <div className="h-1 bg-gradient-to-r from-[#1a72dd] to-[#1557b8] rounded-full w-20 mt-2"></div>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 flex-1 overflow-y-auto">
                 {cartItems.map((item) => (
                   <CartItemCard
                     key={item.id}
@@ -440,7 +441,7 @@ export default function ProductGrid({
                   </button>
                 </div>
 
-                <div className="p-4 max-h-96 overflow-y-auto">
+                <div className="p-4 max-h-80 overflow-y-auto">
                   <div className="space-y-3">
                     {cartItems.map((item) => (
                       <CartItemCard
@@ -459,7 +460,7 @@ export default function ProductGrid({
                     <span className="text-lg font-semibold text-[#2a3256]">Total:</span>
                     <span className="text-xl font-bold text-[#1a72dd]">{totalAmount} PKR</span>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 mb-4">
                     <button
                       onClick={() => setShowMobileCart(false)}
                       className="flex-1 bg-gray-200 text-[#2a3256] py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors"

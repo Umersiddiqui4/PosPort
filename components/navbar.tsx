@@ -10,6 +10,7 @@ interface NavbarProps {
   onPageChange: (page: string) => void
   isMobileOpen: boolean
   onMobileToggle: () => void
+  isCollapsed?: boolean
 }
 
 const menuItems = [
@@ -21,7 +22,13 @@ const menuItems = [
   { id: "support", label: "Support", icon: HelpCircle },
 ] as const
 
-export default function Navbar({ currentPage, onPageChange, isMobileOpen, onMobileToggle }: NavbarProps) {
+export default function Navbar({
+  currentPage,
+  onPageChange,
+  isMobileOpen,
+  onMobileToggle,
+  isCollapsed = false,
+}: NavbarProps) {
   const handlePageChange = useCallback(
     (pageId: string) => {
       onPageChange(pageId)
@@ -43,7 +50,9 @@ export default function Navbar({ currentPage, onPageChange, isMobileOpen, onMobi
       {/* Sidebar */}
       <aside
         className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl
-          ${isMobileOpen ? "w-80 translate-x-0" : "w-80 -translate-x-full"} md:translate-x-0 md:w-80 lg:w-80`}
+          ${isMobileOpen ? "w-80 translate-x-0" : "w-80 -translate-x-full"} 
+          ${isCollapsed ? "md:-translate-x-full lg:-translate-x-full" : "md:w-80 lg:w-80"} 
+          md:translate-x-0`}
         aria-label="Main navigation"
       >
         <div className="p-6 h-full flex flex-col">

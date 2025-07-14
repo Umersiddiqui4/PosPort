@@ -5,12 +5,13 @@ import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu } from "lucide-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import ProductGrid from "../components/product-grid"
 import NumericKeypad from "../components/numeric-keypad"
 import PaymentMethod from "../components/payment-method"
 import SuccessScreen from "../components/success-screen"
 import CartSummary from "../components/cart-summary"
 import OrderSummary from "../components/order-summary"
-import ProductGrid from "@/components/product-grid"
+import React from "react"
 
 interface Product {
   id: number
@@ -30,6 +31,7 @@ interface CartItem {
 
 interface CashierPageProps {
   onMobileToggle?: () => void
+  onSidebarToggle?: (collapsed: boolean) => void
 }
 
 type ViewType = "products" | "manual" | "payment" | "success"
@@ -110,7 +112,8 @@ const initialProducts: Product[] = [
   },
 ];
 
-export default function CashierPage({ onMobileToggle }: CashierPageProps) {
+
+export default function CashierPage({ onMobileToggle, onSidebarToggle }: CashierPageProps) {
   const [currentView, setCurrentView] = useState<ViewType>("products")
   const [selectedCategory, setSelectedCategory] = useState("All Product")
   const [cart, setCart] = useState<CartItem[]>([])
@@ -120,6 +123,15 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showOrderSummary, setShowOrderSummary] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  React.useEffect(() => {
+    onSidebarToggle?.(isSidebarCollapsed)
+  }, [isSidebarCollapsed, onSidebarToggle])
+
+  const handleSidebarToggle = useCallback(() => {
+    setIsSidebarCollapsed((prev) => !prev)
+  }, [])
 
   // Memoized filtered products
   const filteredProducts = useMemo(() => {
@@ -226,6 +238,17 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
     <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
+          {/* Desktop Hamburger Menu */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSidebarToggle}
+            className="hidden md:flex text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+
           {/* Mobile Hamburger Menu */}
           {onMobileToggle && (
             <Button
@@ -365,6 +388,7 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
             onRemoveFromCart={handleRemoveFromCart}
             onProceedToPayment={handleProceedToPayment}
             viewMode={viewMode}
+            isSidebarCollapsed={isSidebarCollapsed}
           />
         )}
 
@@ -381,18 +405,8 @@ export default function CashierPage({ onMobileToggle }: CashierPageProps) {
         )}
       </main>
 
-      {currentView === "products" && cart.length > 0 && viewMode === "list" && (
-        <CartSummary items={cart} total={totalAmount} onCheckout={handleCheckout} />
-      )}
 
-      {showOrderSummary && (
-        <OrderSummary
-          items={cart}
-          total={totalAmount}
-          onClose={() => setShowOrderSummary(false)}
-          onProceedToPayment={handleProceedToPayment}
-        />
-      )}
+
     </div>
   )
 }

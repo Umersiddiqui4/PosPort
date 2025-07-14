@@ -40,6 +40,7 @@ function PageSkeleton() {
 export default function App() {
   const [currentPage, setCurrentPage] = useState("cashier")
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const handlePageChange = useCallback((page: string) => {
     setCurrentPage(page)
@@ -49,22 +50,26 @@ export default function App() {
     setIsMobileSidebarOpen((prev) => !prev)
   }, [])
 
+  const handleSidebarToggle = useCallback((collapsed: boolean) => {
+    setIsSidebarCollapsed(collapsed)
+  }, [])
+
   const renderPage = () => {
     switch (currentPage) {
       case "cashier":
-        return <CashierPage onMobileToggle={handleMobileToggle} />
+        return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "history":
-        return <HistoryPage onMobileToggle={handleMobileToggle} />
+        return <HistoryPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "report":
-        return <ReportPage onMobileToggle={handleMobileToggle} />
+        return <ReportPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "manage-store":
-        return <ManageStorePage onMobileToggle={handleMobileToggle} />
+        return <ManageStorePage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "account":
-        return <AccountPage onMobileToggle={handleMobileToggle} />
+        return <AccountPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "support":
-        return <SupportPage onMobileToggle={handleMobileToggle} />
+        return <SupportPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       default:
-        return <CashierPage onMobileToggle={handleMobileToggle} />
+        return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }
   }
 
@@ -75,10 +80,15 @@ export default function App() {
         onPageChange={handlePageChange}
         isMobileOpen={isMobileSidebarOpen}
         onMobileToggle={handleMobileToggle}
+        isCollapsed={isSidebarCollapsed}
       />
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ease-in-out md:ml-80 lg:ml-80 overflow-hidden`} role="main">
+      <main
+        className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden ${isSidebarCollapsed ? "md:ml-0 lg:ml-0" : "md:ml-80 lg:ml-80"
+          }`}
+        role="main"
+      >
         <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>
       </main>
     </div>

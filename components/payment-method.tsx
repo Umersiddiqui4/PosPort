@@ -42,9 +42,9 @@ export default function PaymentMethod({ totalAmount, onPaymentSelect, onExactAmo
             <span className="text-xl font-semibold">Card Payment</span>
           </div>
           <div className="flex gap-2">
-            <div className="w-10 h-6 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+            {/* <div className="w-10 h-6 hidden bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
               JCB
-            </div>
+            </div> */}
             <div className="w-10 h-6 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">
               MC
             </div>

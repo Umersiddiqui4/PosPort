@@ -36,3 +36,5 @@ export default function CartSummary({ items, total, onCheckout }: CartSummaryPro
     </div>
   )
 }
+
+

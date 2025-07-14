@@ -14,10 +14,10 @@ export default function SuccessScreen({ onPrintReceipt, onNextOrder }: SuccessSc
       <div className="bg-white rounded-full p-8 mb-8 shadow-2xl">
         <CheckCircle className="w-20 h-20 text-[#1a72dd]" />
       </div>
-
-      <h1 className="text-3xl font-bold mb-3">Successful Transaction!</h1>
-      <p className="text-center mb-10 opacity-90 text-lg">NOTE: Do not forget to give order to customer</p>
-
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold mb-3">Successful Transaction!</h1>
+        <p className="text-center mb-10 opacity-90 text-lg">NOTE: Do not forget to give order to customer</p>
+      </div>
       <div className="w-full max-w-sm space-y-6">
         <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/30">
           <p className="font-semibold text-lg mb-2">Method Payment: Cash</p>

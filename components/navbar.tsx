@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback } from "react"
-import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X } from "lucide-react"
+import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X, Icon, PiIcon, ArrowUpRightFromCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -31,6 +31,10 @@ export default function Navbar({
 }: NavbarProps) {
   const handlePageChange = useCallback(
     (pageId: string) => {
+      if (pageId === "auth") {
+        window.location.href = "/auth"
+        return
+      }
       onPageChange(pageId)
       // Close mobile sidebar when navigating
       if (isMobileOpen) {
@@ -117,6 +121,15 @@ export default function Navbar({
                 </Button>
               )
             })}
+            
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-4 p-3 h-auto rounded-xl transition-all duration-200"
+              onClick={() => handlePageChange("auth")}
+            >
+              <ArrowUpRightFromCircle className="w-6 h-6 flex-shrink-0" />
+              <span className="text-lg font-medium">Auth</span>
+            </Button>
           </nav>
 
           {/* Last Login Section */}

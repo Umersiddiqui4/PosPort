@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useCallback, useMemo, useTransition } from "react"
-import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu } from "lucide-react"
+import { useState, useCallback, useMemo, useTransition, useEffect } from "react"
+import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu, Sidebar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -132,6 +132,14 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
   const handleSidebarToggle = useCallback(() => {
     setIsSidebarCollapsed((prev) => !prev)
   }, [])
+  console.log(isSidebarCollapsed, "isSidebarCollapsed");
+  
+  useEffect(() => {
+
+    if(cart.length > 0) {
+      setIsSidebarCollapsed(true)}
+
+    }, [cart.length])
 
   // Memoized filtered products
   const filteredProducts = useMemo(() => {
@@ -147,6 +155,8 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
     return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }, [cart])
 
+  console.log("Cart Items:", cart);
+  
   const handleQuantityChange = useCallback((productId: number, quantity: number) => {
     startTransition(() => {
       setProductList((prev) => prev.map((product) => (product.id === productId ? { ...product, quantity } : product)))
@@ -235,7 +245,7 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
   }, [])
 
   const renderHeader = () => (
-    <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
+    <header className={`bg-white/95 backdrop-blur-md ${cart.length > 0 ? "w-3/4" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}>
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
           {/* Desktop Hamburger Menu */}
@@ -318,7 +328,7 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
       </div>
 
       {currentView === "products" && (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-3  sm:space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <Input

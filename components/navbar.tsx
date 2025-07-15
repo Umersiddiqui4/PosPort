@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback } from "react"
-import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X, Icon, PiIcon, ArrowUpRightFromCircle } from "lucide-react"
+import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X, Package, Users, ArrowUpRightFromCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -17,7 +17,9 @@ const menuItems = [
   { id: "cashier", label: "Cashier", icon: Calculator },
   { id: "history", label: "History Transaction", icon: History },
   { id: "report", label: "Report", icon: FileText },
-  { id: "manage-store", label: "Manage Store", icon: Store },
+  // { id: "manage-store", label: "Manage Store", icon: Store },
+  { id: "product-list", label: "Manage Store", icon: Package },
+  { id: "customer", label: "Customers", icon: Users },
   { id: "account", label: "Account", icon: User },
   { id: "support", label: "Support", icon: HelpCircle },
 ] as const
@@ -31,7 +33,7 @@ export default function Navbar({
 }: NavbarProps) {
   const handlePageChange = useCallback(
     (pageId: string) => {
-      if (pageId === "auth") {
+        if (pageId === "auth") {
         window.location.href = "/auth"
         return
       }
@@ -121,8 +123,7 @@ export default function Navbar({
                 </Button>
               )
             })}
-            
-            <Button
+                        <Button
               variant="ghost"
               className="w-full justify-start gap-4 p-3 h-auto rounded-xl transition-all duration-200"
               onClick={() => handlePageChange("auth")}

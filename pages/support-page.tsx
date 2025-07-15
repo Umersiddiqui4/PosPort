@@ -2,14 +2,12 @@
 
 import { MessageCircle, Phone, Mail, FileText, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import React, { useCallback, useState } from "react"
 
 interface SupportPageProps {
   onMobileToggle?: () => void
-  onSidebarToggle?: (collapsed: boolean) => void
 }
 
-export default function SupportPage({ onMobileToggle, onSidebarToggle }: SupportPageProps) {
+export default function SupportPage({ onMobileToggle }: SupportPageProps) {
   const supportOptions = [
     { icon: MessageCircle, title: "Live Chat", description: "Chat with our support team", action: "Start Chat" },
     { icon: Phone, title: "Phone Support", description: "Call us at +1 (555) 123-4567", action: "Call Now" },
@@ -17,46 +15,23 @@ export default function SupportPage({ onMobileToggle, onSidebarToggle }: Support
     { icon: FileText, title: "Help Center", description: "Browse our knowledge base", action: "View Articles" },
   ]
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-
-  React.useEffect(() => {
-    onSidebarToggle?.(isSidebarCollapsed)
-  }, [isSidebarCollapsed, onSidebarToggle])
-
-  const handleSidebarToggle = useCallback(() => {
-    setIsSidebarCollapsed((prev) => !prev)
-  }, [])
-
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
       {/* Mobile Header */}
       <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Desktop Hamburger Menu */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSidebarToggle}
-              className="hidden md:flex text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-
-            {/* Mobile Hamburger Menu */}
             {onMobileToggle && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onMobileToggle}
-                className="md:hidden text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-                aria-label="Open menu"
+                className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
+                aria-label="Toggle menu"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             )}
-
           </div>
           <h1 className="text-lg font-bold text-[#1a72dd] flex-1 text-center">Support & Help</h1>
           <div className="w-10"></div>

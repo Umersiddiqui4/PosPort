@@ -125,6 +125,21 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
   const [isPending, startTransition] = useTransition()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
+  const [isMobile, setIsMobile] = useState(false);
+
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 1024);
+  };
+
+  handleResize(); // run on mount
+  window.addEventListener("resize", handleResize);
+
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+  console.log(isMobile, "isMobile");
+
   React.useEffect(() => {
     onSidebarToggle?.(isSidebarCollapsed)
   }, [isSidebarCollapsed, onSidebarToggle])
@@ -245,7 +260,7 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
   }, [])
 
   const renderHeader = () => (
-    <header className={`bg-white/95 backdrop-blur-md ${cart.length > 0 ? "w-3/4" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}>
+    <header className={`bg-white/95 backdrop-blur-md ${cart.length > 0 && !isMobile ? "w-3/4" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}>
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
           {/* Desktop Hamburger Menu */}

@@ -2,7 +2,7 @@
 
 import { Plus, Minus, ShoppingCart, X, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Product {
@@ -324,7 +324,22 @@ export default function ProductGrid({
   const [showMobileCart, setShowMobileCart] = useState(false)
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  
+ const [isMobile, setIsMobile] = useState(false);
 
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 1024);
+  };
+
+  handleResize(); // run on mount
+  window.addEventListener("resize", handleResize);
+
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+  console.log(isMobile, "isMobile"); 
+  
   const getGridColumns = () => {
     if (viewMode === "list") return ""
 
@@ -342,9 +357,11 @@ export default function ProductGrid({
     }
   }
 
+  
+
   return (
     <div className="pb-20 sm:pb-24 lg:pb-6">
-      <div className={`flex ${cartItems.length > 0 ? "w-3/4" : ""} gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6`}>
+      <div className={`flex ${cartItems.length > 0 && !isMobile ? "w-3/4" : ""} gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6`}>
         {/* Products Section */}
         <section
           className={`${viewMode === "list"

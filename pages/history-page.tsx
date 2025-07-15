@@ -1,30 +1,19 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
-import React, { useCallback, useState } from "react"
+import { Button } from "@/components/ui/button"
 
-interface CashierPageProps {
+interface HistoryPageProps {
   onMobileToggle?: () => void
-  onSidebarToggle?: (isCollapsed: boolean) => void
 }
 
-export default function HistoryPage({ onMobileToggle, onSidebarToggle }: CashierPageProps) {
+export default function HistoryPage({ onMobileToggle }: HistoryPageProps) {
   const transactions = [
     { id: 1, date: "2023-11-23", time: "14:30", amount: 89.0, items: 3, status: "Completed" },
     { id: 2, date: "2023-11-23", time: "13:15", amount: 45.5, items: 2, status: "Completed" },
     { id: 3, date: "2023-11-23", time: "12:00", amount: 67.25, items: 4, status: "Completed" },
     { id: 4, date: "2023-11-22", time: "18:45", amount: 123.75, items: 5, status: "Completed" },
   ]
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-
-  React.useEffect(() => {
-    onSidebarToggle?.(isSidebarCollapsed)
-  }, [isSidebarCollapsed, onSidebarToggle])
-
-  const handleSidebarToggle = useCallback(() => {
-    setIsSidebarCollapsed((prev) => !prev)
-  }, [])
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
@@ -32,30 +21,17 @@ export default function HistoryPage({ onMobileToggle, onSidebarToggle }: Cashier
       <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Desktop Hamburger Menu */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSidebarToggle}
-              className="hidden md:flex text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-              aria-label="Toggle sidebar"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-
-            {/* Mobile Hamburger Menu */}
             {onMobileToggle && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onMobileToggle}
-                className="md:hidden text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-                aria-label="Open menu"
+                className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
+                aria-label="Toggle menu"
               >
                 <Menu className="w-5 h-5" />
               </Button>
             )}
-
           </div>
           <h1 className="text-lg font-bold text-[#1a72dd] flex-1 text-center">Transaction History</h1>
           <div className="w-10"></div>

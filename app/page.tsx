@@ -23,6 +23,12 @@ const AccountPage = dynamic(() => import("../pages/account-page"), {
 const SupportPage = dynamic(() => import("../pages/support-page"), {
   loading: () => <PageSkeleton />,
 })
+const ProductListPage = dynamic(() => import("../pages/product-list-page"), {
+  loading: () => <PageSkeleton />,
+})
+const CustomerPage = dynamic(() => import("../pages/customer-page"), {
+  loading: () => <PageSkeleton />,
+})
 
 function PageSkeleton() {
   return (
@@ -59,15 +65,19 @@ export default function App() {
       case "cashier":
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
       case "history":
-        return <HistoryPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        return <HistoryPage onMobileToggle={handleMobileToggle} />
       case "report":
-        return <ReportPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
-      case "manage-store":
-        return <ManageStorePage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        return <ReportPage onMobileToggle={handleMobileToggle} />
+      // case "manage-store":
+      //   return <ManageStorePage onMobileToggle={handleMobileToggle} />
       case "account":
-        return <AccountPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        return <AccountPage onMobileToggle={handleMobileToggle} />
       case "support":
-        return <SupportPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        return <SupportPage onMobileToggle={handleMobileToggle} />
+      case "product-list":
+        return <ProductListPage onMobileToggle={handleMobileToggle} />
+      case "customer":
+        return <CustomerPage onMobileToggle={handleMobileToggle} />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }
@@ -85,8 +95,9 @@ export default function App() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden ${isSidebarCollapsed ? "md:ml-0 lg:ml-0" : "md:ml-80 lg:ml-80"
-          }`}
+        className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden ${
+          isSidebarCollapsed ? "md:ml-0 lg:ml-0" : "md:ml-80 lg:ml-80"
+        }`}
         role="main"
       >
         <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>

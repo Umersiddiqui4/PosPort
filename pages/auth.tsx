@@ -12,10 +12,24 @@ import mobile from '@/public/mobile.png'
 import login from '@/public/login.png'
 
 import Image from "next/image"
+import { useLogin } from "@/hooks/useLogin"
 export default function AuthScreens() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("hello")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loginEmail, setLoginEmail] = useState("")
+  const [loginPassword, setLoginPassword] = useState("")
+  const { mutate, isPending, isError, error } = useLogin();
+
+
+
+
+  const loginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // ✅ Call mutate with user credentials
+    // mutate({ email:loginEmail, password:loginPassword });
+  };
 
   const HelloScreen = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
@@ -155,7 +169,7 @@ export default function AuthScreens() {
         </CardHeader>
 
         <CardContent className="p-8 pt-4">
-          <form className="space-y-4">
+          <form onSubmit={loginSubmit} className="space-y-4">
             <div>
               <Label htmlFor="owner-email" className="text-gray-700 font-medium">
                 Email
@@ -163,7 +177,9 @@ export default function AuthScreens() {
               <Input
                 id="owner-email"
                 type="email"
+                value={loginEmail}
                 placeholder="Enter owner email"
+                onChange={(e) => setLoginEmail(e.target.value)}
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
@@ -175,8 +191,10 @@ export default function AuthScreens() {
               <div className="relative mt-1">
                 <Input
                   id="owner-password"
+                  value={loginPassword}
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter owner password"
+                  onChange={(e) => setLoginPassword(e.target.value)}
                   className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                 />
 
@@ -259,7 +277,7 @@ export default function AuthScreens() {
               </div>
             </div>
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-6">
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-6">
               Login
             </Button>
           </form>

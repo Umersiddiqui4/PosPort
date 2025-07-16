@@ -28,7 +28,7 @@ export default function AuthScreens() {
     e.preventDefault();
 
     // ✅ Call mutate with user credentials
-    // mutate({ email:loginEmail, password:loginPassword });
+    mutate({ email:loginEmail, password:loginPassword });
   };
 
   const HelloScreen = () => (

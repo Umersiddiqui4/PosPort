@@ -7,7 +7,7 @@ export const useLogin = () => {
     mutationFn: loginUser,
     onSuccess: (data) => {
       // ✅ Token ko localStorage ya cookies mein save karo
-      // localStorage.setItem("token", data?.accessToken); // adjust key based on API
+      localStorage.setItem("token", data?.accessToken); // adjust key based on API
     },
     onError: (error) => {
       console.error("Login failed:", error);

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, useTransition, useEffect } from "react"
-import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu, Sidebar } from "lucide-react"
+import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu, Sidebar, X, Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -260,7 +260,9 @@ useEffect(() => {
   }, [])
 
   const renderHeader = () => (
-    <header className={`bg-white/95 backdrop-blur-md ${cart.length > 0 && !isMobile ? "w-3/4" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}>
+    <header
+      className={`bg-white/95 backdrop-blur-md ${cart.length > 0 && !isMobile ? "w-3/" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}
+    >
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
           {/* Desktop Hamburger Menu */}
@@ -400,7 +402,11 @@ useEffect(() => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
+   <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
+      {/* Main Content Area */}
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 ${cart.length > 0 && !isMobile ? "mr-80" : ""}`}
+      >
       {renderHeader()}
 
       <main className="flex-1 overflow-auto">
@@ -429,6 +435,95 @@ useEffect(() => {
           />
         )}
       </main>
+      </div>
+
+      {/* Desktop Selected Items Sidebar */}
+      {cart.length > 0 && !isMobile && (
+        <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg flex flex-col z-40">
+          {/* Header */}
+          <div className="p-4 border-b border-gray-200 bg-white">
+            <div className="flex items-center gap-2 text-[#1a72dd] font-semibold">
+              <ShoppingCart className="w-5 h-5" />
+              <span>Selected Items ({cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
+            </div>
+          </div>
+
+          {/* Selected Items List */}
+          <div className="flex-1 overflow-auto p-4">
+            <div className="space-y-4">
+              {cart.map((item) => (
+                <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 bg-[#1a72dd] rounded-full flex items-center justify-center flex-shrink-0">
+                      <ShoppingCart className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-800 truncate">{item.name}</h4>
+                      <p className="text-sm text-gray-600">{item.price} PKR each</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleQuantityChange(item.id, Math.max(1, item.quantity - 1))}
+                        className="w-8 h-8 p-0 rounded-full border-gray-300 hover:border-[#1a72dd] hover:text-[#1a72dd]"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <span className="font-bold text-lg min-w-[30px] text-center">{item.quantity}</span>
+                      <Button
+                        size="sm"
+                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                        className="w-8 h-8 p-0 rounded-full bg-[#1a72dd] hover:bg-[#1557b8] text-white"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-[#1a72dd]">{item.price * item.quantity} PKR</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="w-8 h-8 p-0 rounded-full border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Total Section */}
+          <div className="p-4 border-t border-gray-200 bg-[#1a72dd] text-white">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-semibold">Total:</span>
+              <span className="text-xl font-bold">{totalAmount} PKR</span>
+            </div>
+            <Button
+              onClick={handleProceedToPayment}
+              className="w-full bg-white text-[#1a72dd] hover:bg-gray-100 font-semibold py-2"
+            >
+              Proceed to Payment
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Order Summary Modal */}
+      {showOrderSummary && (
+        <OrderSummary
+          items={cart}
+          total={totalAmount}
+          onClose={() => setShowOrderSummary(false)}
+          onProceedToPayment={handleProceedToPayment}
+        />
+      )}
 
 
 

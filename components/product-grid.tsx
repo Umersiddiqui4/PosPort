@@ -361,7 +361,7 @@ useEffect(() => {
 
   return (
     <div className="pb-20 sm:pb-24 lg:pb-6">
-      <div className={`flex ${cartItems.length > 0 && !isMobile ? "w-3/4" : ""} gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6`}>
+      <div className={`flex  gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6`}>
         {/* Products Section */}
         <section
           className={`${viewMode === "list"
@@ -384,11 +384,11 @@ useEffect(() => {
         {/* Desktop Cart Sidebar - Only show on large screens when in grid mode */}
         <AnimatePresence>
 
-        {cartItems.length > 0 && (
+        {/* {cartItems.length > 0 && (
           <aside className={`hidden lg:block w-80 xl:w-96 top-0 h-screen transition-transform duration-2000 ease-in-out   ${isSidebarCollapsed ? "absolute top-0 right-10" : "right-0" }  absolute " aria-label="Selected items`}>
             <motion.div animate={{ x: 0, opacity: 1 }}
       exit={{ x: 300, opacity: 0 }}
-      transition={{ duration: 1 }} className={`bg-gradient-to-br transition-transform duration-500 ease-in-out   ${isSidebarCollapsed ? "w-inherit" : "w-80 right-4"}
+      transition={{ duration: 1 }} className={`bg-gradient-to-br transition-transform duration-500 ease-in-out right-0 ${isSidebarCollapsed ? "w-inherit" : "w-80 right-4"}
                from-white m-3  to-blue-50 rounded-2xl shadow-2xl border border-[#1a72dd]/20 p-4 lg:p-6 absolute overflow-hidden flex flex-col`} style={{ height: "calc(100vh - 2rem)" }}>
               <div className="absolute top-0 left-0 w-24 h-24 bg-[#1a72dd]/5 rounded-full -translate-x-12 -translate-y-12 blur-xl opacity-50"></div>
               <div className="absolute bottom-0 right-0 w-20 h-20 bg-[#1557b8]/5 rounded-full translate-x-10 translate-y-10 blur-xl opacity-50"></div>
@@ -425,7 +425,7 @@ useEffect(() => {
               </div>
             </motion.div>
           </aside>
-        )}
+        )} */}
         </AnimatePresence>
       </div>
 

@@ -9,33 +9,56 @@ import '@/styles/globals.css'
 
 export default function signup() {
 
-    const [showPassword, setShowPassword] = useState(false)
-     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-        function screenChange(screen: string) {
-        window.location.href = `/${screen}`;
-    }
+  function screenChange(screen: string) {
+    window.location.href = `/${screen}`;
+  }
 
   return (
-   <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md mx-auto shadow-xl border-0">
-         <CardHeader className="text-center pb-4 relative">
-              <button
-                onClick={() => screenChange("helloScreen")}
-                className="absolute left-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </button>
+        <CardHeader className="text-center pb-4 relative">
+          <button
+            onClick={() => screenChange("helloScreen")}
+            className="absolute left-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
+          </button>
           <div className="text-2xl font-bold text-blue-600 mb-4">
-          <h2 className=" font-extrabold ">Sign Up</h2>
+            <h2 className=" font-extrabold ">Sign Up</h2>
           </div>
         </CardHeader>
 
         <CardContent className="p-8 pt-4">
-       
+
 
           <form className="space-y-4">
-           
+
+            <div>
+              <Label htmlFor="signup-firstName" className="text-gray-700 font-medium">
+                First Name
+              </Label>
+              <Input
+                id="signup-firstName"
+                type="text"
+                placeholder="Enter your first name"
+                className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="signup-lastName" className="text-gray-700 font-medium">
+                Last Name
+              </Label>
+              <Input
+                id="signup-lastName"
+                type="text"
+                placeholder="Enter your last name"
+                className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
 
             <div>
               <Label htmlFor="signup-email" className="text-gray-700 font-medium">
@@ -56,7 +79,7 @@ export default function signup() {
               <div className="relative mt-1">
                 <Input
                   id="phone"
-                  type="phone"
+                  type="tel"
                   placeholder="Phone Number"
                   className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                 />
@@ -65,14 +88,14 @@ export default function signup() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                 
+
                 </button>
               </div>
             </div>
 
             <div>
               <Label htmlFor="confirm-password" className="text-gray-700 font-medium">
-                 Password
+                Password
               </Label>
               <div className="relative mt-1">
                 <Input
@@ -96,7 +119,7 @@ export default function signup() {
             </Button>
           </form>
 
-    
+
         </CardContent>
       </Card>
     </div>

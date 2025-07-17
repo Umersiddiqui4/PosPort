@@ -1,13 +1,26 @@
+'use client';
+
 import { loginUser } from "@/lib/Api/auth/loginUser";
 import { useMutation } from "@tanstack/react-query";
+import { useSelector, useDispatch } from 'react-redux';
+import { login, logout } from '@/lib/slices/authSlice';
+import { RootState } from '@/lib/store';
 
 
-export const useLogin = () => {
+export const useLogin = () => {  
+    const dispatch = useDispatch();
+    const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      // ✅ Token ko localStorage ya cookies mein save karo
-      localStorage.setItem("token", data?.accessToken); // adjust key based on API
+
+      localStorage.setItem("token", data?.data.tokens.access.token); 
+      dispatch(login());
+      console.log("Login successful:", data);
+      window.location.href = "/";
+
+      
     },
     onError: (error) => {
       console.error("Login failed:", error);

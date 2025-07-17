@@ -5,6 +5,7 @@ import { Calculator, History, FileText, Store, User, HelpCircle, RotateCcw, X, P
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+
 interface NavbarProps {
   currentPage: string
   onPageChange: (page: string) => void
@@ -34,7 +35,7 @@ export default function Navbar({
   const handlePageChange = useCallback(
     (pageId: string) => {
         if (pageId === "auth") {
-        window.location.href = "/auth"
+        window.location.href = "/helloScreen"
         return
       }
       onPageChange(pageId)

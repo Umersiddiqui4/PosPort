@@ -8,10 +8,6 @@ import Navbar from "../components/navbar"
 const CashierPage = dynamic(() => import("../pages/cashier-page"), {
   loading: () => <PageSkeleton />,
 })
-const LoginEmployeePage = dynamic(() => import("../pages/login-employee"), {
-  loading: () => <PageSkeleton />,
-})
-
 const HistoryPage = dynamic(() => import("../pages/history-page"), {
   loading: () => <PageSkeleton />,
 })
@@ -31,6 +27,9 @@ const ProductListPage = dynamic(() => import("../pages/product-list-page"), {
   loading: () => <PageSkeleton />,
 })
 const CustomerPage = dynamic(() => import("../pages/customer-page"), {
+  loading: () => <PageSkeleton />,
+})
+const CompaniesPage = dynamic(() => import("../pages/companies-page"), {
   loading: () => <PageSkeleton />,
 })
 
@@ -68,12 +67,12 @@ export default function App() {
     switch (currentPage) {
       case "cashier":
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
-      case "login-employee":
-        return <LoginEmployeePage />
       case "history":
         return <HistoryPage onMobileToggle={handleMobileToggle} />
       case "report":
         return <ReportPage onMobileToggle={handleMobileToggle} />
+      case "manage-store":
+        return <ManageStorePage onMobileToggle={handleMobileToggle} />
       case "account":
         return <AccountPage onMobileToggle={handleMobileToggle} />
       case "support":
@@ -82,6 +81,8 @@ export default function App() {
         return <ProductListPage onMobileToggle={handleMobileToggle} />
       case "customer":
         return <CustomerPage onMobileToggle={handleMobileToggle} />
+           case "companies":
+        return <CompaniesPage onMobileToggle={handleMobileToggle} />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }
@@ -99,8 +100,9 @@ export default function App() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden ${isSidebarCollapsed ? "md:ml-0 lg:ml-0" : "md:ml-80 lg:ml-80"
-          }`}
+        className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden ${
+          isSidebarCollapsed ? "md:ml-0 lg:ml-0" : "md:ml-80 lg:ml-80"
+        }`}
         role="main"
       >
         <Suspense fallback={<PageSkeleton />}>{renderPage()}</Suspense>

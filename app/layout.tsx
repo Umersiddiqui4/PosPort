@@ -5,8 +5,8 @@ import Providers from "./Providers";
 // 👈 path sahi hona chahiye
 
 export const metadata = {
-  title: "Your App",
-  description: "With React Query",
+  title: "PosPort",
+  description: "Created by Umer Siddiqui",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

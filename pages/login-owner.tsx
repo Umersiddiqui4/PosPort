@@ -7,18 +7,23 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 import '@/styles/globals.css'
 import { useLogin } from "@/hooks/useLogin"
-
+import { useAuthStore } from "@/lib/store"
 
 export default function LoginOwnerPage() {
-
+    const login = useAuthStore((state) => state.login);
+    const { mutate, data, isSuccess } = useLogin()
     const [showPassword, setShowPassword] = useState(false)
     const [form, setForm] = useState({
         email: '',
         password: '',
     });
-    const {mutate} = useLogin()
-            // Debugging line;
-            
+
+    if (isSuccess) {
+        login();
+        console.log("Login successful:", data);
+        window.location.href = "/";
+    }
+    console.log("LoginOwnerPage data:", data, "isSuccess:", isSuccess);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
         const { name, value } = e.target;
@@ -31,7 +36,7 @@ export default function LoginOwnerPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         console.log('Form Submitted:', form);
-        mutate({ email:form.email, password:form.password });
+        mutate({ email: form.email, password: form.password });
     };
 
     function screenChange(screen: string) {

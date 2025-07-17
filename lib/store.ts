@@ -1,12 +1,22 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice'; // example
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
-export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-  },
-});
+interface AuthState {
+  isLoggedIn: boolean;
+  login: () => void;
+  logout: () => void;
+}
 
-// For Typescript
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      isLoggedIn: false,
+      login: () => set({ isLoggedIn: true }),
+      logout: () => set({ isLoggedIn: false }),
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage), // ✅ proper way now
+    }
+  )
+);

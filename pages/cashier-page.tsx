@@ -12,6 +12,7 @@ import SuccessScreen from "../components/success-screen"
 import CartSummary from "../components/cart-summary"
 import OrderSummary from "../components/order-summary"
 import React from "react"
+import { useAuthStore } from "@/lib/store"
 
 interface Product {
   id: number
@@ -124,7 +125,9 @@ export default function CashierPage({ onMobileToggle, onSidebarToggle }: Cashier
   const [showOrderSummary, setShowOrderSummary] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
+console.log('LoginEmployeePage Rendered', isLoggedIn);
   const [isMobile, setIsMobile] = useState(false);
 
 

@@ -8,19 +8,16 @@ import { RootState } from '@/lib/store';
 
 
 export const useLogin = () => {  
-    const dispatch = useDispatch();
-    const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+    // const dispatch = useDispatch();
+    // const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
 
   return useMutation({
     mutationFn: loginUser,
-    onSuccess: (data) => {
-
-      localStorage.setItem("token", data?.data.tokens.access.token); 
-      dispatch(login());
+     onSuccess: (data, variables, context) => {
+       localStorage.setItem("token", data?.data.tokens.access.token); 
+      // dispatch(login());
       console.log("Login successful:", data);
-      window.location.href = "/";
-
-      
+      // window.location.href = "/";
     },
     onError: (error) => {
       console.error("Login failed:", error);

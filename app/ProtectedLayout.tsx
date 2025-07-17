@@ -12,11 +12,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
     if (!isHydrated) return null;
 
-    const publicPaths = ["/login", "/signup"];
+    const publicPaths = ["/helloScreen","/login", "/signup"];
     const isPublicPage = publicPaths.includes(pathname ?? "");
 
     if (!isLoggedIn && !isPublicPage) {
-        if (typeof window !== 'undefined') window.location.href = "/login";
+        if (typeof window !== 'undefined') window.location.href = "/helloScreen";
         return null;
     }
 

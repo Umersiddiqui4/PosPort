@@ -13,6 +13,7 @@ import {
   Package,
   Users,
   Building2,
+  Shield,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -33,6 +34,7 @@ const menuItems = [
   { id: "product-list", label: "Product List", icon: Package },
   { id: "customer", label: "Customers", icon: Users },
   { id: "companies", label: "Companies", icon: Building2 },
+  { id: "roles", label: "Roles", icon: Shield },
   { id: "account", label: "Account", icon: User },
   { id: "support", label: "Support", icon: HelpCircle },
 ] as const

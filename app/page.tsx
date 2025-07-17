@@ -32,6 +32,9 @@ const CustomerPage = dynamic(() => import("../pages/customer-page"), {
 const CompaniesPage = dynamic(() => import("../pages/companies-page"), {
   loading: () => <PageSkeleton />,
 })
+const RolesPage = dynamic(() => import("../pages/roles-page"), {
+  loading: () => <PageSkeleton />,
+})
 
 function PageSkeleton() {
   return (
@@ -81,8 +84,10 @@ export default function App() {
         return <ProductListPage onMobileToggle={handleMobileToggle} />
       case "customer":
         return <CustomerPage onMobileToggle={handleMobileToggle} />
-           case "companies":
+      case "companies":
         return <CompaniesPage onMobileToggle={handleMobileToggle} />
+      case "roles":
+        return <RolesPage onMobileToggle={handleMobileToggle} />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }

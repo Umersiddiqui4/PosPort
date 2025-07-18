@@ -353,7 +353,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
       <div className="p-4 h-full overflow-auto ">
         <div className="grid grid-cols-1 md:grid-cols-2 mb-60 lg:grid-cols-3 gap-6 ">
           {error && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 h-full w-full flex flex-col items-center justify-center">
             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
             <p className="text-gray-500">Try adjusting your search or filter criteria.</p>

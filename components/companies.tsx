@@ -191,9 +191,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
   }
 
 
-  if (error) {
-    return <div className="p-6 text-center text-red-500">Error loading companies: {error.message}</div>
-  }
+ 
   return (
     <div className="h-screen overflow-hidden bg-gray-50">
       {/* Header */}
@@ -350,11 +348,18 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
         </div>
       </div>
 
+
       {/* Companies Grid */}
       <div className="p-4 h-full overflow-auto ">
         <div className="grid grid-cols-1 md:grid-cols-2 mb-60 lg:grid-cols-3 gap-6 ">
+          {error && (
+          <div className="text-center py-12">
+            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
+            <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+          </div>
+        )}
           {isLoading ? (
-            // Skeleton loading state when isLoading (ispending) is true
             [...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse hover:shadow-lg transition-shadow duration-200">
                 <CardHeader className="pb-3">
@@ -455,13 +460,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
           )}
         </div>
 
-        {filteredCompanies.length === 0 && (
-          <div className="text-center py-12">
-            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
-          </div>
-        )}
+        
       </div>
     </div>
   )

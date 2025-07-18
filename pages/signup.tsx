@@ -5,6 +5,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import '@/styles/globals.css'
+import { useAuthStore } from "@/lib/store"
+import { useLogin } from "@/hooks/useLogin"
+import { signupUser } from "@/lib/Api/auth/signUpUser"
+import { useSignup } from "@/hooks/useSignUp"
 
 
 export default function signup() {
@@ -15,6 +19,44 @@ export default function signup() {
   function screenChange(screen: string) {
     window.location.href = `/${screen}`;
   }
+
+  const login = useAuthStore((state) => state.login);
+  const { mutate: signup, isPending, isSuccess, isError, error } = useSignup();
+
+    if (isSuccess) {
+      login(); // Update the global state to reflect login status
+      // console.log("SignUp successful:", data);
+      window.location.href = "/";
+    }
+  
+    const [form, setForm] = useState({
+      email: '',
+      password: '',
+      phone: '',
+      firstName: '',
+      lastName: '',
+    });
+    console.log('Form State:', form);
+  
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+      const { name, value } = e.target;
+      setForm((prev: any) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        signup({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      phone: form.phone,
+      email: form.email,
+      password: form.password,
+    });
+      };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
@@ -34,26 +76,32 @@ export default function signup() {
         <CardContent className="p-8 pt-4">
 
 
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             <div>
-              <Label htmlFor="signup-firstName" className="text-gray-700 font-medium">
+              <Label htmlFor="firstName" className="text-gray-700 font-medium">
                 First Name
               </Label>
               <Input
-                id="signup-firstName"
+               id="firstName"
+                name='firstName'
                 type="text"
+                value={form.firstName}
+                onChange={handleChange}
                 placeholder="Enter your first name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <Label htmlFor="signup-lastName" className="text-gray-700 font-medium">
+              <Label htmlFor="lastName" className="text-gray-700 font-medium">
                 Last Name
               </Label>
               <Input
-                id="signup-lastName"
+                id="lastName"
+                name='lastName'
+                value={form.lastName}
+                onChange={handleChange}
                 type="text"
                 placeholder="Enter your last name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -61,45 +109,48 @@ export default function signup() {
             </div>
 
             <div>
-              <Label htmlFor="signup-email" className="text-gray-700 font-medium">
+              <Label htmlFor="email" className="text-gray-700 font-medium">
                 Email
               </Label>
               <Input
-                id="signup-email"
+                id="email"
+                name='email'
                 type="email"
+                value={form.email}
+                onChange={handleChange}
                 placeholder="Enter your email"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             <div>
-              <Label htmlFor="signup-password" className="text-gray-700 font-medium">
+              <Label htmlFor="phone" className="text-gray-700 font-medium">
                 Phone Number
               </Label>
               <div className="relative mt-1">
                 <Input
                   id="phone"
+                  name="phone"
+                value={form.phone}
+                onChange={handleChange}
                   type="tel"
                   placeholder="Phone Number"
                   className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-
-                </button>
+               
               </div>
             </div>
 
             <div>
-              <Label htmlFor="confirm-password" className="text-gray-700 font-medium">
+              <Label htmlFor="password" className="text-gray-700 font-medium">
                 Password
               </Label>
               <div className="relative mt-1">
                 <Input
-                  id="confirm-password"
+                  id="password"
+                  name="password"
+                value={form.password}
+                onChange={handleChange}
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
@@ -114,7 +165,7 @@ export default function signup() {
               </div>
             </div>
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-6">
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-6">
               Sign Up
             </Button>
           </form>

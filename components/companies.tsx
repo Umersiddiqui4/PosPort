@@ -214,8 +214,10 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
             <DialogTrigger asChild>
               <Button className="bg-[#1a72dd] hover:bg-[#1557b8] text-white">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
+                <div className="hidden sm:inline">
                 Add Company
+                </div>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
@@ -350,15 +352,17 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
 
 
       {/* Companies Grid */}
-      <div className="p-4 h-full overflow-auto ">
-        <div className="grid grid-cols-1 md:grid-cols-2 mb-60 lg:grid-cols-3 gap-6 ">
+      <div className={error ? "p-4 h-screen overflow-hidden " : "p-4 h-full overflow-auto "}>
           {error && (
-          <div className="text-center py-12 h-full w-full flex flex-col items-center justify-center">
+          <div className="text-center py-12 h-full flex flex-col items-center justify-center">
+            <>
             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
             <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+            </>
           </div>
         )}
+        <div className="grid grid-cols-1 md:grid-cols-2 mb-60 lg:grid-cols-3 gap-6 ">
           {isLoading ? (
             [...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse hover:shadow-lg transition-shadow duration-200">

@@ -27,6 +27,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useQuery } from "@tanstack/react-query"
+import { getCompanies } from "@/lib/Api/getCompanies"
 
 interface Company {
   id: string
@@ -109,7 +111,7 @@ const companiesData: Company[] = [
 ]
 
 export default function Companies({ onMobileToggle }: CompaniesProps) {
-  const [companies, setCompanies] = useState<Company[]>(companiesData)
+  // const [companie, setCompanies] = useState<Company[]>(companiesData)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -122,15 +124,21 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
     industry: "Food & Beverage",
     status: "pending" as const,
   })
+    const { data: companies, isLoading, error } = useQuery({
+    queryKey: ['companies'],
+    queryFn: getCompanies,
+  });
 
-  const filteredCompanies = companies.filter((company) => {
-    const matchesSearch =
-      company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.ntn.includes(searchTerm)
-    const matchesStatus = statusFilter === "all" || company.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const filteredCompanies = companies
+    ? companies.filter((company: any) => {
+        const matchesSearch =
+          company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          company.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          company.ntn.includes(searchTerm)
+        const matchesStatus = statusFilter === "all" || company.status === statusFilter
+        return matchesSearch && matchesStatus
+      })
+    : []
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -165,7 +173,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
       updatedAt: new Date().toISOString(),
       ...newCompany,
     }
-    setCompanies([company, ...companies])
+    // setCompanies([company, ...companies])
     setNewCompany({
       name: "",
       ntn: "",
@@ -179,11 +187,15 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
   }
 
   const handleDeleteCompany = (id: string) => {
-    setCompanies(companies.filter((company) => company.id !== id))
+    // setCompanies(companies.filter((company:any) => company.id !== id))
   }
 
+
+  if (error) {
+    return <div className="p-6 text-center text-red-500">Error loading companies: {error.message}</div>
+  }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen overflow-hidden bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div className="flex items-center justify-between p-4">
@@ -212,7 +224,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
               <DialogHeader>
                 <DialogTitle>Add New Company</DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-4 py-4 ">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">
                     Name
@@ -339,76 +351,108 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
       </div>
 
       {/* Companies Grid */}
-      <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCompanies.map((company) => (
-            <Card key={company.id} className="hover:shadow-lg transition-shadow duration-200">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-[#1a72dd]/10 rounded-lg flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-[#1a72dd]" />
+      <div className="p-4 h-full overflow-auto ">
+        <div className="grid grid-cols-1 md:grid-cols-2 mb-60 lg:grid-cols-3 gap-6 ">
+          {isLoading ? (
+            // Skeleton loading state when isLoading (ispending) is true
+            [...Array(6)].map((_, i) => (
+              <Card key={i} className="animate-pulse hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg" />
+                      <div>
+                        <div className="h-4 w-32 bg-gray-200 rounded mb-2" />
+                        <div className="h-3 w-20 bg-gray-100 rounded" />
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg font-semibold text-gray-900">{company.name}</CardTitle>
-                      <p className="text-sm text-gray-500">{company.industry}</p>
-                    </div>
+                    <div className="h-8 w-8 bg-gray-100 rounded-full" />
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteCompany(company.id)}>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Badge className={`${getStatusColor(company.status)} border`}>
-                    <div className="flex items-center gap-1">
-                      {getStatusIcon(company.status)}
-                      <span className="capitalize">{company.status}</span>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="h-6 w-24 bg-gray-100 rounded" />
+                    <div className="h-3 w-16 bg-gray-100 rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-28 bg-gray-100 rounded" />
+                    <div className="h-3 w-36 bg-gray-100 rounded" />
+                    <div className="h-3 w-24 bg-gray-100 rounded" />
+                    <div className="h-3 w-40 bg-gray-100 rounded" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            filteredCompanies.map((company:any) => (
+              <Card key={company.id} className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-[#1a72dd]/10 rounded-lg flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-[#1a72dd]" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-semibold text-gray-900">{company.name}</CardTitle>
+                        <p className="text-sm text-gray-500">{company.industry}</p>
+                      </div>
                     </div>
-                  </Badge>
-                  <span className="text-xs text-gray-500">{new Date(company.createdAt).toLocaleDateString()}</span>
-                </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteCompany(company.id)}>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge className={`${getStatusColor(company.status)} border`}>
+                      <div className="flex items-center gap-1">
+                        {getStatusIcon(company.status)}
+                        <span className="capitalize">{company.status}</span>
+                      </div>
+                    </Badge>
+                    <span className="text-xs text-gray-500">{new Date(company.createdAt).toLocaleDateString()}</span>
+                  </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Hash className="w-4 h-4" />
-                    <span>NTN: {company.ntn}</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Hash className="w-4 h-4" />
+                      <span>NTN: {company.ntn}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Mail className="w-4 h-4" />
+                      <span className="truncate">{company.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Phone className="w-4 h-4" />
+                      <span>{company.phone}</span>
+                    </div>
+                    <div className="flex items-start gap-2 text-sm text-gray-600">
+                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span className="line-clamp-2">{company.address}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="w-4 h-4" />
-                    <span className="truncate">{company.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="w-4 h-4" />
-                    <span>{company.phone}</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span className="line-clamp-2">{company.address}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
 
         {filteredCompanies.length === 0 && (

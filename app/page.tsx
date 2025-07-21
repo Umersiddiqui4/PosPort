@@ -3,6 +3,7 @@
 import { useState, useCallback, Suspense } from "react"
 import dynamic from "next/dynamic"
 import Navbar from "../components/navbar"
+import LocationsPage from "@/pages/location"
 // import EmailVerified from "@/pages/email-verified"
 
 // Dynamic imports for better performance
@@ -94,6 +95,8 @@ export default function App() {
         return <RolesPage onMobileToggle={handleMobileToggle} />
         case "confirm-email":
         return <EmailVerified  />
+          case "locations":
+        return <LocationsPage/>
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }

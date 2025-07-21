@@ -1,14 +1,20 @@
+import React from 'react';
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
+import Box from '@mui/material/Box'; 
 import '@/styles/globals.css'
 import { useAuthStore } from "@/lib/store"
 import { useLogin } from "@/hooks/useLogin"
 import { signupUser } from "@/lib/Api/auth/signUpUser"
 import { useSignup } from "@/hooks/useSignUp"
+import { LinearProgress } from "@mui/material"
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
+
 
 
 export default function signup() {
@@ -23,40 +29,39 @@ export default function signup() {
   const login = useAuthStore((state) => state.login);
   const { mutate: signup, isPending, isSuccess, isError, error } = useSignup();
 
-    if (isSuccess) {
-      login(); // Update the global state to reflect login status
-      // console.log("SignUp successful:", data);
-      window.location.href = "/";
-    }
-  
-    const [form, setForm] = useState({
-      email: '',
-      password: '',
-      phone: '',
-      firstName: '',
-      lastName: '',
-    });
-    console.log('Form State:', form);
-  
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  
-      const { name, value } = e.target;
-      setForm((prev: any) => ({
-        ...prev,
-        [name]: value,
-      }));
-    };
+  if (isSuccess) {
+    login();
+    window.location.href = "/login";
+  }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        signup({
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    phone: '',
+    firstName: '',
+    lastName: '',
+  });
+  console.log('Form State:', form);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const { name, value } = e.target;
+    setForm((prev: any) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    signup({
       firstName: form.firstName,
       lastName: form.lastName,
       phone: form.phone,
       email: form.email,
       password: form.password,
     });
-      };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
@@ -71,6 +76,14 @@ export default function signup() {
           <div className="text-2xl font-bold text-blue-600 mb-4">
             <h2 className=" font-extrabold ">Sign Up</h2>
           </div>
+          <Label htmlFor="email" className="text-gray-700 font-medium">
+
+            {error && (
+              <span className="text-red-500 text-md">
+                {" " + (error as any)?.response?.data?.error || "Login failed. Please try again."}
+              </span>
+            )}
+          </Label>
         </CardHeader>
 
         <CardContent className="p-8 pt-4">
@@ -83,13 +96,15 @@ export default function signup() {
                 First Name
               </Label>
               <Input
-               id="firstName"
+                id="firstName"
                 name='firstName'
                 type="text"
                 value={form.firstName}
                 onChange={handleChange}
                 placeholder="Enter your first name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                required
+
               />
             </div>
 
@@ -105,6 +120,8 @@ export default function signup() {
                 type="text"
                 placeholder="Enter your last name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                required
+
               />
             </div>
 
@@ -120,6 +137,8 @@ export default function signup() {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                required
+
               />
             </div>
 
@@ -128,16 +147,17 @@ export default function signup() {
                 Phone Number
               </Label>
               <div className="relative mt-1">
-                <Input
-                  id="phone"
-                  name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                <PhoneInput
+                  country={'pk'}
+                  value={form.phone}
+                  onChange={(phone: any) => setForm((prev) => ({ ...prev, phone: "+" + phone }))}
+                  inputClass="!w-full !rounded-xl !border-gray-300"
+                  inputProps={{
+                    name: 'phone',
+                    required: true,
+                  }}
                 />
-               
+
               </div>
             </div>
 
@@ -149,11 +169,12 @@ export default function signup() {
                 <Input
                   id="password"
                   name="password"
-                value={form.password}
-                onChange={handleChange}
+                  value={form.password}
+                  onChange={handleChange}
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                  required
                 />
                 <button
                   type="button"
@@ -166,7 +187,11 @@ export default function signup() {
             </div>
 
             <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-6">
-              Sign Up
+              {isPending && !error ? (
+                <Box sx={{ width: '60%' }}>
+                  <LinearProgress color='inherit' />
+                </Box>
+              ) : "Sign Up"}
             </Button>
           </form>
 

@@ -2,25 +2,24 @@
 
 import { Suspense } from "react"
 
-import { Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Menu } from "lucide-react"
 import Locations from "@/components/location"
 import '@/styles/globals.css'
+import { Button } from "@/components/ui/button"
+
 
 interface LocationsPageProps {
   onMobileToggle?: () => void
+  onSidebarToggle?: () => void
 }
 
-export default function LocationsPage({ onMobileToggle }: LocationsPageProps) {
+export default function LocationsPage({ onMobileToggle, onSidebarToggle }: LocationsPageProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center items-center h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
-          <span className="ml-2 text-lg text-gray-600">Loading locations...</span>
-        </div>
-      }
-    >
-      <Locations onMobileToggle={onMobileToggle} />
-    </Suspense>
+   <div className="h-screen w-full overflow-hidden  bg-gray-50">
+    
+   
+         {/* Main Content */}
+         <Locations onMobileToggle={onMobileToggle}  />
+       </div>
   )
 }

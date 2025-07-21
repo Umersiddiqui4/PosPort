@@ -190,7 +190,7 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen overflow-auto bg-gray-50">
       {/* Mobile Header */}
       <div className="md:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={onMobileToggle}>
@@ -330,8 +330,8 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
 
         {/* Search and Stats */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/4 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <div className="relative flex-1 flex  items-center">
+            <Search className="absolute left-2 transform-translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search locations..."
               value={searchTerm}

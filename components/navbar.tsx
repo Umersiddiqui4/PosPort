@@ -28,15 +28,17 @@ interface NavbarProps {
 
 const menuItems = [
   { id: "cashier", label: "Cashier", icon: Calculator },
-  { id: "history", label: "History Transaction", icon: History },
-  { id: "report", label: "Report", icon: FileText },
+  // { id: "history", label: "History Transaction", icon: History },
+  // { id: "report", label: "Report", icon: FileText },
   { id: "manage-store", label: "Manage Store", icon: Store },
-  { id: "product-list", label: "Product List", icon: Package },
-  { id: "customer", label: "Customers", icon: Users },
+  // { id: "product-list", label: "Product List", icon: Package },
+  // { id: "customer", label: "Customers", icon: Users },
   { id: "companies", label: "Companies", icon: Building2 },
   { id: "roles", label: "Roles", icon: Shield },
   { id: "account", label: "Account", icon: User },
   { id: "support", label: "Support", icon: HelpCircle },
+  { id: "location", label: "Location", icon: HelpCircle },
+
 ] as const
 
 export default function Navbar({

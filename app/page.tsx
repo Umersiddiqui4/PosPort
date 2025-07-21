@@ -3,7 +3,7 @@
 import { useState, useCallback, Suspense } from "react"
 import dynamic from "next/dynamic"
 import Navbar from "../components/navbar"
-import LocationsPage from "@/pages/location"
+// import LocationsPage from "@/pages/location"
 // import EmailVerified from "@/pages/email-verified"
 
 // Dynamic imports for better performance
@@ -40,7 +40,9 @@ const EmailVerified = dynamic(() => import("../pages/confirm-email"), {
 const RolesPage = dynamic(() => import("../pages/roles-page"), {
   loading: () => <PageSkeleton />,
 })
-
+const LocationsPage = dynamic(() => import("../pages/location"), {
+  loading: () => <PageSkeleton />,
+})
 function PageSkeleton() {
   return (
     <div className="p-4 sm:p-6 animate-pulse">
@@ -95,8 +97,8 @@ export default function App() {
         return <RolesPage onMobileToggle={handleMobileToggle} />
         case "confirm-email":
         return <EmailVerified  />
-          case "locations":
-        return <LocationsPage/>
+          case "location":
+        return <LocationsPage onMobileToggle={handleMobileToggle}  />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }

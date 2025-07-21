@@ -12,6 +12,8 @@ export const useLogin = () => {
     mutationFn: loginUser,
      onSuccess: (data, variables, context) => {
        localStorage.setItem("token", data?.data.tokens.access.token); 
+       localStorage.setItem("refreshToken", data?.data.tokens.access.refresh); 
+
       console.log("Login successful:", data);
     },
     onError: (error) => {

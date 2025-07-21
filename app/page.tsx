@@ -3,6 +3,7 @@
 import { useState, useCallback, Suspense } from "react"
 import dynamic from "next/dynamic"
 import Navbar from "../components/navbar"
+// import EmailVerified from "@/pages/email-verified"
 
 // Dynamic imports for better performance
 const CashierPage = dynamic(() => import("../pages/cashier-page"), {
@@ -30,6 +31,9 @@ const CustomerPage = dynamic(() => import("../pages/customer-page"), {
   loading: () => <PageSkeleton />,
 })
 const CompaniesPage = dynamic(() => import("../pages/companies-page"), {
+  loading: () => <PageSkeleton />,
+})
+const EmailVerified = dynamic(() => import("../pages/confirm-email"), {
   loading: () => <PageSkeleton />,
 })
 const RolesPage = dynamic(() => import("../pages/roles-page"), {
@@ -88,6 +92,8 @@ export default function App() {
         return <CompaniesPage onMobileToggle={handleMobileToggle} />
       case "roles":
         return <RolesPage onMobileToggle={handleMobileToggle} />
+        case "confirm-email":
+        return <EmailVerified  />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
     }

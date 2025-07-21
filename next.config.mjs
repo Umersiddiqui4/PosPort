@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // ignoreBuildErrors: true, // Removed for production safety
   },
   images: {
     unoptimized: true,

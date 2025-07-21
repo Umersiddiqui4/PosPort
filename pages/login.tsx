@@ -10,28 +10,32 @@ import { useLogin } from '@/hooks/useLogin';
 import { useAuthStore } from '@/lib/store';
 import Box from '@mui/material/Box'; 
 import LinearProgress from '@mui/material/LinearProgress';
+import { useToast } from "@/components/ui/use-toast";
 
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 export default function LoginEmployeePage() {
   const login = useAuthStore((state) => state.login);
   const { mutate, data, isSuccess, error, isPending } = useLogin()
+  const { toast } = useToast();
 
   if (isSuccess) {
-    login(); 
-    console.log("Login successful:", data);
+    login();
+    toast({ title: "Login successful", description: "Redirecting..." });
     window.location.href = "/";
   }
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<LoginForm>({
     email: '',
     password: '',
   });
-  console.log('Form State:', form);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-
     const { name, value } = e.target;
-    setForm((prev: any) => ({
+    setForm((prev) => ({
       ...prev,
       [name]: value,
     }));

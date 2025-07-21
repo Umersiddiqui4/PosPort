@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_BASE_URL = "https://dev-api.posport.io/api/v1";
+
 const api = axios.create({
-  baseURL: "https://dev-api.posport.io/api/v1",
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -33,7 +35,7 @@ api.interceptors.response.use(
         };
 
         const refreshRes = await axios.post(
-          "https://dev-api.posport.io/api/v1/auth/refresh",
+          `${API_BASE_URL}/auth/refresh`,
           body,
           
           {

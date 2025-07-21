@@ -4,17 +4,22 @@ import { useMutation } from "@tanstack/react-query";
 import { useSelector, useDispatch } from 'react-redux';
 import { login, logout } from '@/lib/slices/authSlice';
 import { signupUser } from "@/lib/Api/auth/signUpUser";
+import type { signupUser } from "@/lib/Api/auth/signUpUser";
+import { useToast } from "@/components/ui/use-toast";
+
+type SignupRequest = Parameters<typeof signupUser>[0];
+type SignupResponse = Awaited<ReturnType<typeof signupUser>>;
 
 export const useSignup = () => {
-
-  return useMutation({
+  const { toast } = useToast();
+  return useMutation<SignupResponse, Error, SignupRequest>({
     mutationFn: signupUser,
-    onSuccess: (data, variables, context) => {
-      localStorage.setItem("token", data?.data.tokens.access.token); 
-      console.log("Signup successful:", data);
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.data.tokens.access.token);
+      toast({ title: "Signup successful", description: "Account created successfully." });
     },
     onError: (error) => {
-      console.error("Signup failed:", error);
-    }
+      toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+    },
   });
 };

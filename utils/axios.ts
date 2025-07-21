@@ -1,70 +1,69 @@
-// utils/axios.ts
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://your-api-url.com/api",
-  withCredentials: true, // if you're using HttpOnly cookies
+  baseURL: "https://dev-api.posport.io/api/v1",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// flag to avoid infinite loops
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+// ✅ Request Interceptor — add token in all requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-function onTokenRefreshed(token: string) {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-}
-
-function addRefreshSubscriber(cb: (token: string) => void) {
-  refreshSubscribers.push(cb);
-}
-
+// ✅ Response Interceptor — handle 401 and retry
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
-    const originalRequest = err.config;
+    const orig = err.config;
 
-    if (
-      err.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes("/auth/refresh-token")
-    ) {
-      originalRequest._retry = true;
+    if (err.response?.status === 401 && !orig._retry) {
+      orig._retry = true;
 
-      if (!isRefreshing) {
-        isRefreshing = true;
-        try {
-          const response = await axios.post("https://your-api-url.com/api/auth/refresh-token", {
-            refreshToken: localStorage.getItem("refreshToken"),
-          });
- console.log("Token refreshed:", response.data);
- 
-          const newAccessToken = response.data.accessToken;
-          localStorage.setItem("token", newAccessToken);
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const body = {
+          deviceToken: "myDeviceToken",
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        };
 
-          api.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;
-          onTokenRefreshed(newAccessToken);
-        } catch (e) {
-          // Refresh token expired
-          localStorage.removeItem("token");
+        const refreshRes = await axios.post(
+          "https://dev-api.posport.io/api/v1/auth/refresh",
+          body,
+          
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "x-refresh-token": refreshToken || "",
+            },
+          }
+        );
+
+        const { access, refresh } = refreshRes.data.data.tokens;
+
+        localStorage.setItem("token", access.token);
+        localStorage.setItem("refreshToken", refresh.token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${access.token}`;
+
+        orig.headers["Authorization"] = `Bearer ${access.token}`;
+        return api(orig);
+
+      } catch (e) {
+                 localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
-          window.location.href = "/login"; // redirect to login
-          return Promise.reject(e);
-        } finally {
-          isRefreshing = false;
-        }
+          window.location.href = "/login";
+        return Promise.reject(e);
       }
-
-      return new Promise((resolve) => {
-        addRefreshSubscriber((token: string) => {
-          originalRequest.headers["Authorization"] = `Bearer ${token}`;
-          resolve(api(originalRequest));
-        });
-      });
     }
 
     return Promise.reject(err);
   }
 );
+
 
 export default api;

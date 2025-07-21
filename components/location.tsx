@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation }  from "@/hooks/useLocation"
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Location {
   id: string
@@ -355,9 +356,10 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
-            <span className="ml-2 text-lg text-gray-600">Loading locations...</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-56 w-full rounded-2xl" />
+            ))}
           </div>
         )}
 

@@ -15,6 +15,7 @@ import { LinearProgress } from "@mui/material"
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 interface SignupForm {
   email: string;
@@ -37,12 +38,6 @@ export default function signup() {
   const { mutate: signup, isPending, isSuccess, isError, error } = useSignup();
   const { toast } = useToast();
 
-  if (isSuccess) {
-    login();
-    toast({ title: "Signup successful", description: "Redirecting to login..." });
-    window.location.href = "/login";
-  }
-
   const [form, setForm] = useState<SignupForm>({
     email: '',
     password: '',
@@ -50,6 +45,16 @@ export default function signup() {
     firstName: '',
     lastName: '',
   });
+
+  useEffect(() => {
+    if (isSuccess) {
+      login();
+      toast({ title: "Signup successful", description: "Redirecting to login..." });
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 700);
+    }
+  }, [isSuccess, login, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 

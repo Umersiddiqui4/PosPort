@@ -2,6 +2,7 @@
 import "./globals.css";
 import ProtectedLayout from "./ProtectedLayout";
 import Providers from "./Providers";
+import { Toaster } from "@/components/ui/sonner";
 // 👈 path sahi hona chahiye
 
 export const metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <ProtectedLayout>
             {children}
+            <Toaster />
           </ProtectedLayout>
         </Providers>
       </body>

@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,11 +25,15 @@ export default function LoginOwnerPage() {
     password: '',
   });
 
-  if (isSuccess) {
-    login();
-    toast({ title: "Login successful", description: "Redirecting..." });
-    window.location.href = "/";
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      login();
+      toast({ title: "Login successful", description: "Redirecting..." });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 700);
+    }
+  }, [isSuccess, login, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,19 +19,22 @@ interface LoginForm {
 
 export default function LoginEmployeePage() {
   const login = useAuthStore((state) => state.login);
-  const { mutate, data, isSuccess, error, isPending } = useLogin()
+  const { mutate, data, isSuccess, error, isPending } = useLogin();
   const { toast } = useToast();
-
-  if (isSuccess) {
-    login();
-    toast({ title: "Login successful", description: "Redirecting..." });
-    window.location.href = "/";
-  }
-
   const [form, setForm] = useState<LoginForm>({
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (isSuccess) {
+      login();
+      toast({ title: "Login successful", description: "Redirecting..." });
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 700);
+    }
+  }, [isSuccess, login, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

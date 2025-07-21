@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ProductListPageProps {
   onMobileToggle?: () => void
@@ -73,33 +75,67 @@ const products: Product[] = [
   },
 ]
 
+interface AddProductRequest {
+  name: string;
+  category: string;
+  price: string;
+  stock: string;
+  status: "Active" | "Inactive";
+  description?: string;
+}
+
+interface AddProductResponse {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: "Active" | "Inactive";
+  description?: string;
+  image: string;
+}
+
+async function addProductApi(data: AddProductRequest): Promise<AddProductResponse> {
+  // Replace with real API call
+  return new Promise((resolve) => setTimeout(() => resolve({
+    id: Math.floor(Math.random() * 10000),
+    ...data,
+    price: Number(data.price),
+    stock: Number(data.stock),
+    image: "/placeholder.svg?height=60&width=60",
+  }), 1000));
+}
+
 function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AddProductRequest>({
     name: "",
     category: "",
     price: "",
     stock: "",
     status: "Active",
     description: "",
-  })
+  });
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const mutation = useMutation({
+    mutationFn: addProductApi,
+    onSuccess: () => {
+      toast({ title: "Product added", description: "Product has been added successfully." });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      onClose();
+      setFormData({ name: "", category: "", price: "", stock: "", status: "Active", description: "" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to add product.", variant: "destructive" });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically save the product
-    console.log("Adding product:", formData)
-    onClose()
-    // Reset form
-    setFormData({
-      name: "",
-      category: "",
-      price: "",
-      stock: "",
-      status: "Active",
-      description: "",
-    })
-  }
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

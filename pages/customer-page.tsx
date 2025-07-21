@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CustomerPageProps {
   onMobileToggle?: () => void
@@ -73,31 +75,68 @@ const customers: Customer[] = [
   },
 ]
 
+interface AddCustomerRequest {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  notes?: string;
+}
+
+interface AddCustomerResponse {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  notes?: string;
+  totalOrders: number;
+  totalSpent: number;
+  lastOrder: string;
+  status: "Active" | "Inactive";
+}
+
+async function addCustomerApi(data: AddCustomerRequest): Promise<AddCustomerResponse> {
+  // Replace with real API call
+  return new Promise((resolve) => setTimeout(() => resolve({
+    id: Math.floor(Math.random() * 10000),
+    ...data,
+    totalOrders: 0,
+    totalSpent: 0,
+    lastOrder: new Date().toISOString().split('T')[0],
+    status: "Active",
+  }), 1000));
+}
+
 function AddCustomerModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AddCustomerRequest>({
     name: "",
     email: "",
     phone: "",
     address: "",
     notes: "",
-  })
+  });
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const mutation = useMutation({
+    mutationFn: addCustomerApi,
+    onSuccess: () => {
+      toast({ title: "Customer added", description: "Customer has been added successfully." });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      onClose();
+      setFormData({ name: "", email: "", phone: "", address: "", notes: "" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to add customer.", variant: "destructive" });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically save the customer
-    console.log("Adding customer:", formData)
-    onClose()
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      notes: "",
-    })
-  }
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

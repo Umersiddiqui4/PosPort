@@ -1,21 +1,26 @@
 import api from "@/utils/axios";
 
-export const getCompanies = async () => {
+interface Company {
+  id: string;
+  name: string;
+  // Add more fields as needed
+}
+
+interface GetCompaniesResponse {
+  data: Company[];
+}
+
+export const getCompanies = async (): Promise<Company[]> => {
   const token = localStorage.getItem("token");
   try {
-
-  const response = await api.get("https://dev-api.posport.io/api/v1/companies?page=1&take=10&user=false", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const data = await response.data;
-  return data.data;
-
-  } catch (error) {
-
-    throw new Error("Failed to fetch roles");
+    const response = await api.get<GetCompaniesResponse>("https://dev-api.posport.io/api/v1/companies?page=1&take=10&user=false", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(error?.response?.data?.message || "Failed to fetch companies");
   }
-
 };

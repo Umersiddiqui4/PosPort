@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useSelector, useDispatch } from 'react-redux';
 import { login, logout } from '@/lib/slices/authSlice';
 import { signupUser } from "@/lib/Api/auth/signUpUser";
-import type { signupUser } from "@/lib/Api/auth/signUpUser";
 import { useToast } from "@/components/ui/use-toast";
 
 type SignupRequest = Parameters<typeof signupUser>[0];

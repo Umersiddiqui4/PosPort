@@ -61,19 +61,25 @@ const getToken = () => {
 const token = getToken();
 
 // Fetch locations
-export const useLocations = (page = 1, take = 10) => {
+export const useLocations = (page = 1, take = 10, searchTerm?: string) => {
   return useQuery<LocationsResponse>({
-    queryKey: ["locations", page, take],
+    queryKey: ["locations", page, take, searchTerm],
     queryFn: async () => {
-      const response = await api.get(`/locations`, {
-        params: { page, take, user: false },
-      })
-      return response.data
+      let params: any = { user: false };
+      if (searchTerm) {
+        params.q = searchTerm;
+        // Do NOT include page and take when searching
+      } else {
+        params.page = page;
+        params.take = take;
+      }
+      const response = await api.get(`/locations`, { params });
+      return response.data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-  })
-}
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
 
 // Create location
 export const useCreateLocation = () => {

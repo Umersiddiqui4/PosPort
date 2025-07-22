@@ -71,7 +71,7 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
   })
 
   // React Query hooks
-  const { data: locationsData, isLoading, error } = useLocations(currentPage, 10)
+  const { data: locationsData, isLoading, error } = useLocations(currentPage, 10, searchTerm)
   const createLocationMutation = useCreateLocation()
   const updateLocationMutation = useUpdateLocation()
   const deleteLocationMutation = useDeleteLocation()
@@ -86,13 +86,7 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
     hasNextPage: false,
   }
 
-  const filteredLocations = locations.filter(
-    (location: any) =>
-      location.locationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredLocations = locations // Now, locations is already filtered by the API
 
   const handleAddLocation = async () => {
     if (formData.locationName && formData.address && formData.email) {

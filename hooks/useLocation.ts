@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "@/components/ui/use-toast"
+import api from "@/utils/axios"
 
 interface Location {
   id: string
@@ -64,19 +65,10 @@ export const useLocations = (page = 1, take = 10) => {
   return useQuery<LocationsResponse>({
     queryKey: ["locations", page, take],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/locations?page=${page}&take=${take}&user=false`, {
-         headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  },
+      const response = await api.get(`/locations`, {
+        params: { page, take, user: false },
       })
-      
-
-      if (!response.ok) {
-        throw new Error(`Error fetching locations: ${response.status}`)
-      }
-
-      return response.json()
+      return response.data
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -89,24 +81,12 @@ export const useCreateLocation = () => {
 
   return useMutation({
     mutationFn: async (data: CreateLocationData) => {
-      const response = await fetch(`${API_BASE_URL}/locations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...data,
-          qrCode: data.qrCode || `${data.locationName.replace(/\s+/g, "-")}-QR`,
-          companyId: "e59dc897-9b18-4784-a46a-f4f0b1cf536d"
-        }),
+      const response = await api.post(`/locations`, {
+        ...data,
+        qrCode: data.qrCode || `${data.locationName.replace(/\s+/g, "-")}-QR`,
+        companyId: "e59dc897-9b18-4784-a46a-f4f0b1cf536d"
       })
-
-      if (!response.ok) {
-        throw new Error(`Error creating location: ${response.status}`)
-      }
-
-      return response.json()
+      return response.data
     },
     onSuccess: () => {
       // Invalidate and refetch locations
@@ -133,20 +113,8 @@ export const useUpdateLocation = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: UpdateLocationData) => {
-      const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error updating location: ${response.status}`)
-      }
-
-      return response.json()
+      const response = await api.put(`/locations/${id}`, data)
+      return response.data
     },
     onSuccess: () => {
       // Invalidate and refetch locations
@@ -173,18 +141,8 @@ export const useDeleteLocation = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
-        method: "DELETE",
-  headers: {
-    "Authorization": `Bearer ${token}`,
-  },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error deleting location: ${response.status}`)
-      }
-
-      return response.json()
+      const response = await api.delete(`/locations/${id}`)
+      return response.data
     },
     onSuccess: () => {
       // Invalidate and refetch locations

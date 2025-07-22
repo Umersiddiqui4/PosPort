@@ -14,7 +14,7 @@ export const useLogin = () => {
       localStorage.setItem("token", data.data.tokens.access.token);
       localStorage.setItem("refreshToken", data.data.tokens.refresh.token);
       api.defaults.headers.common["Authorization"] = `Bearer ${data.data.tokens.access.token}`;
-      // toast({ title: "Login successful", description: "You have logged in successfully." });
+      toast({ title: "Login successful", description: "You have logged in successfully." });
     },
     onError: (error) => {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });

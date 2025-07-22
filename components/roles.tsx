@@ -18,8 +18,11 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { getRoles } from "@/lib/Api/getRoles"
+import { createRole } from "@/lib/Api/createRole"
+import { editRole } from "@/lib/Api/editRole"
+import { deleteRole } from "@/lib/Api/deleteRole"
 
 // Mock data based on the provided API response
 const mockRoles = [
@@ -64,6 +67,35 @@ export default function Roles() {
     queryFn: getRoles,
   });
 
+  const queryClient = useQueryClient();
+  const [editModal, setEditModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null });
+
+  // Add Role Mutation
+  const addRoleMutation = useMutation({
+    mutationFn: createRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+      setNewRole({ name: "", description: "" });
+      setIsAddModalOpen(false);
+    },
+  });
+
+  // Edit Role Mutation
+  const editRoleMutation = useMutation({
+    mutationFn: editRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+      setEditModal({ open: false, role: null });
+    },
+  });
+
+  // Delete Role Mutation
+  const deleteRoleMutation = useMutation({
+    mutationFn: deleteRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+    },
+  });
 
   // Filter roles based on search term
   const filteredRoles = roles ? roles.filter(
@@ -86,23 +118,22 @@ export default function Roles() {
   // Handle adding new role
   const handleAddRole = () => {
     if (newRole.name && newRole.description) {
-      const role: Role = {
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      addRoleMutation.mutate({
         name: newRole.name.toUpperCase().replace(/\s+/g, "_"),
         description: newRole.description,
-      }
-      // setRoles([...roles, role])
-      setNewRole({ name: "", description: "" })
-      setIsAddModalOpen(false)
+      });
     }
-  }
+  };
+
+  // Handle editing role
+  const handleEditRole = (id: string, name: string, description: string) => {
+    editRoleMutation.mutate({ id, name: name.toUpperCase().replace(/\s+/g, "_"), description });
+  };
 
   // Handle deleting role
   const handleDeleteRole = (id: string) => {
-    // setRoles(roles.filter((role) => role.id !== id))
-  }
+    deleteRoleMutation.mutate(id);
+  };
 
   // Format role name for display
   const formatRoleName = (name: string) => {
@@ -242,7 +273,7 @@ export default function Roles() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEditModal({ open: true, role })}>
                         <Edit className="w-4 h-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
@@ -271,6 +302,49 @@ export default function Roles() {
           <p className="text-gray-600">Try adjusting your search or add a new role.</p>
         </div>
       )}
+
+      {/* Edit Role Modal */}
+      <Dialog open={editModal.open} onOpenChange={(open) => setEditModal({ open, role: open ? editModal.role : null })}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Role</DialogTitle>
+            <DialogDescription>Update the role's name and description.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-name">Role Name</Label>
+              <Input
+                id="edit-name"
+                placeholder="e.g., Store Manager"
+                value={editModal.role?.name ? editModal.role.name.replace(/_/g, " ") : ""}
+                onChange={(e) => setEditModal((prev) => prev.role ? { ...prev, role: { ...prev.role, name: e.target.value } } : prev)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                placeholder="Describe the role responsibilities and permissions..."
+                value={editModal.role?.description || ""}
+                onChange={(e) => setEditModal((prev) => prev.role ? { ...prev, role: { ...prev.role, description: e.target.value } } : prev)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditModal({ open: false, role: null })}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (editModal.role) handleEditRole(editModal.role.id, editModal.role.name, editModal.role.description);
+              }}
+              className="bg-[#1a72dd] hover:bg-[#1557b8]"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

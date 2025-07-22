@@ -13,14 +13,16 @@ interface GetRolesResponse {
 }
 
 export const getRoles = async (): Promise<Role[]> => {
-  const token = localStorage.getItem("token");
   try {
-    const response = await api.get<GetRolesResponse>("https://dev-api.posport.io/api/v1/roles?page=1&take=10", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.get<GetRolesResponse>(
+      "/roles",
+      {
+        params: { page: 1, take: 10 },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data.data;
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || "Failed to fetch roles");

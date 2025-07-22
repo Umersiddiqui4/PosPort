@@ -214,7 +214,7 @@ function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             <Label htmlFor="status" className="text-sm font-medium text-[#2a3256]">
               Status
             </Label>
-            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value as "Active" | "Inactive" })}>
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>

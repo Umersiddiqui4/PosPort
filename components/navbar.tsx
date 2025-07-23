@@ -34,6 +34,7 @@ const baseMenuItems = [
   { id: "manage-store", label: "Manage Store", icon: Store },
   // { id: "product-list", label: "Product List", icon: Package },
   // { id: "customer", label: "Customers", icon: Users },
+  { id: "users", label: "Users", icon: User },
   { id: "roles", label: "Roles", icon: Shield },
   { id: "account", label: "Account", icon: User },
   { id: "support", label: "Support", icon: HelpCircle },

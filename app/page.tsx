@@ -44,6 +44,9 @@ const RolesPage = dynamic(() => import("../pages/roles-page"), {
 const LocationsPage = dynamic(() => import("../pages/location"), {
   loading: () => <PageSkeleton />,
 })
+const UsersPage = dynamic(() => import("../pages/users-page"), {
+  loading: () => <PageSkeleton />,
+})
 function PageSkeleton() {
   return (
     <div className="p-4 sm:p-6 animate-pulse">
@@ -107,6 +110,8 @@ export default function App() {
         return <LocationsPage onMobileToggle={handleMobileToggle}  />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        case "users":
+          return <UsersPage onMobileToggle={handleMobileToggle} />
     }
   }
 

@@ -14,12 +14,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
      <html lang="en">
       <body suppressHydrationWarning={true}>
-        <Providers>
-          <ProtectedLayout>
-            {children}
-            <Toaster />
-          </ProtectedLayout>
-        </Providers>
+          <Providers>
+            <ProtectedLayout>
+              {children}
+              <Toaster />
+            </ProtectedLayout>
+          </Providers>
       </body>
     </html>
   );

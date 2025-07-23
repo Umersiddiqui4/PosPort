@@ -5,6 +5,7 @@ import dynamic from "next/dynamic"
 import Navbar from "../components/navbar"
 // import LocationsPage from "@/pages/location"
 // import EmailVerified from "@/pages/email-verified"
+import { useUserDataStore } from "@/lib/store";
 
 // Dynamic imports for better performance
 const CashierPage = dynamic(() => import("../pages/cashier-page"), {
@@ -57,6 +58,7 @@ function PageSkeleton() {
 }
 
 export default function App() {
+  const user = useUserDataStore((state) => state.user);
   const [currentPage, setCurrentPage] = useState("cashier")
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -92,12 +94,16 @@ export default function App() {
       case "customer":
         return <CustomerPage onMobileToggle={handleMobileToggle} />
       case "companies":
-        return <CompaniesPage onMobileToggle={handleMobileToggle} />
+        if (user?.role === "POSPORT_ADMIN") {
+          return <CompaniesPage onMobileToggle={handleMobileToggle} />;
+        } else {
+          return <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">Not authorized</div>;
+        }
       case "roles":
         return <RolesPage onMobileToggle={handleMobileToggle} />
-        case "confirm-email":
+      case "confirm-email":
         return <EmailVerified  />
-          case "location":
+      case "location":
         return <LocationsPage onMobileToggle={handleMobileToggle}  />
       default:
         return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
@@ -105,7 +111,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] overflow-hidden">
+    <div className="flex h-screen bg-background transition-colors duration-300 overflow-hidden">
       <Navbar
         currentPage={currentPage}
         onPageChange={handlePageChange}

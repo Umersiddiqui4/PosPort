@@ -28,8 +28,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation }  from "@/hooks/useLocation"
+import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation, useLocationById }  from "@/hooks/useLocation"
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSearchParams } from "next/navigation";
+import { useUserDataStore } from "@/lib/store";
 
 interface Location {
   id: string
@@ -44,13 +46,30 @@ interface Location {
   postalCode: string
   phone: string
   email: string
+  companyId?: string;
+  userId?: string;
 }
 
 interface LocationsProps {
-  onMobileToggle?: () => void
+  onMobileToggle?: () => void;
+  companyId?: string;
 }
 
-export default function Locations({ onMobileToggle }: LocationsProps) {
+export default function Locations({ onMobileToggle, companyId }: LocationsProps) {
+  const user = useUserDataStore((state) => state.user);
+  const searchParams = useSearchParams();
+  const companyIdFromQuery = searchParams!.get("companyId");
+  let effectiveCompanyId = companyId || companyIdFromQuery || undefined;
+  let userId: string | undefined = undefined;
+  // If not admin and no companyId is provided, restrict by user/company
+  if (!effectiveCompanyId && user) {
+    if (user.role === "COMPANY_OWNER" && user.companyId) {
+      effectiveCompanyId = user.companyId;
+    } else if (user.role === "STORE_KEEPER" && user.id) {
+      userId = user.id;
+    }
+  }
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -70,13 +89,35 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
     qrCode: "",
   })
 
+  // Check for locationId in query string for COMPANY_OWNER
+  const locationIdFromQuery = searchParams!.get("locationId");
+  const shouldShowSingleLocation = user?.role === "COMPANY_OWNER" && !!locationIdFromQuery;
+
+  let singleLocation = null;
+  if (shouldShowSingleLocation) {
+    const { data } = useLocationById(locationIdFromQuery!);
+    singleLocation = data;
+  }
+
   // React Query hooks
-  const { data: locationsData, isLoading, error } = useLocations(currentPage, 10, searchTerm)
+  const { data: locationsData, isLoading, error } = useLocations(currentPage, 30, searchTerm, effectiveCompanyId, userId)
   const createLocationMutation = useCreateLocation()
   const updateLocationMutation = useUpdateLocation()
   const deleteLocationMutation = useDeleteLocation()
 
+  console.log(locationsData, "locationsData");
+  
+
   const locations = locationsData?.items || []
+
+  // Frontend filter if backend doesn't filter
+  let filteredLocations = locations;
+  if (effectiveCompanyId) {
+    filteredLocations = filteredLocations.filter(loc => (loc as any).companyId === effectiveCompanyId);
+  } else if (userId) {
+    filteredLocations = filteredLocations.filter(loc => (loc as any).userId === userId);
+  }
+  
   const pagination = locationsData?.meta || {
     page: 1,
     take: 10,
@@ -86,13 +127,15 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
     hasNextPage: false,
   }
 
-  const filteredLocations = locations // Now, locations is already filtered by the API
-
   const handleAddLocation = async () => {
     if (formData.locationName && formData.address && formData.email) {
-      await createLocationMutation.mutateAsync(formData)
-      setIsAddModalOpen(false)
-      resetForm()
+      const dataToSend = { ...formData };
+      if (effectiveCompanyId) {
+        (dataToSend as any).companyId = effectiveCompanyId;
+      }
+      await createLocationMutation.mutateAsync(dataToSend);
+      setIsAddModalOpen(false);
+      resetForm();
     }
   }
 
@@ -185,7 +228,7 @@ export default function Locations({ onMobileToggle }: LocationsProps) {
   }
 
   return (
-    <div className="h-screen overflow-auto bg-gray-50">
+    <div className="bg-background transition-colors duration-300 p-4 sm:p-6 min-h-screen">
       {/* Mobile Header */}
       <div className="md:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={onMobileToggle}>

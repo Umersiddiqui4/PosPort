@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Box from '@mui/material/Box'; 
 import '@/styles/globals.css'
-import { useAuthStore } from "@/lib/store"
+import { useUserDataStore } from "@/lib/store"
 import { useLogin } from "@/hooks/useLogin"
 import { signupUser } from "@/lib/Api/auth/signUpUser"
 import { useSignup } from "@/hooks/useSignUp"
@@ -34,7 +34,7 @@ export default function signup() {
     window.location.href = `/${screen}`;
   }
 
-  const login = useAuthStore((state) => state.login);
+  const login = useUserDataStore((state) => state.login);
   const { mutate: signup, isPending, isSuccess, isError, error } = useSignup();
   const { toast } = useToast();
 
@@ -48,13 +48,12 @@ export default function signup() {
 
   useEffect(() => {
     if (isSuccess) {
-      login();
       toast({ title: "Signup successful", description: "Redirecting to login..." });
       setTimeout(() => {
         window.location.href = "/login";
       }, 700);
     }
-  }, [isSuccess, login, toast]);
+  }, [isSuccess, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 

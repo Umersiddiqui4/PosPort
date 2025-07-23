@@ -33,6 +33,8 @@ import { createCompany } from "@/lib/Api/createCompany"
 import { editCompany } from "@/lib/Api/editCompany"
 import { deleteCompany } from "@/lib/Api/deleteCompany"
 import type { GetCompaniesResponse } from "@/lib/Api/getCompanies"
+import { useUserDataStore } from "@/lib/store";
+import Locations from "@/components/location";
 
 interface Company {
   id: string
@@ -46,10 +48,13 @@ interface Company {
 }
 
 interface CompaniesProps {
-  onMobileToggle: () => void
+  onMobileToggle: () => void;
+  onCompanySelect?: (companyId: string) => void;
 }
 
-export default function Companies({ onMobileToggle }: CompaniesProps) {
+export default function Companies({ onMobileToggle, onCompanySelect }: CompaniesProps) {
+  const user = useUserDataStore((state) => state.user);
+  const setUser = useUserDataStore((state) => state.setUser);
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -88,7 +93,7 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
   // Create company mutation
   const createMutation = useMutation({
     mutationFn: createCompany,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["companies"] })
       setIsAddModalOpen(false)
       setNewCompany({
@@ -100,6 +105,10 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
         industry: "Food & Beverage",
         status: "pending",
       })
+      // Update user data with new companyId if present
+      if (data?.data?.id) {
+        setUser({ ...user, companyId: data.data.id });
+      }
     },
   })
 
@@ -142,10 +151,22 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
   }
 
   // Filtered companies (status only, search is server-side)
-  const filteredCompanies = companies.filter((company: any) => {
-    const matchesStatus = statusFilter === "all" || company.status === statusFilter
-    return matchesStatus
-  })
+  let filteredCompanies = companies.filter((company: any) => {
+    const matchesStatus = statusFilter === "all" || company.status === statusFilter;
+    return matchesStatus;
+  });
+
+  // Restrict view based on role
+  if (user?.role === "COMPANY_OWNER" && user?.companyId) {
+    filteredCompanies = filteredCompanies.filter((company: any) => company.id === user.companyId);
+  } else if (user?.role === "COMPANY_OWNER" && !user?.companyId) {
+    filteredCompanies = [];
+  }
+
+  console.log(user, "user");
+  console.log(filteredCompanies, "filteredCompanies");
+  
+  // POSPORT_ADMIN sees all, no filter needed
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -375,7 +396,15 @@ export default function Companies({ onMobileToggle }: CompaniesProps) {
             ))
           ) : (
             filteredCompanies.map((company: any) => (
-              <Card key={company.id} className="hover:shadow-lg transition-shadow duration-200">
+              <Card
+                key={company.id}
+                className="hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                onClick={() => {
+                  if (onCompanySelect) {
+                    onCompanySelect(company.id);
+                  }
+                }}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">

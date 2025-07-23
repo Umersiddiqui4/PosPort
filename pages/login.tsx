@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowLeft } from "lucide-react"
 import '@/styles/globals.css'
 import { useLogin } from '@/hooks/useLogin';
-import { useAuthStore } from '@/lib/store';
+import { useUserDataStore } from "@/lib/store";
 import Box from '@mui/material/Box'; 
 import LinearProgress from '@mui/material/LinearProgress';
 import { useToast } from "@/components/ui/use-toast";
@@ -18,7 +18,7 @@ interface LoginForm {
 }
 
 export default function LoginEmployeePage() {
-  const login = useAuthStore((state) => state.login);
+  const login = useUserDataStore((state) => state.login);
   const { mutate, data, isSuccess, error, isPending } = useLogin();
   const { toast } = useToast();
   const [form, setForm] = useState<LoginForm>({
@@ -26,15 +26,18 @@ export default function LoginEmployeePage() {
     password: '',
   });
 
+  console.log(login, "login");
+  
+
   useEffect(() => {
-    if (isSuccess) {
-      login();
+    if (isSuccess && data) {
+      login(data.data);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
-        window.location.href = "/";
+        // window.location.href = "/";
       }, 700);
     }
-  }, [isSuccess, login, toast]);
+  }, [isSuccess, login, toast, data]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

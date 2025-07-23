@@ -2,12 +2,17 @@
 
 import { User, Mail, Phone, MapPin, Settings, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useUserDataStore } from "@/lib/store";
+import { useLogout } from "@/hooks/useLogout";
 
 interface AccountPageProps {
   onMobileToggle?: () => void
 }
 
 export default function AccountPage({ onMobileToggle }: AccountPageProps) {
+  const user = useUserDataStore((state) => state.user);
+  const handleLogout = useLogout();
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
       {/* Mobile Header */}
@@ -40,23 +45,23 @@ export default function AccountPage({ onMobileToggle }: AccountPageProps) {
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-[#2a3256]">Restaurant Owner</h2>
-              <p className="text-[#545454]">Zaib Ka Dhaba</p>
+              <h2 className="text-xl font-semibold text-[#2a3256]">{user?.firstName || user?.email || "User"}</h2>
+              <p className="text-[#545454]">{user?.lastName || user?.id || "No ID"}</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <Mail className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">owner@zaibkadhaba.com</span>
+              <span className="text-[#2a3256]">{user?.email || "No email"}</span>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">+1 (555) 123-4567</span>
+              <span className="text-[#2a3256]">{user?.phone || "No phone"}</span>
             </div>
             <div className="flex items-center gap-3">
               <MapPin className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">123 Restaurant Street, Food City</span>
+              <span className="text-[#2a3256]">{user?.address || "No address"}</span>
             </div>
           </div>
         </div>
@@ -75,6 +80,7 @@ export default function AccountPage({ onMobileToggle }: AccountPageProps) {
           <Button
             variant="outline"
             className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
+            onClick={handleLogout}
           >
             Sign Out
           </Button>

@@ -14,12 +14,14 @@ interface GetRolesResponse {
 
 export const getRoles = async (): Promise<Role[]> => {
   try {
+    const token = localStorage.getItem("token");
     const response = await api.get<GetRolesResponse>(
       "/roles",
       {
         params: { page: 1, take: 10 },
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );

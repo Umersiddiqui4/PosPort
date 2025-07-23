@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback } from "react"
+import { useUserDataStore } from "@/lib/store";
 import {
   Calculator,
   History,
@@ -26,20 +27,18 @@ interface NavbarProps {
   isCollapsed?: boolean
 }
 
-const menuItems = [
+const baseMenuItems = [
   { id: "cashier", label: "Cashier", icon: Calculator },
   // { id: "history", label: "History Transaction", icon: History },
   // { id: "report", label: "Report", icon: FileText },
   { id: "manage-store", label: "Manage Store", icon: Store },
   // { id: "product-list", label: "Product List", icon: Package },
   // { id: "customer", label: "Customers", icon: Users },
-  { id: "companies", label: "Companies", icon: Building2 },
   { id: "roles", label: "Roles", icon: Shield },
   { id: "account", label: "Account", icon: User },
   { id: "support", label: "Support", icon: HelpCircle },
   { id: "location", label: "Location", icon: HelpCircle },
-
-] as const
+] as const;
 
 export default function Navbar({
   currentPage,
@@ -59,6 +58,11 @@ export default function Navbar({
     [onPageChange, isMobileOpen, onMobileToggle],
   )
 
+  const user = useUserDataStore((state) => state.user);
+  const menuItems = [
+    ...baseMenuItems,
+    ...(user?.role === "POSPORT_ADMIN" ? [{ id: "companies", label: "Companies", icon: Building2 }] : []),
+  ];
   return (
     <>
       {/* Mobile Overlay */}

@@ -1,10 +1,11 @@
 "use client";
-import { useAuthStore } from '@/lib/store';
+import { useUserDataStore } from "@/lib/store";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const user = useUserDataStore((state) => state.user);
+    const isLoggedIn = useUserDataStore((state) => state.isLoggedIn);
     const pathname = usePathname();
 
     const [isHydrated, setIsHydrated] = useState(false);
@@ -14,6 +15,17 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
     const publicPaths = ["/helloScreen","/login", "/signup"];
     const isPublicPage = publicPaths.includes(pathname ?? "");
+
+    // Restrict COMPANY_OWNER without companyId to only /companies-page
+    if (
+      isLoggedIn &&
+      user?.role === "COMPANY_OWNER" &&
+      !user?.companyId &&
+      pathname !== "/companies-page"
+    ) {
+      if (typeof window !== 'undefined') window.location.href = "/companies-page";
+      return null;
+    }
 
     if (!isLoggedIn && !isPublicPage) {
         if (typeof window !== 'undefined') window.location.href = "/helloScreen";

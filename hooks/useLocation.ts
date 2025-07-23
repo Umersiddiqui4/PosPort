@@ -61,9 +61,9 @@ const getToken = () => {
 const token = getToken();
 
 // Fetch locations
-export const useLocations = (page = 1, take = 10, searchTerm?: string) => {
+export const useLocations = (page = 1, take = 30, searchTerm?: string, companyId?: string, userId?: string) => {
   return useQuery<LocationsResponse>({
-    queryKey: ["locations", page, take, searchTerm],
+    queryKey: ["locations", page, take, searchTerm, companyId, userId],
     queryFn: async () => {
       let params: any = { user: false };
       if (searchTerm) {
@@ -73,6 +73,13 @@ export const useLocations = (page = 1, take = 10, searchTerm?: string) => {
         params.page = page;
         params.take = take;
       }
+      if (companyId) {
+        params.companyId = companyId;
+      }
+      if (userId) {
+        params.userId = userId;
+      }
+      console.log('Fetching locations with params:', params);
       const response = await api.get(`/locations`, { params });
       return response.data;
     },
@@ -168,3 +175,16 @@ export const useDeleteLocation = () => {
     },
   })
 }
+
+// Fetch a single location by id
+export const useLocationById = (id?: string) => {
+  return useQuery<Location | null>({
+    queryKey: ["location", id],
+    queryFn: async () => {
+      if (!id) return null;
+      const response = await api.get(`/locations/${id}`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};

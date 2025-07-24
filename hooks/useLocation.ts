@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "@/components/ui/use-toast"
 import api from "@/utils/axios"
+import { useUserDataStore } from "@/lib/store"
 
 interface Location {
   id: string
@@ -91,13 +92,13 @@ export const useLocations = (page = 1, take = 30, searchTerm?: string, companyId
 // Create location
 export const useCreateLocation = () => {
   const queryClient = useQueryClient()
-
+  const user = useUserDataStore((state) => state.user)
   return useMutation({
     mutationFn: async (data: CreateLocationData) => {
       const response = await api.post(`/locations`, {
         ...data,
         qrCode: data.qrCode || `${data.locationName.replace(/\s+/g, "-")}-QR`,
-        companyId: "e59dc897-9b18-4784-a46a-f4f0b1cf536d"
+        companyId: user?.companyId
       })
       return response.data
     },

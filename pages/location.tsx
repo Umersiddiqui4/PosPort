@@ -7,7 +7,8 @@ import Locations from "@/components/location"
 import '@/styles/globals.css'
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
+import { useUserDataStore } from "@/lib/store"
 
 
 interface LocationsPageProps {
@@ -17,8 +18,11 @@ interface LocationsPageProps {
 
 export default function LocationsPage({ onMobileToggle, onSidebarToggle }: LocationsPageProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const companyId = searchParams!.get("companyId");
+  // const searchParams = useSearchParams();
+  const user = useUserDataStore((state) => state.user);
+  const companyId = user?.companyId;
+  console.log(companyId ,"companyId");
+  
   const showBack = !!companyId;
   return (
     <div className="h-screen w-full overflow-hidden bg-gray-50">

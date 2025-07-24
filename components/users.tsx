@@ -25,6 +25,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-users"
 import PhoneInput from "react-phone-input-2"
+import { useQuery } from "@tanstack/react-query"
+import { getCompanies } from "@/lib/Api/getCompanies"
+import { useUserDataStore } from "@/lib/store"
 
 // Define User type for clarity
 interface User {
@@ -44,12 +47,22 @@ export default function Users() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-
+  const user = useUserDataStore((state) => state.user);
   // API hooks
   const { data: usersData, isLoading, error } = useUsers(currentPage, 10)
   const createUserMutation = useCreateUser()
   const updateUserMutation = useUpdateUser()
   const deleteUserMutation = useDeleteUser()
+
+  // Fetch companies for dropdown
+  const { data: companiesData, isLoading: isCompaniesLoading } = useQuery({
+    queryKey: ["companies", "all-for-user-edit"],
+    queryFn: () => getCompanies("", 1, 100),
+  })
+  const companies = companiesData?.data || []
+
+  // Get current logged-in user
+  const currentUser = useUserDataStore((state) => state.user)
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -71,14 +84,25 @@ export default function Users() {
   const users = usersData?.data || []
   const meta = usersData?.meta
 
-  // Filter users based on search term
-  const filteredUsers = users.filter(
-    (user) =>
+  // Filter users based on search term and company ownership
+  const filteredUsers = users.filter((user) => {
+    // If current user is COMPANY_OWNER, only show users with matching companyId
+    if (currentUser?.role === "COMPANY_OWNER") {
+      return user.companyId === currentUser.companyId && (
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    // Otherwise, show all users matching search
+    return (
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+      user.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  })
 
   // Get role badge color
   const getRoleBadgeColor = (role: string) => {
@@ -107,11 +131,14 @@ export default function Users() {
     e.preventDefault()
 
     try {
+      // Ensure companyId is always sent with the payload
+      const payload = { ...formData, companyId: formData.companyId }
+
       if (editingUser) {
-        await updateUserMutation.mutateAsync({ ...formData, id: editingUser.id })
+        await updateUserMutation.mutateAsync({ ...payload, id: editingUser.id })
         setIsEditModalOpen(false)
       } else {
-        await createUserMutation.mutateAsync(formData)
+        await createUserMutation.mutateAsync(payload)
         setIsAddModalOpen(false)
       }
 
@@ -131,15 +158,15 @@ export default function Users() {
   }
 
   // Handle edit
-  const handleEdit = (user: User) => {
-    setEditingUser(user)
+  const handleEdit = (users: User) => {
+    setEditingUser(users)
     setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      companyId: (user.companyId as string | null) ?? null,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      email: users.email,
+      phone: users.phone,
+      role: users.role,
+      companyId: (user?.companyId as string | null) ?? null,
     })
     setIsEditModalOpen(true)
   }
@@ -240,7 +267,14 @@ export default function Users() {
                   <PhoneInput
                     country={'pk'}
                     value={formData.phone}
-                    onChange={(value: string) => setFormData({ ...formData, phone: value })}
+                    onChange={(value: string) => {
+                      // Always save with leading plus
+                      let formatted = value;
+                      if (formatted && !formatted.startsWith('+')) {
+                        formatted = '+' + formatted.replace(/^0+/, '');
+                      }
+                      setFormData({ ...formData, phone: formatted });
+                    }}
                     inputProps={{
                       name: 'phone',
                       required: true,
@@ -255,7 +289,19 @@ export default function Users() {
                 </div>
               <div>
                 <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => {
+                    // If COMPANY_OWNER, auto-assign companyId for STORE_KEEPER or COMPANY_OWNER
+                    if ((value === "STORE_KEEPER" || value === "COMPANY_OWNER") && currentUser?.role === "COMPANY_OWNER") {
+                      setFormData({ ...formData, role: value, companyId: currentUser.companyId || null });
+                    } else if ((value === "STORE_KEEPER" || value === "COMPANY_OWNER") && currentUser?.role === "POSPORT_ADMIN") {
+                      setFormData({ ...formData, role: value, companyId: null }); // Wait for company selection
+                    } else {
+                      setFormData({ ...formData, role: value, companyId: null });
+                    }
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -266,6 +312,25 @@ export default function Users() {
                   </SelectContent>
                 </Select>
               </div>
+              {/* Company selection for POSPORT_ADMIN creating STORE_KEEPER or COMPANY_OWNER */}
+              {currentUser?.role === "POSPORT_ADMIN" && (formData.role === "STORE_KEEPER" || formData.role === "COMPANY_OWNER") && (
+                <div>
+                  <Label htmlFor="companyId">Company</Label>
+                  <Select
+                    value={formData.companyId ?? ""}
+                    onValueChange={(value) => setFormData({ ...formData, companyId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {companies.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="flex justify-end space-x-2">
                 <Button
                   type="button"
@@ -294,7 +359,11 @@ export default function Users() {
               <User className="w-5 h-5 text-[#1a72dd]" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{meta?.itemCount || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">{
+                  currentUser?.role === "COMPANY_OWNER"
+                    ? users.filter((user) => user.companyId === currentUser.companyId).length
+                    : meta?.itemCount || 0
+                }</p>
               </div>
             </div>
           </CardContent>
@@ -508,7 +577,19 @@ export default function Users() {
             </div>
             <div>
               <Label htmlFor="editRole">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+              <Select
+                value={formData.role}
+                onValueChange={(value) => {
+                  // If COMPANY_OWNER, set companyId to current user's companyId
+                  if (value === "COMPANY_OWNER" && currentUser?.companyId) {
+                    setFormData({ ...formData, role: value, companyId: currentUser.companyId })
+                  } else if (value === "POSPORT_ADMIN") {
+                    setFormData({ ...formData, role: value, companyId: formData.companyId })
+                  } else {
+                    setFormData({ ...formData, role: value, companyId: null })
+                  }
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
@@ -519,6 +600,26 @@ export default function Users() {
                 </SelectContent>
               </Select>
             </div>
+            {/* Company selection dropdown: only show for POSPORT_ADMIN */}
+            {currentUser?.role === "POSPORT_ADMIN" && (
+              <div>
+                <Label htmlFor="editCompanyId">Company</Label>
+                <Select
+                  value={formData.companyId ?? "none"}
+                  onValueChange={(value) => setFormData({ ...formData, companyId: value === "none" ? null : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No Company</SelectItem>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"

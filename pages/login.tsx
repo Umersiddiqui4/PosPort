@@ -34,7 +34,7 @@ export default function LoginEmployeePage() {
       login(data.data);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
-        // window.location.href = "/";
+        window.location.href = "/";
       }, 700);
     }
   }, [isSuccess, login, toast, data]);

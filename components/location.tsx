@@ -89,6 +89,8 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
     qrCode: "",
   })
 
+  console.log(effectiveCompanyId ,"effectiveCompanyId");
+  
   // Check for locationId in query string for COMPANY_OWNER
   const locationIdFromQuery = searchParams!.get("locationId");
   const shouldShowSingleLocation = user?.role === "COMPANY_OWNER" && !!locationIdFromQuery;
@@ -118,9 +120,11 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
     filteredLocations = filteredLocations.filter(loc => (loc as any).userId === userId);
   }
   
+  console.log(filteredLocations ,"filteredLocations");
+  
   const pagination = locationsData?.meta || {
     page: 1,
-    take: 10,
+    take: user?.role === "POSPORT_ADMIN" ? 10 : locations.length,
     itemCount: 0,
     pageCount: 0,
     hasPreviousPage: false,

@@ -61,8 +61,13 @@ const createUser = async (userData: CreateUserData): Promise<User> => {
   return response.data
 }
 
-const updateUser = async ({ id, ...userData }: UpdateUserData): Promise<User> => {
-  const response = await api.put(`/users/${id}`, userData)
+const updateUser = async ({ id, companyId, ...userData }: UpdateUserData): Promise<User> => {
+  // Ensure companyId is included in the payload, even if null
+  const payload = {
+    ...userData,
+    companyId: companyId ?? null,
+  }
+  const response = await api.put(`/users/${id}`, payload)
   return response.data
 }
 

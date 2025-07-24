@@ -16,6 +16,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     const publicPaths = ["/helloScreen","/login", "/signup"];
     const isPublicPage = publicPaths.includes(pathname ?? "");
 
+    // POSPORT_ADMIN is never checked for companyId and is always allowed to navigate anywhere.
     // Restrict COMPANY_OWNER without companyId to only /companies-page
     if (
       isLoggedIn &&

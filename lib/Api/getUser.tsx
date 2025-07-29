@@ -1,16 +1,27 @@
 "use client";
             
 import api from "@/utils/axios";
-import axios from "axios";
 
-const BASE_URL = "https://dev-api.posport.io/api/v1";
+export const getUsers = async (companyId?: string) => {
+  const params: any = {};
+  
+  // Add companyId to params if provided
+  if (companyId) {
+    params.companyId = companyId;
+  }
 
-export const getUsers = async (page = 1, take = 10) => {
-  const response = await api.get(`${BASE_URL}/users`, {
-    params: { page, take },
-    headers: {
-      Authorization: `Bearer YOUR_ACCESS_TOKEN_HERE`, // agar required ho
+  const response = await api.get(`/users`, {
+    params,
+  });
+  return response.data;
+};
+
+export const getUserByCompanyId = async (companyId: string) => {
+  const response = await api.get(`/users`, {
+    params: { 
+      companyId
     },
   });
   return response.data;
 };
+

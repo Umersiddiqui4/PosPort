@@ -28,6 +28,7 @@ import PhoneInput from "react-phone-input-2"
 import { useQuery } from "@tanstack/react-query"
 import { getCompanies } from "@/lib/Api/getCompanies"
 import { useUserDataStore } from "@/lib/store"
+import { getRoles } from "@/lib/Api/getRoles"
 
 // Define User type for clarity
 interface User {
@@ -47,9 +48,17 @@ export default function Users() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const user = useUserDataStore((state) => state.user);
   // API hooks
-  const { data: usersData, isLoading, error } = useUsers(currentPage, 10)
+  // console.log(currentUser, "currentUser");
+  
+  // Get current logged-in user
+  const currentUser = useUserDataStore((state) => state.user)
+  console.log(currentUser, "currentUser");
+  
+  // Use companyId filter if current user is COMPANY_OWNER
+  const companyIdFilter = currentUser?.role === "COMPANY_OWNER" ? currentUser.companyId : undefined
+  
+  const { data: usersData, isLoading, error } = useUsers(companyIdFilter)
   const createUserMutation = useCreateUser()
   const updateUserMutation = useUpdateUser()
   const deleteUserMutation = useDeleteUser()
@@ -61,8 +70,12 @@ export default function Users() {
   })
   const companies = companiesData?.data || []
 
-  // Get current logged-in user
-  const currentUser = useUserDataStore((state) => state.user)
+  // Fetch roles for dropdown
+  const { data: rolesData, isLoading: isRolesLoading } = useQuery({
+    queryKey: ["roles", "all-for-user-edit"],
+    queryFn: getRoles,
+  })
+  const roles = rolesData || []
 
   // Form state
   const [formData, setFormData] = useState<{
@@ -84,18 +97,8 @@ export default function Users() {
   const users = usersData?.data || []
   const meta = usersData?.meta
 
-  // Filter users based on search term and company ownership
+  // Filter users based on search term
   const filteredUsers = users.filter((user) => {
-    // If current user is COMPANY_OWNER, only show users with matching companyId
-    if (currentUser?.role === "COMPANY_OWNER") {
-      return user.companyId === currentUser.companyId && (
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    // Otherwise, show all users matching search
     return (
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -166,7 +169,7 @@ export default function Users() {
       email: users.email,
       phone: users.phone,
       role: users.role,
-      companyId: (user?.companyId as string | null) ?? null,
+      companyId: (currentUser?.companyId as string | null) ?? null,
     })
     setIsEditModalOpen(true)
   }
@@ -303,12 +306,22 @@ export default function Users() {
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={isRolesLoading ? "Loading roles..." : "Select role"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="POSPORT_ADMIN">Posport Admin</SelectItem>
-                    <SelectItem value="COMPANY_OWNER">Company Owner</SelectItem>
-                    <SelectItem value="STORE_KEEPER">Store Keeper</SelectItem>
+                    {roles
+                      .filter(role => {
+                        // Show all roles except COMPANY_OWNER and POSPORT_ADMIN by default
+                        if (role.name !== "COMPANY_OWNER" && role.name !== "POSPORT_ADMIN") return true;
+                        // If current user is POSPORT_ADMIN or COMPANY_OWNER, show these roles too
+                        if (currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") return true;
+                        return false;
+                      })
+                      .map(role => (
+                        <SelectItem key={role.name} value={role.name}>
+                          {role.name.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -359,11 +372,7 @@ export default function Users() {
               <User className="w-5 h-5 text-[#1a72dd]" />
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{
-                  currentUser?.role === "COMPANY_OWNER"
-                    ? users.filter((user) => user.companyId === currentUser.companyId).length
-                    : meta?.itemCount || 0
-                }</p>
+                <p className="text-2xl font-bold text-gray-900">{meta?.itemCount || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -591,12 +600,22 @@ export default function Users() {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder={isRolesLoading ? "Loading roles..." : "Select role"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="POSPORT_ADMIN">Posport Admin</SelectItem>
-                  <SelectItem value="COMPANY_OWNER">Company Owner</SelectItem>
-                  <SelectItem value="STORE_KEEPER">Store Keeper</SelectItem>
+                  {roles
+                    .filter(role => {
+                      // Show all roles except COMPANY_OWNER and POSPORT_ADMIN by default
+                      if (role.name !== "COMPANY_OWNER" && role.name !== "POSPORT_ADMIN") return true;
+                      // If current user is POSPORT_ADMIN or COMPANY_OWNER, show these roles too
+                      if (currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") return true;
+                      return false;
+                    })
+                    .map(role => (
+                      <SelectItem key={role.name} value={role.name}>
+                        {role.name.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

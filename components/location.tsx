@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { MapPin, Plus, Search, MoreVertical, Edit, Trash2, Phone, Mail, QrCode, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,6 +57,7 @@ interface LocationsProps {
 }
 
 export default function Locations({ onMobileToggle, companyId }: LocationsProps) {
+  const router = useRouter();
   const user = useUserDataStore((state) => state.user);
   const searchParams = useSearchParams();
   const companyIdFromQuery = searchParams!.get("companyId");
@@ -102,7 +104,7 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
   }
 
   // React Query hooks
-  const { data: locationsData, isLoading, error } = useLocations(currentPage, 30, searchTerm, effectiveCompanyId, userId)
+  const { data: locationsData, isLoading, error } = useLocations(currentPage, 10, searchTerm, effectiveCompanyId, userId)
   const createLocationMutation = useCreateLocation()
   const updateLocationMutation = useUpdateLocation()
   const deleteLocationMutation = useDeleteLocation()
@@ -134,6 +136,8 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
   const handleAddLocation = async () => {
     if (formData.locationName && formData.address && formData.email) {
       const dataToSend = { ...formData };
+      console.log(dataToSend, "dataToSend");
+      
       if (effectiveCompanyId) {
         (dataToSend as any).companyId = effectiveCompanyId;
       }
@@ -217,6 +221,12 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
     return { name: "Other", color: "bg-gray-100 text-gray-800" }
   }
 
+  const handleLocationClick = (locationId: string) => {
+    if (effectiveCompanyId) {
+      router.push(`/companies/${effectiveCompanyId}/locations/${locationId}/locationDetail`);
+    }
+  }
+
   const isSubmitting =
     createLocationMutation.isPending || updateLocationMutation.isPending || deleteLocationMutation.isPending
 
@@ -232,7 +242,7 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
   }
 
   return (
-    <div className="bg-background transition-colors duration-300 p-4 sm:p-6 min-h-screen">
+    <div className="bg-background transition-colors duration-300 p-4 sm:p-6 overflow-auto h-screen">
       {/* Mobile Header */}
       <div className="md:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={onMobileToggle}>
@@ -410,7 +420,11 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
             {filteredLocations.map((location: any) => {
               const brand = getBrandFromName(location.locationName)
               return (
-                <Card key={location.id} className="hover:shadow-lg transition-shadow">
+                <Card 
+                  key={location.id} 
+                  className="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer"
+                  onClick={() => handleLocationClick(location.id)}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -421,16 +435,27 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditModal(location)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            openEditModal(location);
+                          }}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => confirmDeleteLocation(location.id)} className="text-red-600">
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            confirmDeleteLocation(location.id);
+                          }} className="text-red-600">
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete
                           </DropdownMenuItem>

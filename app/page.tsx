@@ -6,6 +6,8 @@ import Navbar from "../components/navbar"
 // import LocationsPage from "@/pages/location"
 // import EmailVerified from "@/pages/email-verified"
 import { useUserDataStore } from "@/lib/store";
+import { redirect } from "next/navigation"
+import Locations from "@/components/location";
 
 // Dynamic imports for better performance
 const CashierPage = dynamic(() => import("../pages/cashier-page"), {
@@ -41,7 +43,7 @@ const EmailVerified = dynamic(() => import("../pages/confirm-email"), {
 const RolesPage = dynamic(() => import("../pages/roles-page"), {
   loading: () => <PageSkeleton />,
 })
-const LocationsPage = dynamic(() => import("../pages/location"), {
+const LocationsPage = dynamic(() => import("../components/location"), {
   loading: () => <PageSkeleton />,
 })
 const UsersPage = dynamic(() => import("../pages/users-page"), {
@@ -60,7 +62,11 @@ function PageSkeleton() {
   )
 }
 
-export default function App() {
+export default function HomePage() {
+  redirect("/cashier")
+}
+
+function App() {
   const user = useUserDataStore((state) => state.user);
   const [currentPage, setCurrentPage] = useState("cashier")
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
@@ -118,8 +124,8 @@ export default function App() {
   return (
     <div className="flex h-screen bg-background transition-colors duration-300 overflow-hidden">
       <Navbar
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
+       
+        
         isMobileOpen={isMobileSidebarOpen}
         onMobileToggle={handleMobileToggle}
         isCollapsed={isSidebarCollapsed}

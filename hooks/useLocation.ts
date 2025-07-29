@@ -2,6 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "@/components/ui/use-toast"
 import api from "@/utils/axios"
 import { useUserDataStore } from "@/lib/store"
+import { assignUserToLocation } from "@/lib/Api/assignUserToLocation";
+import { getLocationUsers } from "@/lib/Api/getLocationUsers";
+import { unassignUserFromLocation } from "@/lib/Api/unassignUserFromLocation";
+import { updateLocationUser } from "@/lib/Api/updateLocationUser";
 
 interface Location {
   id: string
@@ -42,6 +46,7 @@ interface CreateLocationData {
   postalCode: string
   phone: string
   email: string
+  companyId?: string
 }
 
 interface UpdateLocationData extends CreateLocationData {
@@ -62,7 +67,7 @@ const getToken = () => {
 const token = getToken();
 
 // Fetch locations
-export const useLocations = (page = 1, take = 30, searchTerm?: string, companyId?: string, userId?: string) => {
+export const useLocations = (page = 1, take = 10, searchTerm?: string, companyId?: string, userId?: string) => {
   return useQuery<LocationsResponse>({
     queryKey: ["locations", page, take, searchTerm, companyId, userId],
     queryFn: async () => {
@@ -95,10 +100,12 @@ export const useCreateLocation = () => {
   const user = useUserDataStore((state) => state.user)
   return useMutation({
     mutationFn: async (data: CreateLocationData) => {
+      console.log(data, "data");
+      
       const response = await api.post(`/locations`, {
         ...data,
         qrCode: data.qrCode || `${data.locationName.replace(/\s+/g, "-")}-QR`,
-        companyId: user?.companyId
+        companyId: user?.companyId || data.companyId
       })
       return response.data
     },
@@ -177,6 +184,27 @@ export const useDeleteLocation = () => {
   })
 }
 
+// Assign user to location
+export const useAssignUserToLocation = () => {
+  return useMutation({
+    mutationFn: assignUserToLocation,
+  });
+};
+
+// Unassign user from location
+export const useUnassignUserFromLocation = () => {
+  return useMutation({
+    mutationFn: unassignUserFromLocation,
+  });
+};
+
+// Update user in location
+export const useUpdateLocationUser = () => {
+  return useMutation({
+    mutationFn: updateLocationUser,
+  });
+};
+
 // Fetch a single location by id
 export const useLocationById = (id?: string) => {
   return useQuery<Location | null>({
@@ -187,5 +215,14 @@ export const useLocationById = (id?: string) => {
       return response.data;
     },
     enabled: !!id,
+  });
+};
+
+export const useLocationUsers = (locationId?: string, page = 1, take = 10) => {
+  return useQuery({
+    queryKey: ["location-users", locationId, page, take],
+    queryFn: () =>
+      locationId ? getLocationUsers({ locationId, page, take }) : Promise.resolve(null),
+    enabled: !!locationId,
   });
 };

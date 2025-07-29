@@ -1,6 +1,8 @@
 "use client"
 
 import { useCallback } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { useUserDataStore } from "@/lib/store";
 import {
   Calculator,
@@ -20,50 +22,61 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface NavbarProps {
-  currentPage: string
-  onPageChange: (page: string) => void
   isMobileOpen: boolean
   onMobileToggle: () => void
   isCollapsed?: boolean
 }
 
 const baseMenuItems = [
-  { id: "cashier", label: "Cashier", icon: Calculator },
+  { id: "cashier", label: "Cashier", icon: Calculator, href: "/cashier"  },
   // { id: "history", label: "History Transaction", icon: History },
   // { id: "report", label: "Report", icon: FileText },
-  { id: "manage-store", label: "Manage Store", icon: Store },
+  { id: "manage-store", label: "Manage Store", icon: Store, href: "/manage-store" },
   // { id: "product-list", label: "Product List", icon: Package },
   // { id: "customer", label: "Customers", icon: Users },
-  { id: "users", label: "Users", icon: User },
-  { id: "roles", label: "Roles", icon: Shield },
-  { id: "account", label: "Account", icon: User },
-  { id: "support", label: "Support", icon: HelpCircle },
-  { id: "location", label: "Location", icon: HelpCircle },
-] as const;
+  { id: "users", label: "Users", icon: User, href: "/users" },
+  { id: "roles", label: "Roles", icon: Shield, href: "/roles" },
+  { id: "account", label: "Account", icon: User, href: "/account" },
+  { id: "support", label: "Support", icon: HelpCircle, href: "#" },
+  { id: "location", label: "Location", icon: HelpCircle, href: "/companies/1/locations" },
+];
 
-export default function Navbar({
-  currentPage,
-  onPageChange,
-  isMobileOpen,
-  onMobileToggle,
-  isCollapsed = false,
-}: NavbarProps) {
-  const handlePageChange = useCallback(
-    (pageId: string) => {
-      onPageChange(pageId)
+export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = false }: NavbarProps) {
+  const pathname = usePathname()
+
+  const handleLinkClick = useCallback(() => {
       // Close mobile sidebar when navigating
       if (isMobileOpen) {
         onMobileToggle()
       }
-    },
-    [onPageChange, isMobileOpen, onMobileToggle],
-  )
+    }, [isMobileOpen, onMobileToggle])
 
   const user = useUserDataStore((state) => state.user);
-  const menuItems = [
-    ...baseMenuItems,
-    ...(user?.role === "POSPORT_ADMIN" ? [{ id: "companies", label: "Companies", icon: Building2 }] : []),
-  ];
+
+  // Build menu items with Location logic
+  let menuItems = baseMenuItems.filter((item) => {
+    if (item.id === "location") {
+      if (user?.role === "POSPORT_ADMIN") return false;
+      return true;
+    }
+    return true;
+  }).map((item) => {
+    if (item.id === "location" && user?.role === "COMPANY_OWNER") {
+      return {
+        ...item,
+        href: `/companies/${user.companyId}/locations`,
+      };
+    }
+    return item;
+  });
+
+  // Always add Companies tab for POSPORT_ADMIN
+  if (user?.role === "POSPORT_ADMIN") {
+    menuItems = [
+      ...menuItems,
+      { id: "companies", label: "Companies", icon: Building2, href: "/companies" },
+    ];
+  }
   return (
     <>
       {/* Mobile Overlay */}
@@ -123,13 +136,13 @@ export default function Navbar({
           <nav className="space-y-2 flex-1" role="navigation" aria-label="Main menu">
             {menuItems.map((item) => {
               const Icon = item.icon
-              const isActive = currentPage === item.id
+              const isActive = pathname === item.href
               return (
-                <Button
+                <Link
                   key={item.id}
-                  variant="ghost"
-                  onClick={() => handlePageChange(item.id)}
-                  className={`w-full justify-start gap-4 p-3 h-auto rounded-xl transition-all duration-200 ${
+                  href={item.href}
+                  onClick={handleLinkClick}
+                  className={`flex items-center gap-4 p-3 rounded-xl transition-all duration-200 ${
                     isActive
                       ? "bg-white/20 backdrop-blur-sm shadow-lg border border-white/20"
                       : "hover:bg-white/10 hover:backdrop-blur-sm"
@@ -138,7 +151,7 @@ export default function Navbar({
                 >
                   <Icon className="w-6 h-6 flex-shrink-0" />
                   <span className="text-lg font-medium">{item.label}</span>
-                </Button>
+                  </Link>
               )
             })}
           </nav>

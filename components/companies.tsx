@@ -35,6 +35,7 @@ import { deleteCompany } from "@/lib/Api/deleteCompany"
 import type { GetCompaniesResponse } from "@/lib/Api/getCompanies"
 import { useUserDataStore } from "@/lib/store";
 import Locations from "@/components/location";
+import { useRouter } from "next/navigation"
 
 interface Company {
   id: string
@@ -55,6 +56,7 @@ interface CompaniesProps {
 export default function Companies({ onMobileToggle, onCompanySelect }: CompaniesProps) {
   const user = useUserDataStore((state) => state.user);
   const setUser = useUserDataStore((state) => state.setUser);
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -400,7 +402,9 @@ export default function Companies({ onMobileToggle, onCompanySelect }: Companies
                 key={company.id}
                 className="hover:shadow-lg transition-shadow duration-200 cursor-pointer"
                 onClick={() => {
-                  if (onCompanySelect) {
+                  if (user?.role === "POSPORT_ADMIN") {
+                    router.push(`/companies/${company.id}/locations`);
+                  } else if (onCompanySelect) {
                     onCompanySelect(company.id);
                   }
                 }}

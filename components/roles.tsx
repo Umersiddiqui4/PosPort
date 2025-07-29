@@ -23,6 +23,7 @@ import { getRoles } from "@/lib/Api/getRoles"
 import { createRole } from "@/lib/Api/createRole"
 import { editRole } from "@/lib/Api/editRole"
 import { deleteRole } from "@/lib/Api/deleteRole"
+import { useUserDataStore } from "@/lib/store";
 
 // Mock data based on the provided API response
 const mockRoles = [
@@ -69,6 +70,7 @@ export default function Roles() {
 
   const queryClient = useQueryClient();
   const [editModal, setEditModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null });
+  const user = useUserDataStore((state) => state.user);
 
   // Add Role Mutation
   const addRoleMutation = useMutation({
@@ -127,7 +129,12 @@ export default function Roles() {
 
   // Handle editing role
   const handleEditRole = (id: string, name: string, description: string) => {
-    editRoleMutation.mutate({ id, name: name.toUpperCase().replace(/\s+/g, "_"), description });
+    editRoleMutation.mutate({
+      id,
+      name: name.toUpperCase().replace(/\s+/g, "_"),
+      description,
+      companyId: user?.companyId || "",
+    });
   };
 
   // Handle deleting role

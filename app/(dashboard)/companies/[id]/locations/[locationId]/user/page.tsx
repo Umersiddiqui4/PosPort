@@ -311,7 +311,8 @@ export default function LocationUsersPage() {
             {locationUsers.map((user: any) => (
               <div
                 key={user.user.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                onClick={() => router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)}
               >
                 <div className="flex items-center gap-4">
                   <Avatar className="w-12 h-12">
@@ -340,20 +341,37 @@ export default function LocationUsersPage() {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)}>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)
+                    }}>
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => openEditModal(user.user)}>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation()
+                      openEditModal(user.user)
+                    }}>
                       <Edit className="w-4 h-4 mr-2" />
                       Edit User
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => openUnassignDialog(user)}>
+                    <DropdownMenuItem 
+                      className="text-red-600" 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openUnassignDialog(user)
+                      }}
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Remove from Location
                     </DropdownMenuItem>

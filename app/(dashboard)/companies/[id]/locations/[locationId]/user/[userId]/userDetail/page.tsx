@@ -112,7 +112,7 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button onClick={handleBack} variant="outline" size="icon">
@@ -288,7 +288,7 @@ export default function UserDetailPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">Location Details</h4>
+              <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Location Details</h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Location Name:</span>
@@ -320,7 +320,7 @@ export default function UserDetailPage() {
             </div>
             
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">Contact Information</h4>
+              <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Contact Information</h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Phone:</span>
@@ -381,9 +381,9 @@ export default function UserDetailPage() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Address</h4>
+            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Address</h4>
             <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 {selectedUserDetails.location.address}<br />
                 {selectedUserDetails.location.city}, {selectedUserDetails.location.state} {selectedUserDetails.location.postalCode}<br />
                 {selectedUserDetails.location.country}
@@ -392,15 +392,15 @@ export default function UserDetailPage() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-gray-900">Location Timeline</h4>
+            <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Location Timeline</h4>
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Location Created:</span>
-                <span className="font-medium">{new Date(selectedUserDetails.location.createdAt).toLocaleString()}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base text-gray-600">Location Created:</span>
+                <span className="font-medium text-sm sm:text-base">{new Date(selectedUserDetails.location.createdAt).toLocaleString()}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Location Updated:</span>
-                <span className="font-medium">{new Date(selectedUserDetails.location.updatedAt).toLocaleString()}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base text-gray-600">Location Updated:</span>
+                <span className="font-medium text-sm sm:text-base">{new Date(selectedUserDetails.location.updatedAt).toLocaleString()}</span>
               </div>
             </div>
           </div>

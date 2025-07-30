@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { Users, UserPlus, MoreHorizontal, Edit, Trash2, Eye, Search, Loader2 } from "lucide-react"
+import { Users, UserPlus, MoreHorizontal, Edit, Trash2, Eye, Search, Loader2, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -81,10 +81,17 @@ export default function LocationUsersPage() {
   const { data, isLoading } = useLocationUsers(locationId, 1, 10);
   const locationUsers = data?.data || [];
 
-  console.log(data, "locationUsers")
+  console.log("Location Users Data:", locationUsers)
+  console.log("Location Users Structure:", locationUsers.map((user: any) => ({
+    hasUser: !!user?.user,
+    userId: user?.user?.id,
+    userName: user?.user?.firstName + " " + user?.user?.lastName
+  })))
 
   // locationUsers is an array of assignments, each with a nested user object
-  const assignedUserIds = locationUsers.map((user: any) => user.user.id)
+  const assignedUserIds = locationUsers
+    .filter((user: any) => user?.user?.id) // Filter out any items without user.id
+    .map((user: any) => user.user.id)
   const availableUsers = allUsersData?.data || []
 
   // Filter available users based on search
@@ -249,21 +256,21 @@ export default function LocationUsersPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{locationUsers.length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {locationUsers.filter((u: any) => u?.user?.id).length}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-green-600" />
-              </div>
+            <div className="flex items-center space-x-2">
+              <User className="w-5 h-5 text-blue-500" />
               <div>
-                <p className="text-sm text-gray-600">Active Users</p>
+                <p className="text-sm text-gray-600">Active</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locationUsers.filter((u: any) => u.user.status === "active").length}
+                  {locationUsers.filter((u: any) => u?.user?.status === "active").length}
                 </p>
               </div>
             </div>
@@ -278,7 +285,7 @@ export default function LocationUsersPage() {
               <div>
                 <p className="text-sm text-gray-600">Managers</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locationUsers.filter((u: any) => u.user.role === "Manager").length}
+                  {locationUsers.filter((u: any) => u?.user?.role === "Manager" || u?.user?.role === "Supervisor").length}
                 </p>
               </div>
             </div>
@@ -293,7 +300,7 @@ export default function LocationUsersPage() {
               <div>
                 <p className="text-sm text-gray-600">Staff</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {locationUsers.filter((u: any) => u.user.role === "Staff" || u.user.role === "Cashier").length}
+                  {locationUsers.filter((u: any) => u?.user?.role === "Staff" || u?.user?.role === "Cashier").length}
                 </p>
               </div>
             </div>
@@ -308,7 +315,9 @@ export default function LocationUsersPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {locationUsers.map((user: any) => (
+            {locationUsers
+              .filter((user: any) => user?.user?.id) // Filter out any items without user.id
+              .map((user: any) => (
               <div
                 key={user.user.id}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"

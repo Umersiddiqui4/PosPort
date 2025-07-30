@@ -26,6 +26,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-users"
 import { useAssignedUsers } from "@/hooks/useAssignedUsers"
 import PhoneInput from "react-phone-input-2"
@@ -54,6 +55,8 @@ export default function Users() {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
+  const [userToDelete, setUserToDelete] = useState<User | null>(null)
   // API hooks
   // console.log(currentUser, "currentUser");
   
@@ -200,13 +203,18 @@ export default function Users() {
 
   // Handle delete
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        await deleteUserMutation.mutateAsync(id)
-      } catch (error) {
-        console.error("Error deleting user:", error)
-      }
+    try {
+      await deleteUserMutation.mutateAsync(id)
+      setIsDeleteDialogOpen(false)
+      setUserToDelete(null)
+    } catch (error) {
+      console.error("Error deleting user:", error)
     }
+  }
+
+  const openDeleteDialog = (user: User) => {
+    setUserToDelete(user)
+    setIsDeleteDialogOpen(true)
   }
 
   // Reset form when modals close
@@ -389,25 +397,25 @@ export default function Users() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-[#1a72dd]" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#1a72dd]" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{meta?.itemCount || 0}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{meta?.itemCount || 0}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <Shield className="w-5 h-5 text-red-500" />
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Admins</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Admins</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {users.filter((user) => user.role === "POSPORT_ADMIN").length}
                 </p>
               </div>
@@ -415,12 +423,12 @@ export default function Users() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <Building2 className="w-5 h-5 text-blue-500" />
+              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Owners</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Owners</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {users.filter((user) => user.role === "COMPANY_OWNER").length}
                 </p>
               </div>
@@ -428,12 +436,12 @@ export default function Users() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-green-500" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Keepers</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Keepers</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {users.filter((user) => user.role === "STORE_KEEPER").length}
                 </p>
               </div>
@@ -486,33 +494,35 @@ export default function Users() {
                   className="hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => router.push(`/users/${user.id}/detail`)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-[#1a72dd] rounded-full flex items-center justify-center text-white font-semibold">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                      <div className="flex items-start space-x-3 sm:space-x-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1a72dd] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base flex-shrink-0">
                           {user.firstName.charAt(0)}
                           {user.lastName.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                               {user.firstName} {user.lastName}
                             </h3>
-                            <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
+                            </div>
                           </div>
                           <div className="space-y-1">
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                              <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                               <span className="truncate">{user.email}</span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                              <span>{user.phone}</span>
+                            <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                              <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                              <span className="truncate">{user.phone}</span>
                             </div>
                             {user.companyId && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>Company ID: {user.companyId.slice(0, 8)}...</span>
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                                <span className="truncate">Company ID: {user.companyId.slice(0, 8)}...</span>
                               </div>
                             )}
                           </div>
@@ -521,12 +531,13 @@ export default function Users() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-end sm:justify-start">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button 
                               variant="ghost" 
                               size="icon"
+                              className="h-8 w-8 sm:h-10 sm:w-10"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <MoreHorizontal className="w-4 h-4" />
@@ -543,7 +554,7 @@ export default function Users() {
                             <DropdownMenuItem 
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleDelete(user.id)
+                                openDeleteDialog(user)
                               }} 
                               className="text-red-600"
                             >
@@ -605,40 +616,42 @@ export default function Users() {
                       }
                     }}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-start space-x-4">
-                          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div className="flex items-start space-x-3 sm:space-x-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base flex-shrink-0">
                             {user.firstName.charAt(0)}
                             {user.lastName.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                                 {user.firstName} {user.lastName}
                               </h3>
-                              <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
-                              <Badge className="bg-green-100 text-green-800">Assigned</Badge>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
+                                <Badge className="bg-green-100 text-green-800">Assigned</Badge>
+                              </div>
                             </div>
                             <div className="space-y-1">
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                 <span className="truncate">{user.email}</span>
                               </div>
-                              <div className="flex items-center text-sm text-gray-600">
-                                <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                                <span>{user.phone}</span>
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                                <span className="truncate">{user.phone}</span>
                               </div>
                               {location && (
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                   <span className="truncate">{location.locationName}</span>
                                 </div>
                               )}
                               {user.companyId && (
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
-                                  <span>Company ID: {user.companyId.slice(0, 8)}...</span>
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                  <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                                  <span className="truncate">Company ID: {user.companyId.slice(0, 8)}...</span>
                                 </div>
                               )}
                             </div>
@@ -647,12 +660,13 @@ export default function Users() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-end sm:justify-start">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button 
                                 variant="ghost" 
                                 size="icon"
+                                className="h-8 w-8 sm:h-10 sm:w-10"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <MoreHorizontal className="w-4 h-4" />
@@ -669,7 +683,7 @@ export default function Users() {
                               <DropdownMenuItem 
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  handleDelete(user.id)
+                                  openDeleteDialog(user)
                                 }} 
                                 className="text-red-600"
                               >
@@ -691,32 +705,33 @@ export default function Users() {
 
       {/* Pagination */}
       {meta && meta.pageCount > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, meta.itemCount)} of {meta.itemCount}{" "}
-            users
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+            Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, meta.itemCount)} of {meta.itemCount} users
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center sm:justify-end gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="text-xs px-2 sm:px-3"
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={!meta.hasPreviousPage}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
+              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="hidden sm:inline">Previous</span>
             </Button>
-            <span className="text-sm text-gray-600">
-              Page {currentPage} of {meta.pageCount}
+            <span className="text-xs sm:text-sm text-gray-600 px-2">
+              {currentPage} / {meta.pageCount}
             </span>
             <Button
               variant="outline"
               size="sm"
+              className="text-xs px-2 sm:px-3"
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={!meta.hasNextPage}
             >
-              Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <span className="hidden sm:inline">Next</span>
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -841,6 +856,36 @@ export default function Users() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete{" "}
+              <span className="font-semibold">
+                {userToDelete?.firstName} {userToDelete?.lastName}
+              </span>{" "}
+              and all their associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setIsDeleteDialogOpen(false)
+              setUserToDelete(null)
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => userToDelete && handleDelete(userToDelete.id)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -33,7 +33,7 @@ export default function LocationDetailPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const companyId = params?.companyId as string
+  const companyId = params?.id as string
   const locationId = params?.locationId as string
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -90,7 +90,7 @@ export default function LocationDetailPage() {
     if (location) {
       await deleteLocationMutation.mutateAsync(location.id)
       setIsDeleteDialogOpen(false)
-      router.push("/locations")
+      router.push(`/companies/${companyId}/locations`)
     }
   }
 

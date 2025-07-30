@@ -79,7 +79,7 @@ console.log(params, "params");
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="text-red-600 mb-4">Error loading location details</div>
-          <Button onClick={() => router.push("/locations")} variant="outline">
+          <Button onClick={() => router.push(`/companies/${companyId}/locations`)} variant="outline">
             Back to Locations
           </Button>
         </div>
@@ -94,7 +94,7 @@ console.log(params, "params");
           <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Location not found</h3>
           <p className="text-gray-600 mb-4">The location you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.push("/locations")} variant="outline">
+          <Button onClick={() => router.push(`/companies/${companyId}/locations`)} variant="outline">
             Back to Locations
           </Button>
         </div>
@@ -111,7 +111,7 @@ console.log(params, "params");
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => router.push("/locations")}
+          onClick={() => router.push(`/companies/${companyId}/locations`)}
           className="text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="w-5 h-5" />

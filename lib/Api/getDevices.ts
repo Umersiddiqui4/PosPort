@@ -1,18 +1,15 @@
 import api from "@/utils/axios";
 
-export interface Device {
+interface Device {
   id: string;
-  deviceName: string;
-  deviceType: string;
-  deviceCode: string;
-  createdAt: string;
-  updatedAt: string;
-  // Add any other fields as needed from the API response
+  name: string;
+  // Add more fields as needed
 }
 
-export interface GetDevicesResponse {
-  items: Device[];
+interface GetDevicesResponse {
+  data: Device[];
   meta: {
+    locationId: string;
     page: number;
     take: number;
     itemCount: number;
@@ -22,9 +19,9 @@ export interface GetDevicesResponse {
   };
 }
 
-export const getDevices = async (page = 1, take = 10): Promise<GetDevicesResponse> => {
-  const response = await api.get("/devices", {
-    params: { page, take },
+export const getDevices = async (locationId: string, page = 1, take = 10, active = true): Promise<GetDevicesResponse> => {
+  const response = await api.get(`/location-devices/by-location/${locationId}`, {
+    params: { page, take, active },
   });
   return response.data;
 }; 

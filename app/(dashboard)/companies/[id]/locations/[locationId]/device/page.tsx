@@ -38,8 +38,8 @@ export default function LocationDevicesPage() {
   const locationId = params?.locationId as string
 
   // Fetch devices from API
-  const { data, isLoading, isError } = useDevices(1, 10)
-  const devices = data?.items || []
+  const { data, isLoading, isError } = useDevices(locationId, 1, 10)
+  const devices = data?.data || []
   console.log(data, "devices" );
   
 
@@ -110,8 +110,8 @@ export default function LocationDevicesPage() {
   const openEditModal = (device: any) => {
     setSelectedDevice(device)
     setFormData({
-      deviceName: device.deviceName,
-      deviceType: device.deviceType,
+      deviceName: device.device?.deviceName,
+      deviceType: device.device?.deviceType,
     })
     setIsEditModalOpen(true)
   }
@@ -164,7 +164,7 @@ export default function LocationDevicesPage() {
               <div>
                 <p className="text-sm text-gray-600">POS Terminals</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {devices.filter((d) => d.deviceType === "pos").length}
+                  {devices.filter((d: any) => (d.device?.deviceType || d.deviceType || 'pos') === "pos").length}
                 </p>
               </div>
             </div>
@@ -179,8 +179,8 @@ export default function LocationDevicesPage() {
         <div className="text-center py-12 text-red-600">Failed to load devices.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {devices.map((device) => {
-            const DeviceIcon = getDeviceIcon(device.deviceType)
+          {devices.map((device: any) => {
+            const DeviceIcon = getDeviceIcon(device.device?.deviceType || device.deviceType || 'pos')
             return (
               <Card key={device.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-3">
@@ -190,8 +190,8 @@ export default function LocationDevicesPage() {
                         <DeviceIcon className="w-6 h-6 text-gray-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">{device.deviceName}</CardTitle>
-                        {/* <p className="text-sm text-gray-600">{device.model}</p> */}
+                        <CardTitle className="text-lg font-semibold text-gray-900">{device.device?.deviceName || device.deviceName || 'Unknown Device'}</CardTitle>
+                        <p className="text-sm text-gray-600">{device.device?.deviceCode || 'No Code'}</p>
                       </div>
                     </div>
                     <DropdownMenu>
@@ -220,26 +220,28 @@ export default function LocationDevicesPage() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
                     {/* <Badge className={getStatusColor(device.status)}>{device.status}</Badge> */}
-                    <Badge className={getTypeColor(device.deviceType)}>{device.deviceType.toUpperCase()}</Badge>
+                    <Badge className={getTypeColor(device.device?.deviceType || device.deviceType || 'pos')}>
+                      {(device.device?.deviceType || device.deviceType || 'pos').toUpperCase()}
+                    </Badge>
                   </div>
 
                   <div className="space-y-2 text-sm">
-                    {/* <div className="flex justify-between">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Assigned:</span>
+                      <span className="text-gray-900">{new Date(device.assignedAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-gray-600">Location:</span>
-                      <span className="font-medium text-gray-900">{device.location}</span>
-                    </div> */}
-                    {/* <div className="flex justify-between">
-                      <span className="text-gray-600">IP Address:</span>
-                      <span className="font-mono text-gray-900">{device.ipAddress}</span>
-                    </div> */}
-                    {/* <div className="flex justify-between">
-                      <span className="text-gray-600">Serial:</span>
-                      <span className="font-mono text-gray-900">{device.serialNumber}</span>
-                    </div> */}
-                    {/* <div className="flex justify-between">
-                      <span className="text-gray-600">Last Seen:</span>
-                      <span className="text-gray-900">{new Date(device.lastSeen).toLocaleDateString()}</span>
-                    </div> */}
+                      <span className="font-medium text-gray-900">{device.location?.locationName || 'Unknown Location'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Device Code:</span>
+                      <span className="font-mono text-gray-900">{device.device?.deviceCode || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span className="text-gray-900">{new Date(device.device?.createdAt || device.createdAt).toLocaleDateString()}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

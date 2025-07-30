@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { Users, UserPlus, MoreHorizontal, Edit, Trash2, Eye, Search, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,6 +16,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -43,6 +53,7 @@ function getRandomBgColor(str: string) {
 
 export default function LocationUsersPage() {
   const params = useParams()
+  const router = useRouter()
   const companyId = params?.companyId as string
   const locationId = params?.locationId as string
 
@@ -50,6 +61,8 @@ export default function LocationUsersPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [isUnassignDialogOpen, setIsUnassignDialogOpen] = useState(false)
+  const [userToUnassign, setUserToUnassign] = useState<any>(null)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -163,11 +176,11 @@ export default function LocationUsersPage() {
   const openEditModal = (user: any) => {
     setSelectedUser(user)
     setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
-      status: user.status,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      email: user.email || "",
+      role: user.role || "",
+      status: user.status || "active",
     })
     setIsEditModalOpen(true)
   }
@@ -184,21 +197,33 @@ export default function LocationUsersPage() {
 
   const handleUnassignUser = async (userId: string) => {
     try {
-      await unassignUserMutation.mutateAsync({ userId, locationId });
+      await unassignUserMutation.mutateAsync({ userId, locationId })
       toast({
         title: "Success",
         description: "User unassigned from location successfully",
-      });
-      queryClient.invalidateQueries({ queryKey: ["location-users", locationId, 1, 10] });
+      })
+      queryClient.invalidateQueries({ queryKey: ["location-users"] })
     } catch (error) {
-      console.error("Error unassigning user:", error);
       toast({
         title: "Error",
         description: "Failed to unassign user from location",
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
+
+  const openUnassignDialog = (user: any) => {
+    setUserToUnassign(user)
+    setIsUnassignDialogOpen(true)
+  }
+
+  const confirmUnassign = async () => {
+    if (userToUnassign) {
+      await handleUnassignUser(userToUnassign.user.id)
+      setIsUnassignDialogOpen(false)
+      setUserToUnassign(null)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -320,7 +345,7 @@ export default function LocationUsersPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)}>
                       <Eye className="w-4 h-4 mr-2" />
                       View Details
                     </DropdownMenuItem>
@@ -328,7 +353,7 @@ export default function LocationUsersPage() {
                       <Edit className="w-4 h-4 mr-2" />
                       Edit User
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => handleUnassignUser(user.user.id)}>
+                    <DropdownMenuItem className="text-red-600" onClick={() => openUnassignDialog(user)}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Remove from Location
                     </DropdownMenuItem>
@@ -517,6 +542,26 @@ export default function LocationUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Unassign Confirmation Dialog */}
+      <AlertDialog open={isUnassignDialogOpen} onOpenChange={setIsUnassignDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently remove{" "}
+              <span className="font-semibold">{userToUnassign?.user?.firstName} {userToUnassign?.user?.lastName}</span> from this location.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setIsUnassignDialogOpen(false)
+              setUserToUnassign(null)
+            }}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmUnassign} className="bg-red-600 hover:bg-red-700">Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

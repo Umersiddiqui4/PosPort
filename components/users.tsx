@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Plus,
   Search,
@@ -14,6 +15,7 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
+  MapPin,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,7 +25,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-users"
+import { useAssignedUsers } from "@/hooks/useAssignedUsers"
 import PhoneInput from "react-phone-input-2"
 import { useQuery } from "@tanstack/react-query"
 import { getCompanies } from "@/lib/Api/getCompanies"
@@ -43,8 +47,10 @@ interface User {
 }
 
 export default function Users() {
+  const router = useRouter()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState<string>("")
+  const [activeTab, setActiveTab] = useState<string>("users")
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
@@ -58,7 +64,8 @@ export default function Users() {
   // Use companyId filter if current user is COMPANY_OWNER
   const companyIdFilter = currentUser?.role === "COMPANY_OWNER" ? currentUser.companyId : undefined
   
-  const { data: usersData, isLoading, error } = useUsers(companyIdFilter)
+  const { data: usersData, isLoading, error } = useUsers(companyIdFilter, currentPage, 10)
+  const { data: assignedUsersData, isLoading: isAssignedUsersLoading } = useAssignedUsers(currentPage, 10)
   const createUserMutation = useCreateUser()
   const updateUserMutation = useUpdateUser()
   const deleteUserMutation = useDeleteUser()
@@ -95,17 +102,34 @@ export default function Users() {
   })
 
   const users = usersData?.data || []
-  const meta = usersData?.meta
+  const assignedUsers = assignedUsersData?.data || []
+  const meta = activeTab === "users" ? usersData?.meta : assignedUsersData?.meta
 
-  // Filter users based on search term
-  const filteredUsers = users.filter((user) => {
-    return (
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  })
+  // Get assigned user IDs for filtering
+  const assignedUserIds = assignedUsers.map((au: any) => au.user.id)
+
+  // Filter users based on active tab
+  const getFilteredUsers = () => {
+    let allUsers = users
+    if (activeTab === "assigned-users") {
+      // Show only assigned users
+      allUsers = assignedUsers.map((au: any) => au.user)
+    } else {
+      // Show users who are NOT assigned (exclude assigned users)
+      allUsers = users.filter((user: any) => !assignedUserIds.includes(user.id))
+    }
+
+    return allUsers.filter((user) => {
+      return (
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    })
+  }
+
+  const filteredUsers = getFilteredUsers()
 
   // Get role badge color
   const getRoleBadgeColor = (role: string) => {
@@ -198,7 +222,7 @@ export default function Users() {
     setEditingUser(null)
   }
 
-  if (isLoading) {
+  if (isLoading || isAssignedUsersLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a72dd]"></div>
@@ -418,92 +442,252 @@ export default function Users() {
         </Card>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <Input
-          placeholder="Search users by name, email, or role..."
-          value={searchTerm}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Users
+          </TabsTrigger>
+          <TabsTrigger value="assigned-users" className="flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            Assigned Users
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Users List */}
-      <div className="space-y-4">
-        {filteredUsers.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
-              <p className="text-gray-600">
-                {searchTerm ? "Try adjusting your search terms." : "Get started by adding your first user."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredUsers.map((user) => (
-            <Card key={user.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-[#1a72dd] rounded-full flex items-center justify-center text-white font-semibold">
-                      {user.firstName.charAt(0)}
-                      {user.lastName.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                          {user.firstName} {user.lastName}
-                        </h3>
-                        <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
-                          <span className="truncate">{user.email}</span>
+        <TabsContent value="users" className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search users by name, email, or role..."
+              value={searchTerm}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Users List */}
+          <div className="space-y-4">
+            {filteredUsers.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+                  <p className="text-gray-600">
+                    {searchTerm ? "Try adjusting your search terms." : "Get started by adding your first user."}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredUsers.map((user) => (
+                <Card 
+                  key={user.id} 
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => router.push(`/users/${user.id}/detail`)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 bg-[#1a72dd] rounded-full flex items-center justify-center text-white font-semibold">
+                          {user.firstName.charAt(0)}
+                          {user.lastName.charAt(0)}
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
-                          <span>{user.phone}</span>
-                        </div>
-                        {user.companyId && (
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
-                            <span>Company ID: {user.companyId.slice(0, 8)}...</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                              {user.firstName} {user.lastName}
+                            </h3>
+                            <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
                           </div>
-                        )}
+                          <div className="space-y-1">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span className="truncate">{user.email}</span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span>{user.phone}</span>
+                            </div>
+                            {user.companyId && (
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span>Company ID: {user.companyId.slice(0, 8)}...</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500">
+                            Created: {new Date(user.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500">
-                        Created: {new Date(user.createdAt).toLocaleDateString()}
+                      <div className="flex items-center space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation()
+                              handleEdit(user)
+                            }}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDelete(user.id)
+                              }} 
+                              className="text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(user)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(user.id)} className="text-red-600">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="assigned-users" className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search assigned users by name, email, or role..."
+              value={searchTerm}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Assigned Users List */}
+          <div className="space-y-4">
+            {filteredUsers.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No assigned users found</h3>
+                  <p className="text-gray-600">
+                    {searchTerm ? "Try adjusting your search terms." : "No users are currently assigned to locations."}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredUsers.map((user) => {
+                // Find the assigned user data to get location information
+                const assignedUserData = assignedUsers.find((au: any) => au.user.id === user.id)
+                const location = assignedUserData?.location
+                
+                return (
+                  <Card 
+                    key={user.id} 
+                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => {
+                      if (location) {
+                        // Navigate to location-specific user detail page
+                        router.push(`/companies/${location.companyId}/locations/${location.id}/user/${user.id}/userDetail`)
+                      } else {
+                        // Fallback to general user detail page
+                        router.push(`/users/${user.id}/detail`)
+                      }
+                    }}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            {user.firstName.charAt(0)}
+                            {user.lastName.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-lg font-semibold text-gray-900 truncate">
+                                {user.firstName} {user.lastName}
+                              </h3>
+                              <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
+                              <Badge className="bg-green-100 text-green-800">Assigned</Badge>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span className="truncate">{user.email}</span>
+                              </div>
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                                <span>{user.phone}</span>
+                              </div>
+                              {location && (
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <span className="truncate">{location.locationName}</span>
+                                </div>
+                              )}
+                              {user.companyId && (
+                                <div className="flex items-center text-sm text-gray-600">
+                                  <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
+                                  <span>Company ID: {user.companyId.slice(0, 8)}...</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="mt-2 text-xs text-gray-500">
+                              Created: {new Date(user.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={(e) => {
+                                e.stopPropagation()
+                                handleEdit(user)
+                              }}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDelete(user.id)
+                                }} 
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Pagination */}
       {meta && meta.pageCount > 1 && (

@@ -46,8 +46,11 @@ export interface UpdateUserData extends CreateUserData {
 // API Functions
 // Remove API_BASE_URL, use api's baseURL
 
-const fetchUsers = async (companyId?: string): Promise<UsersResponse> => {
-  const params: any = {};
+const fetchUsers = async (companyId?: string, page = 1, take = 10): Promise<UsersResponse> => {
+  const params: any = {
+    page,
+    take,
+  };
   
   // Add companyId to params if provided
   if (companyId) {
@@ -83,10 +86,10 @@ const deleteUser = async (id: string): Promise<void> => {
 }
 
 // Custom Hooks
-export const useUsers = (companyId?: string) => {
+export const useUsers = (companyId?: string, page = 1, take = 10) => {
   return useQuery({
-    queryKey: ["users", companyId],
-    queryFn: () => fetchUsers(companyId),
+    queryKey: ["users", companyId, page, take],
+    queryFn: () => fetchUsers(companyId, page, take),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }

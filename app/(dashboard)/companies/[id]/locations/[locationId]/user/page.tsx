@@ -54,7 +54,7 @@ function getRandomBgColor(str: string) {
 export default function LocationUsersPage() {
   const params = useParams()
   const router = useRouter()
-  const companyId = params?.companyId as string
+  const companyId = params?.id as string
   const locationId = params?.locationId as string
 
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)

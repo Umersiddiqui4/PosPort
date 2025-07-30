@@ -56,7 +56,7 @@ const getRoleColor = (role: string) => {
 export default function UserDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const companyId = params?.companyId as string
+  const companyId = params?.id as string
   const locationId = params?.locationId as string
   const userId = params?.userId as string
 

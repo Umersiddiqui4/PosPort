@@ -1,15 +1,43 @@
 import api from "@/utils/axios";
 
-interface Device {
+interface DeviceData {
   id: string;
-  name: string;
-  // Add more fields as needed
+  deviceName: string;
+  deviceType: string;
+  deviceCode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface LocationData {
+  id: string;
+  locationName: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  phone: string;
+  email: string;
+  qrCode: string;
+  companyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AssignedDevice {
+  id: string;
+  assignedAt: string;
+  assignedById: string;
+  unassignedAt: string | null;
+  unassignedById: string | null;
+  device: DeviceData;
+  location: LocationData;
 }
 
 interface GetDevicesResponse {
-  data: Device[];
+  data: AssignedDevice[];
   meta: {
-    locationId: string;
     page: number;
     take: number;
     itemCount: number;

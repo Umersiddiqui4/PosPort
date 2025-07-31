@@ -15,7 +15,6 @@ export const useLogin = () => {
     onSuccess: (data, variables) => {
       localStorage.setItem("token", data.data.tokens.access.token);
       localStorage.setItem("refreshToken", data.data.tokens.refresh.token);
-      console.log("data.data", data.data);
       
       api.defaults.headers.common["Authorization"] = `Bearer ${data.data.tokens.access.token}`;
       loginUserData(data.data); // Save full login response in Zustand

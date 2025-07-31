@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -7,15 +7,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Box from '@mui/material/Box'; 
 import '@/styles/globals.css'
-import { useUserDataStore } from "@/lib/store"
-import { useLogin } from "@/hooks/useLogin"
-import { signupUser } from "@/lib/Api/auth/signUpUser"
 import { useSignup } from "@/hooks/useSignUp"
 import { LinearProgress } from "@mui/material"
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
 
 interface SignupForm {
   email: string;
@@ -25,17 +21,9 @@ interface SignupForm {
   lastName: string;
 }
 
-export default function signup() {
-
-  const [showPassword, setShowPassword] = useState(false)
+export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  function screenChange(screen: string) {
-    window.location.href = `/${screen}`;
-  }
-
-  const login = useUserDataStore((state) => state.login);
-  const { mutate: signup, isPending, isSuccess, isError, error } = useSignup();
+  const { mutate: signup, isPending, isSuccess, error } = useSignup();
   const { toast } = useToast();
 
   const [form, setForm] = useState<SignupForm>({
@@ -55,8 +43,11 @@ export default function signup() {
     }
   }, [isSuccess, toast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function screenChange(screen: string) {
+    window.location.href = `/${screen}`;
+  }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -89,20 +80,16 @@ export default function signup() {
             <h2 className=" font-extrabold ">Sign Up</h2>
           </div>
           <Label htmlFor="email" className="text-gray-700 font-medium">
-
             {error && (
               <span className="text-red-500 text-md">
-                {" " + (error as any)?.response?.data?.error || "Login failed. Please try again."}
+                {" " + (error as Error)?.message || "Signup failed. Please try again."}
               </span>
             )}
           </Label>
         </CardHeader>
 
         <CardContent className="p-8 pt-4">
-
-
           <form onSubmit={handleSubmit} className="space-y-4">
-
             <div>
               <Label htmlFor="firstName" className="text-gray-700 font-medium">
                 First Name
@@ -116,7 +103,6 @@ export default function signup() {
                 placeholder="Enter your first name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
-
               />
             </div>
 
@@ -133,7 +119,6 @@ export default function signup() {
                 placeholder="Enter your last name"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
-
               />
             </div>
 
@@ -150,7 +135,6 @@ export default function signup() {
                 placeholder="Enter your email"
                 className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
-
               />
             </div>
 
@@ -162,14 +146,13 @@ export default function signup() {
                 <PhoneInput
                   country={'pk'}
                   value={form.phone}
-                  onChange={(phone: any) => setForm((prev) => ({ ...prev, phone: "+" + phone }))}
+                  onChange={(phone: string) => setForm((prev) => ({ ...prev, phone: "+" + phone }))}
                   inputClass="!w-full !rounded-xl !border-gray-300"
                   inputProps={{
                     name: 'phone',
                     required: true,
                   }}
                 />
-
               </div>
             </div>
 
@@ -206,8 +189,6 @@ export default function signup() {
               ) : "Sign Up"}
             </Button>
           </form>
-
-
         </CardContent>
       </Card>
     </div>

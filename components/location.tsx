@@ -96,11 +96,9 @@ export default function Locations({ companyId }: LocationsProps) {
   const locationIdFromQuery = searchParams!.get("locationId");
   const shouldShowSingleLocation = user?.role === "COMPANY_OWNER" && !!locationIdFromQuery;
 
-  let singleLocation = null;
-  if (shouldShowSingleLocation) {
-    const { data } = useLocationById(locationIdFromQuery!);
-    singleLocation = data;
-  }
+  // Always call the hook, but only use the data when needed
+  const { data: singleLocationData } = useLocationById(locationIdFromQuery || "");
+  const singleLocation = shouldShowSingleLocation ? singleLocationData : null;
 
   // React Query hooks
   const { data: locationsData, isLoading, error } = useLocations(currentPage, 10, searchTerm, effectiveCompanyId, userId)
@@ -116,9 +114,9 @@ export default function Locations({ companyId }: LocationsProps) {
   // Frontend filter if backend doesn't filter
   let filteredLocations = locations;
   if (effectiveCompanyId) {
-    filteredLocations = filteredLocations.filter(loc => (loc as any).companyId === effectiveCompanyId);
+    filteredLocations = filteredLocations.filter(loc => (loc as Location).companyId === effectiveCompanyId);
   } else if (userId) {
-    filteredLocations = filteredLocations.filter(loc => (loc as any).userId === userId);
+    filteredLocations = filteredLocations.filter(loc => (loc as Location).userId === userId);
   }
   
   console.log(filteredLocations ,"filteredLocations");
@@ -138,7 +136,7 @@ export default function Locations({ companyId }: LocationsProps) {
       console.log(dataToSend, "dataToSend");
       
       if (effectiveCompanyId) {
-        (dataToSend as any).companyId = effectiveCompanyId;
+        (dataToSend as Location).companyId = effectiveCompanyId;
       }
       await createLocationMutation.mutateAsync(dataToSend);
       setIsAddModalOpen(false);

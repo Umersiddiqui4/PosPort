@@ -69,7 +69,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
 
     window.addEventListener("keydown", handleGlobalKeyPress)
     return () => window.removeEventListener("keydown", handleGlobalKeyPress)
-  }, [value])
+  }, [value, handleNumberClick, handleEnter, handleDelete, handleClear])
 
   return (
     <div className="bg-gradient-to-br from-white to-gray-50 p-4 sm:p-6 min-h-screen">

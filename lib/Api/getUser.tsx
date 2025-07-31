@@ -2,18 +2,38 @@
             
 import api from "@/utils/axios";
 
-export const getUsers = async (companyId?: string) => {
-  const params: any = {};
-  
-  // Add companyId to params if provided
-  if (companyId) {
-    params.companyId = companyId;
-  }
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  companyId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-  const response = await api.get(`/users`, {
-    params,
-  });
-  return response.data;
+export const getUser = async (userId?: string): Promise<User> => {
+  try {
+    if (userId) {
+      const response = await api.get(`/users/${userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    } else {
+      const response = await api.get(`/users`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch user";
+    throw new Error(errorMessage);
+  }
 };
 
 export const getUserByCompanyId = async (companyId: string) => {

@@ -31,9 +31,8 @@ export const getCompanies = async (
     });
     if (search) params.append("q", search);
     const response = await api.get<GetCompaniesResponse>(
-      `https://dev-api.posport.io/api/v1/companies?${params.toString()}`
+      `/companies?${params.toString()}`
     );
-    console.log("API companies response", response.data);
     // If response.data.meta exists, return it. Otherwise, construct meta from available fields.
     return {
       data: response.data.data,

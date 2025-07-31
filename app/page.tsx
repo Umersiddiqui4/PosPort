@@ -87,7 +87,7 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case "cashier":
-        return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
+        return <CashierPage onSidebarToggle={handleSidebarToggle} />
       case "history":
         return <HistoryPage onMobileToggle={handleMobileToggle} />
       case "report":
@@ -95,29 +95,29 @@ function App() {
       case "manage-store":
         return <ManageStorePage onMobileToggle={handleMobileToggle} />
       case "account":
-        return <AccountPage onMobileToggle={handleMobileToggle} />
+        return <AccountPage />
       case "support":
-        return <SupportPage onMobileToggle={handleMobileToggle} />
+        return <SupportPage />
       case "product-list":
         return <ProductListPage onMobileToggle={handleMobileToggle} />
       case "customer":
         return <CustomerPage onMobileToggle={handleMobileToggle} />
       case "companies":
         if (user?.role === "POSPORT_ADMIN") {
-          return <CompaniesPage onMobileToggle={handleMobileToggle} />;
+          return <CompaniesPage />;
         } else {
           return <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">Not authorized</div>;
         }
       case "roles":
-        return <RolesPage onMobileToggle={handleMobileToggle} />
+        return <RolesPage />
       case "confirm-email":
         return <EmailVerified  />
       case "location":
-        return <LocationsPage onMobileToggle={handleMobileToggle}  />
+        return <LocationsPage />
+      case "users":
+        return <UsersPage />
       default:
-        return <CashierPage onMobileToggle={handleMobileToggle} onSidebarToggle={handleSidebarToggle} />
-        case "users":
-          return <UsersPage onMobileToggle={handleMobileToggle} />
+        return <CashierPage onSidebarToggle={handleSidebarToggle} />
     }
   }
 

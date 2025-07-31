@@ -88,11 +88,11 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
       <aside
         className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl
           ${isMobileOpen ? "w-80 translate-x-0" : "w-80 -translate-x-full"} 
-          ${isCollapsed ? "md:-translate-x-full lg:-translate-x-full" : "md:w-80 lg:w-80"} 
+          ${isCollapsed ? "md:w-0 md:translate-x-0 lg:w-0 lg:translate-x-0" : "md:w-80 lg:w-80"} 
           md:translate-x-0`}
         aria-label="Main navigation"
       >
-        <div className="p-6 h-full flex flex-col">
+        <div className={`p-6 h-full flex flex-col ${isCollapsed ? "md:hidden lg:hidden" : ""}`}>
           {/* Mobile Close Button */}
           <div className="md:hidden flex justify-end mb-4">
             <Button

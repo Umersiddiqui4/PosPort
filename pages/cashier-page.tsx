@@ -31,7 +31,6 @@ interface CartItem {
 }
 
 interface CashierPageProps {
-  onMobileToggle?: () => void
   onSidebarToggle?: (collapsed: boolean) => void
 }
 
@@ -114,7 +113,7 @@ const initialProducts: Product[] = [
 ];
 
 
-export default function CashierPage({ onMobileToggle, onSidebarToggle }: CashierPageProps) {
+export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const [currentView, setCurrentView] = useState<ViewType>("products")
   const [selectedCategory, setSelectedCategory] = useState("All Product")
   const [cart, setCart] = useState<CartItem[]>([])
@@ -272,30 +271,6 @@ useEffect(() => {
     >
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
-          {/* Desktop Hamburger Menu */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSidebarToggle}
-            className="hidden md:flex text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-            aria-label="Toggle sidebar"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-
-          {/* Mobile Hamburger Menu */}
-          {onMobileToggle && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onMobileToggle}
-              className="md:hidden text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-              aria-label="Open menu"
-            >
-              <Menu className="w-5 h-5" />
-            </Button>
-          )}
-
           {/* Back Button for non-products views */}
           {currentView !== "products" && (
             <Button
@@ -409,7 +384,7 @@ useEffect(() => {
   }
 
   return (
-   <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
+   <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] ">
       {/* Main Content Area */}
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${cart.length > 0 && !isMobile ? "mr-80" : ""}`}

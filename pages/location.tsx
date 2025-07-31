@@ -1,42 +1,34 @@
 "use client"
 
-import { Suspense } from "react"
-
-import { ArrowLeft, Loader2, Menu } from "lucide-react"
+import { useState } from "react"
 import Locations from "@/components/location"
-import '@/styles/globals.css'
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation";
-// import { useSearchParams } from "next/navigation";
-import { useUserDataStore } from "@/lib/store"
-
+import { ArrowLeft } from "lucide-react"
 
 interface LocationsPageProps {
-  onMobileToggle?: () => void
-  onSidebarToggle?: () => void
+  onSidebarToggle?: (collapsed: boolean) => void
 }
 
-export default function LocationsPage({ onMobileToggle, onSidebarToggle }: LocationsPageProps) {
-  const router = useRouter();
-  // const searchParams = useSearchParams();
-  const user = useUserDataStore((state) => state.user);
-  const companyId = user?.companyId;
-  console.log(companyId ,"companyId");
-  
-  const showBack = !!companyId;
-  return (
-    <div className="h-screen w-full overflow-hidden bg-gray-50">
-      <div className="flex items-center gap-4 p-4 border-b bg-white/80 sticky top-0 z-10">
-        {showBack && (
-          <Button variant="outline" onClick={() => router.push("/")}> 
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="hidden md:inline">Back to Companies</span>
-          </Button>
-        )}
-        <h1 className="text-xl font-bold text-[#1a72dd]">{companyId ? "Company Locations" : "All Locations"}</h1>
+export default function LocationsPage({ onSidebarToggle }: LocationsPageProps) {
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+
+  return selectedLocation ? (
+    <div className="h-full w-full bg-gray-50">
+      <div className="flex items-center gap-4 p-4 border-b bg-white/80 sticky top-0 z-10 mt-16 md:mt-16">
+        <Button variant="outline" onClick={() => setSelectedLocation(null)}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          <span className="hidden md:inline">Back to Locations</span>
+        </Button>
+        <h1 className="text-xl font-bold text-[#1a72dd]">Location Details</h1>
       </div>
-      {/* Main Content */}
-      <Locations onMobileToggle={onMobileToggle} />
+      <div className="p-4">
+        <h2 className="text-lg font-semibold mb-4">Location: {selectedLocation}</h2>
+        {/* Add location detail content here */}
+      </div>
+    </div>
+  ) : (
+    <div className="mt-16 md:mt-16">
+      <Locations companyId="1" />
     </div>
   )
 }

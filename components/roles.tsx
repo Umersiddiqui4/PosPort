@@ -156,7 +156,7 @@ export default function Roles() {
   const userRoles = roles && roles.filter((role:any) => !role.name.includes("ADMIN") && !role.name.includes("OWNER")).length
 
   return (
-    <div className="p-4 sm:p-6 h-screen  overflow-x-auto  space-y-6 bg-gray-50 ">
+    <div className="p-4 sm:p-6 h-screen mt-10 md:mt-0  overflow-x-auto  space-y-6 bg-gray-50 ">
       {/* Header */}
       <div className="flex  flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

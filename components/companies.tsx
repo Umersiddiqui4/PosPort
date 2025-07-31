@@ -49,11 +49,10 @@ interface Company {
 }
 
 interface CompaniesProps {
-  onMobileToggle: () => void;
   onCompanySelect?: (companyId: string) => void;
 }
 
-export default function Companies({ onMobileToggle, onCompanySelect }: CompaniesProps) {
+export default function Companies({ onCompanySelect }: CompaniesProps) {
   const user = useUserDataStore((state) => state.user);
   const setUser = useUserDataStore((state) => state.setUser);
   const router = useRouter();
@@ -202,13 +201,6 @@ export default function Companies({ onMobileToggle, onCompanySelect }: Companies
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onMobileToggle} className="md:hidden">
-              <div className="w-6 h-6 flex flex-col justify-center items-center">
-                <div className="w-5 h-0.5 bg-gray-600 mb-1"></div>
-                <div className="w-5 h-0.5 bg-gray-600 mb-1"></div>
-                <div className="w-5 h-0.5 bg-gray-600"></div>
-              </div>
-            </Button>
             <div className="flex items-center gap-2">
               <Building2 className="w-6 h-6 text-[#1a72dd]" />
               <h1 className="text-2xl font-bold text-gray-900">Companies</h1>

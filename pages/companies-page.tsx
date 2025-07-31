@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import "/styles/globals.css"
-interface CompaniesPageProps {
-  onMobileToggle?: () => void
-}
 
 function CompaniesSkeleton() {
   return (
@@ -23,12 +20,12 @@ function CompaniesSkeleton() {
   )
 }
 
-export default function CompaniesPage({ onMobileToggle }: CompaniesPageProps) {
+export default function CompaniesPage() {
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
 
   return selectedCompany ? (
     <div className="h-full w-full bg-gray-50">
-      <div className="flex items-center gap-4 p-4 border-b bg-white/80 sticky top-0 z-10">
+      <div className="flex items-center gap-4 p-4 border-b bg-white/80 sticky top-0 z-10 mt-16 md:mt-16">
         <Button variant="outline" onClick={() => setSelectedCompany(null)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           <span className="hidden md:inline">Back to Companies</span>
@@ -38,6 +35,8 @@ export default function CompaniesPage({ onMobileToggle }: CompaniesPageProps) {
       <Locations companyId={selectedCompany} />
     </div>
   ) : (
-    <Companies onMobileToggle={onMobileToggle ?? (() => {})} onCompanySelect={setSelectedCompany} />
+    <div className="mt-16 md:mt-16">
+      <Companies onCompanySelect={setSelectedCompany} />
+    </div>
   );
 }

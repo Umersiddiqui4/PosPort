@@ -1,89 +1,328 @@
 "use client"
 
-import { User, Mail, Phone, MapPin, Settings, Menu } from "lucide-react"
+import { useState } from "react"
+import { User, Mail, Phone, MapPin, Shield, Settings, LogOut, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useUserDataStore } from "@/lib/store";
-import { useLogout } from "@/hooks/useLogout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { changePassword } from "@/lib/Api/auth/changePassword"
+import { useToast } from "@/hooks/use-toast"
+import { useLogout } from "@/hooks/useLogout"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 
-interface AccountPageProps {
-  onMobileToggle?: () => void
-}
+export default function AccountPage() {
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    password: "",
+    newPassword: "",
+    confirmPassword: ""
+  })
+  const { toast } = useToast()
+  const handleLogout = useLogout()
+  const { user, isLoggedIn } = useCurrentUser()
 
-export default function AccountPage({ onMobileToggle }: AccountPageProps) {
-  const user = useUserDataStore((state) => state.user);
-  const handleLogout = useLogout();
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handlePasswordChange = async () => {
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (formData.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "New password must be at least 6 characters long",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      await changePassword({
+        password: formData.newPassword,
+        confirmPassword: formData.confirmPassword
+      })
+      
+      toast({
+        title: "Success",
+        description: "Password changed successfully"
+      })
+      
+      setIsPasswordDialogOpen(false)
+      setFormData({
+        password: "",
+        newPassword: "",
+        confirmPassword: ""
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to change password",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
-      {/* Mobile Header */}
-      <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {onMobileToggle && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onMobileToggle}
-                className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-                aria-label="Toggle menu"
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-            )}
+    <div className="h-full flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 sm:p-6 mt-16 md:mt-16">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-3xl font-bold text-[#1a72dd]">Account Settings</h1>
+              <p className="text-gray-600 text-lg">Manage your profile and preferences</p>
+            </div>
+
+            {/* Profile Section */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-[#1a72dd]" />
+                  Profile Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-16 h-16">
+                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarFallback>
+                      {user?.firstName ? `${user.firstName[0]}${user.lastName?.[0] || ''}` : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {user?.firstName && user?.lastName 
+                        ? `${user.firstName} ${user.lastName}` 
+                        : user?.email || 'User'
+                      }
+                    </h3>
+                    <p className="text-gray-600">{user?.email || 'No email'}</p>
+                    <p className="text-sm text-gray-500">{user?.role || 'User'}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Full Name</label>
+                    <input 
+                      type="text" 
+                      defaultValue={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : ''}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Email</label>
+                    <input 
+                      type="email" 
+                      defaultValue={user?.email || ''}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Phone</label>
+                    <input 
+                      type="tel" 
+                      defaultValue={user?.phone || ''}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Role</label>
+                    <input 
+                      type="text" 
+                      defaultValue={user?.role || ''}
+                      disabled
+                      className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Section */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-[#1a72dd]" />
+                  Security Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full bg-[#1a72dd] hover:bg-[#1557b8]">
+                      Change Password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Change Password</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="current-password">Current Password</Label>
+                        <div className="relative">
+                          <Input
+                            id="current-password"
+                            type={showCurrentPassword ? "text" : "password"}
+                            placeholder="Enter current password"
+                            value={formData.password}
+                            onChange={(e) => handleInputChange("password", e.target.value)}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          >
+                            {showCurrentPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="new-password">New Password</Label>
+                        <div className="relative">
+                          <Input
+                            id="new-password"
+                            type={showNewPassword ? "text" : "password"}
+                            placeholder="Enter new password"
+                            value={formData.newPassword}
+                            onChange={(e) => handleInputChange("newPassword", e.target.value)}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            {showNewPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="confirm-password">Confirm New Password</Label>
+                        <div className="relative">
+                          <Input
+                            id="confirm-password"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirm new password"
+                            value={formData.confirmPassword}
+                            onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsPasswordDialogOpen(false)}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handlePasswordChange}
+                        disabled={isLoading}
+                        className="bg-[#1a72dd] hover:bg-[#1557b8]"
+                      >
+                        {isLoading ? "Changing..." : "Change Password"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Button variant="outline" className="w-full">
+                  Enable Two-Factor Authentication
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Preferences Section */}
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-[#1a72dd]" />
+                  Preferences
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span>Email Notifications</span>
+                  <input type="checkbox" defaultChecked className="w-4 h-4" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>SMS Notifications</span>
+                  <input type="checkbox" className="w-4 h-4" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Dark Mode</span>
+                  <input type="checkbox" className="w-4 h-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Logout Section */}
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-600">
+                  <LogOut className="w-5 h-5" />
+                  Danger Zone
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-red-300 text-red-600 hover:bg-red-100"
+                  onClick={handleLogout}
+                >
+                  Sign Out
+                </Button>
+              </CardContent>
+            </Card>
           </div>
-          <h1 className="text-lg font-bold text-[#1a72dd] flex-1 text-center">Account Settings</h1>
-          <div className="w-10"></div>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-auto p-4 sm:p-6">
-        <h1 className="text-2xl font-bold text-[#2a3256] mb-6 hidden md:block">Account Settings</h1>
-
-        <div className="bg-white rounded-lg p-6 shadow-sm mb-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[#1a72dd] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-[#2a3256]">{user?.firstName || user?.email || "User"}</h2>
-              <p className="text-[#545454]">{user?.lastName || user?.id || "No ID"}</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Mail className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">{user?.email || "No email"}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">{user?.phone || "No phone"}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-[#545454]" />
-              <span className="text-[#2a3256]">{user?.address || "No address"}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <Button className="w-full bg-[#1a72dd] hover:bg-[#1a72dd]/90 justify-start">
-            <Settings className="w-4 h-4 mr-3" />
-            Edit Profile
-          </Button>
-          <Button variant="outline" className="w-full justify-start bg-transparent">
-            Change Password
-          </Button>
-          <Button variant="outline" className="w-full justify-start bg-transparent">
-            Notification Settings
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
-            onClick={handleLogout}
-          >
-            Sign Out
-          </Button>
         </div>
       </div>
     </div>

@@ -112,37 +112,37 @@ export default function UserDetailPage() {
   }
 
   return (
-    <div className="space-y-6 px-4">
+    <div className="space-y-6 px-4 py-16 md:py-16">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button onClick={handleBack} variant="outline" size="icon">
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Details</h1>
-          <p className="text-gray-600">Complete information about the user and their location assignment.</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">User Details</h1>
+          <p className="text-sm sm:text-base text-gray-600">Complete information about the user and their location assignment.</p>
         </div>
       </div>
 
       {/* User Header */}
-      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-        <Avatar className="w-16 h-16">
+      <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+        <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
           <AvatarImage src={selectedUserDetails.user.avatar} alt={`${selectedUserDetails.user.firstName} ${selectedUserDetails.user.lastName}`} />
-          <AvatarFallback className={getRandomBgColor(selectedUserDetails.user.firstName + selectedUserDetails.user.lastName) + " text-white text-lg"}>
+          <AvatarFallback className={getRandomBgColor(selectedUserDetails.user.firstName + selectedUserDetails.user.lastName) + " text-white text-sm sm:text-lg"}>
             {selectedUserDetails.user.firstName.charAt(0)}
             {selectedUserDetails.user.lastName.charAt(0)}
           </AvatarFallback>
         </Avatar>
-        <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
             {selectedUserDetails.user.firstName} {selectedUserDetails.user.lastName}
           </h3>
-          <p className="text-gray-600">{selectedUserDetails.user.email}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge className={getStatusColor(selectedUserDetails.user.status)}>
+          <p className="text-sm sm:text-base text-gray-600 truncate">{selectedUserDetails.user.email}</p>
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-2">
+            <Badge className={`${getStatusColor(selectedUserDetails.user.status)} text-xs`}>
               {selectedUserDetails.user.status}
             </Badge>
-            <Badge className={getRoleColor(selectedUserDetails.user.role)}>
+            <Badge className={`${getRoleColor(selectedUserDetails.user.role)} text-xs`}>
               {selectedUserDetails.user.role}
             </Badge>
           </div>
@@ -156,18 +156,18 @@ export default function UserDetailPage() {
             <CardTitle className="text-lg">Personal Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Full Name:</span>
-              <span className="font-medium">{selectedUserDetails.user.firstName} {selectedUserDetails.user.lastName}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Full Name:</span>
+              <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.user.firstName} {selectedUserDetails.user.lastName}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Email:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUserDetails.user.email}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Email:</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.user.email}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={() => copyToClipboard(selectedUserDetails.user.email, 'Email')}
                 >
                   {copiedField === 'Email' ? (
@@ -178,15 +178,15 @@ export default function UserDetailPage() {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Phone:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUserDetails.user.phone || 'Not provided'}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Phone:</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.user.phone || 'Not provided'}</span>
                 {selectedUserDetails.user.phone && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 flex-shrink-0"
                     onClick={() => copyToClipboard(selectedUserDetails.user.phone, 'Phone')}
                   >
                     {copiedField === 'Phone' ? (
@@ -198,24 +198,24 @@ export default function UserDetailPage() {
                 )}
               </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Role:</span>
-              <span className="font-medium">{selectedUserDetails.user.role}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Role:</span>
+              <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.user.role}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Status:</span>
-              <Badge className={getStatusColor(selectedUserDetails.user.status)}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Status:</span>
+              <Badge className={`${getStatusColor(selectedUserDetails.user.status)} text-xs`}>
                 {selectedUserDetails.user.status}
               </Badge>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Company ID:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUserDetails.user.companyId}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Company ID:</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.user.companyId}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={() => copyToClipboard(selectedUserDetails.user.companyId, 'Company ID')}
                 >
                   {copiedField === 'Company ID' ? (
@@ -226,14 +226,14 @@ export default function UserDetailPage() {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">User ID:</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{selectedUserDetails.user.id}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">User ID:</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-mono text-xs sm:text-sm truncate">{selectedUserDetails.user.id}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 flex-shrink-0"
                   onClick={() => copyToClipboard(selectedUserDetails.user.id, 'User ID')}
                 >
                   {copiedField === 'User ID' ? (
@@ -252,28 +252,28 @@ export default function UserDetailPage() {
             <CardTitle className="text-lg">Timeline</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Account Created:</span>
-              <span className="font-medium">{new Date(selectedUserDetails.user.createdAt).toLocaleString()}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Account Created:</span>
+              <span className="font-medium text-sm sm:text-base truncate">{new Date(selectedUserDetails.user.createdAt).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Last Updated:</span>
-              <span className="font-medium">{new Date(selectedUserDetails.user.updatedAt).toLocaleString()}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Last Updated:</span>
+              <span className="font-medium text-sm sm:text-base truncate">{new Date(selectedUserDetails.user.updatedAt).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Assigned to Location:</span>
-              <span className="font-medium">{new Date(selectedUserDetails.assignedAt).toLocaleString()}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+              <span className="text-gray-600 text-sm sm:text-base">Assigned to Location:</span>
+              <span className="font-medium text-sm sm:text-base truncate">{new Date(selectedUserDetails.assignedAt).toLocaleString()}</span>
             </div>
             {selectedUserDetails.assignedById && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Assigned By:</span>
-                <span className="font-mono text-sm">{selectedUserDetails.assignedById}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                <span className="text-gray-600 text-sm sm:text-base">Assigned By:</span>
+                <span className="font-mono text-xs sm:text-sm truncate">{selectedUserDetails.assignedById}</span>
               </div>
             )}
             {selectedUserDetails.unassignedAt && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Unassigned:</span>
-                <span className="font-medium">{new Date(selectedUserDetails.unassignedAt).toLocaleString()}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                <span className="text-gray-600 text-sm sm:text-base">Unassigned:</span>
+                <span className="font-medium text-sm sm:text-base truncate">{new Date(selectedUserDetails.unassignedAt).toLocaleString()}</span>
               </div>
             )}
           </CardContent>
@@ -290,18 +290,18 @@ export default function UserDetailPage() {
             <div className="space-y-3">
               <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Location Details</h4>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Location Name:</span>
-                  <span className="font-medium">{selectedUserDetails.location.locationName}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">Location Name:</span>
+                  <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.location.locationName}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Location ID:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm">{selectedUserDetails.location.id}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">Location ID:</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-xs sm:text-sm truncate">{selectedUserDetails.location.id}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 flex-shrink-0"
                       onClick={() => copyToClipboard(selectedUserDetails.location.id, 'Location ID')}
                     >
                       {copiedField === 'Location ID' ? (
@@ -312,9 +312,9 @@ export default function UserDetailPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">QR Code:</span>
-                  <span className="font-medium">{selectedUserDetails.location.qrCode}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">QR Code:</span>
+                  <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.location.qrCode}</span>
                 </div>
               </div>
             </div>
@@ -322,14 +322,14 @@ export default function UserDetailPage() {
             <div className="space-y-3">
               <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Contact Information</h4>
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Phone:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{selectedUserDetails.location.phone}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">Phone:</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.location.phone}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 flex-shrink-0"
                       onClick={() => copyToClipboard(selectedUserDetails.location.phone, 'Location Phone')}
                     >
                       {copiedField === 'Location Phone' ? (
@@ -340,14 +340,14 @@ export default function UserDetailPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Email:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{selectedUserDetails.location.email}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">Email:</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.location.email}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 flex-shrink-0"
                       onClick={() => copyToClipboard(selectedUserDetails.location.email, 'Location Email')}
                     >
                       {copiedField === 'Location Email' ? (
@@ -358,14 +358,14 @@ export default function UserDetailPage() {
                     </Button>
                   </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Company ID:</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{selectedUserDetails.location.companyId}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-2">
+                  <span className="text-gray-600 text-sm sm:text-base">Company ID:</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-sm sm:text-base truncate">{selectedUserDetails.location.companyId}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 flex-shrink-0"
                       onClick={() => copyToClipboard(selectedUserDetails.location.companyId, 'Location Company ID')}
                     >
                       {copiedField === 'Location Company ID' ? (

@@ -52,11 +52,10 @@ interface Location {
 }
 
 interface LocationsProps {
-  onMobileToggle?: () => void;
   companyId?: string;
 }
 
-export default function Locations({ onMobileToggle, companyId }: LocationsProps) {
+export default function Locations({ companyId }: LocationsProps) {
   const router = useRouter();
   const user = useUserDataStore((state) => state.user);
   const searchParams = useSearchParams();
@@ -243,15 +242,6 @@ export default function Locations({ onMobileToggle, companyId }: LocationsProps)
 
   return (
     <div className="bg-background transition-colors duration-300 p-4 sm:p-6 overflow-auto h-screen">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={onMobileToggle}>
-          <Menu className="h-6 w-6" />
-        </Button>
-        <h1 className="text-xl font-semibold text-[#1a72dd]">Locations</h1>
-        <div className="w-10" />
-      </div>
-
       <div className="p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

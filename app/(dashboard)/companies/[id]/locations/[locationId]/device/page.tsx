@@ -225,9 +225,9 @@ export default function LocationDevicesPage() {
   // (No mockLocationDevices, only use devices from API)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6  py-16 md:py-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Devices</h1>
           <p className="text-gray-600">Manage devices connected to this location</p>

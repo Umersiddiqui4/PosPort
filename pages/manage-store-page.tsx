@@ -18,7 +18,7 @@ export default function ManageStorePage({ onMobileToggle }: ManageStorePageProps
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
       {/* Mobile Header */}
-      <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
+      <header className="bg-white/95 backdrop-blur-md p-6 sm:p-4 border-b border-gray-200/50 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onMobileToggle && (

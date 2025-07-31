@@ -247,16 +247,16 @@ export default function LocationUsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-blue-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Total Users</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {locationUsers.filter((u: any) => u?.user?.id).length}
                 </p>
               </div>
@@ -264,12 +264,14 @@ export default function LocationUsersPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-blue-500" />
-              <div>
-                <p className="text-sm text-gray-600">Active</p>
-                <p className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Active</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {locationUsers.filter((u: any) => u?.user?.status === "active").length}
                 </p>
               </div>
@@ -277,14 +279,14 @@ export default function LocationUsersPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-purple-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Managers</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Managers</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {locationUsers.filter((u: any) => u?.user?.role === "Manager" || u?.user?.role === "Supervisor").length}
                 </p>
               </div>
@@ -292,14 +294,14 @@ export default function LocationUsersPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-orange-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Staff</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Staff</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {locationUsers.filter((u: any) => u?.user?.role === "Staff" || u?.user?.role === "Cashier").length}
                 </p>
               </div>
@@ -320,25 +322,27 @@ export default function LocationUsersPage() {
               .map((user: any) => (
               <div
                 key={user.user.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 onClick={() => router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)}
               >
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-12 h-12">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
                     <AvatarImage src={user.user.avatar} alt={`${user.user.firstName} ${user.user.lastName}`} />
                     <AvatarFallback className={getRandomBgColor(user.user.firstName + user.user.lastName) + " text-white"}>
                       {user.user.firstName.charAt(0)}
                       {user.user.lastName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900">{user.user.firstName} {user.user.lastName}</h4>
-                      <Badge className={getStatusColor(user.user.status)}>{user.user.status}</Badge>
-                      <Badge className={getRoleColor(user.user.role)}>{user.user.role}</Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                      <h4 className="font-semibold text-gray-900 truncate">{user.user.firstName} {user.user.lastName}</h4>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge className={`${getStatusColor(user.user.status)} text-xs`}>{user.user.status}</Badge>
+                        <Badge className={`${getRoleColor(user.user.role)} text-xs`}>{user.user.role}</Badge>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600">{user.user.email}</p>
-                    <div className="flex items-center gap-4 mt-1">
+                    <p className="text-sm text-gray-600 truncate">{user.user.email}</p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1">
                       <span className="text-xs text-gray-500">
                         Assigned: {new Date(user.assignedAt).toLocaleDateString()}
                       </span>
@@ -353,13 +357,13 @@ export default function LocationUsersPage() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem onClick={(e) => {
                       e.stopPropagation()
                       router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)

@@ -130,7 +130,7 @@ export default function LocationDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-16 md:py-0">
       {/* Action Buttons */}
       <div className="flex justify-end gap-2">
         <Button

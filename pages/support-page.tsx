@@ -1,83 +1,100 @@
 "use client"
 
-import { MessageCircle, Phone, Mail, FileText, Menu } from "lucide-react"
+import { Mail, Phone, MessageCircle, Clock } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-interface SupportPageProps {
-  onMobileToggle?: () => void
-}
-
-export default function SupportPage({ onMobileToggle }: SupportPageProps) {
-  const supportOptions = [
-    { icon: MessageCircle, title: "Live Chat", description: "Chat with our support team", action: "Start Chat" },
-    { icon: Phone, title: "Phone Support", description: "Call us at +1 (555) 123-4567", action: "Call Now" },
-    { icon: Mail, title: "Email Support", description: "Send us an email", action: "Send Email" },
-    { icon: FileText, title: "Help Center", description: "Browse our knowledge base", action: "View Articles" },
-  ]
-
+export default function SupportPage() {
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
-      {/* Mobile Header */}
-      <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {onMobileToggle && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onMobileToggle}
-                className="text-[#1a72dd] hover:bg-[#1a72dd]/10 rounded-xl transition-all duration-200"
-                aria-label="Toggle menu"
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-            )}
-          </div>
-          <h1 className="text-lg font-bold text-[#1a72dd] flex-1 text-center">Support & Help</h1>
-          <div className="w-10"></div>
-        </div>
-      </header>
+    <div className="h-full flex flex-col">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-4 sm:p-6 mt-16 md:mt-16">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="text-center space-y-4">
+              <h1 className="text-3xl font-bold text-[#1a72dd]">Support Center</h1>
+              <p className="text-gray-600 text-lg">We're here to help you with any questions or issues</p>
+            </div>
 
-      <div className="flex-1 overflow-auto p-4 sm:p-6">
-        <h1 className="text-2xl font-bold text-[#2a3256] mb-6 hidden md:block">Support & Help</h1>
-
-        <div className="space-y-4 mb-8">
-          {supportOptions.map((option, index) => {
-            const Icon = option.icon
-            return (
-              <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Icon className="w-6 h-6 text-[#1a72dd]" />
-                    <div>
-                      <h3 className="font-medium text-[#2a3256]">{option.title}</h3>
-                      <p className="text-sm text-[#545454] mt-1">{option.description}</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="text-[#1a72dd] border-[#1a72dd] bg-transparent">
-                    {option.action}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center">
+                  <Mail className="w-8 h-8 mx-auto text-[#1a72dd] mb-2" />
+                  <CardTitle className="text-lg">Email Support</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">Get help via email</p>
+                  <Button className="w-full bg-[#1a72dd] hover:bg-[#1557b8]">
+                    Send Email
                   </Button>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                </CardContent>
+              </Card>
 
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-[#2a3256] mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            <div className="border-b border-gray-200 pb-3">
-              <h3 className="font-medium text-[#2a3256]">How do I add new menu items?</h3>
-              <p className="text-sm text-[#545454] mt-1">Go to Manage Store and click the "Add Item" button.</p>
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center">
+                  <Phone className="w-8 h-8 mx-auto text-[#1a72dd] mb-2" />
+                  <CardTitle className="text-lg">Phone Support</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">Call us directly</p>
+                  <Button className="w-full bg-[#1a72dd] hover:bg-[#1557b8]">
+                    Call Now
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center">
+                  <MessageCircle className="w-8 h-8 mx-auto text-[#1a72dd] mb-2" />
+                  <CardTitle className="text-lg">Live Chat</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">Chat with our team</p>
+                  <Button className="w-full bg-[#1a72dd] hover:bg-[#1557b8]">
+                    Start Chat
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow">
+                <CardHeader className="text-center">
+                  <Clock className="w-8 h-8 mx-auto text-[#1a72dd] mb-2" />
+                  <CardTitle className="text-lg">FAQ</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-gray-600 mb-4">Find quick answers</p>
+                  <Button className="w-full bg-[#1a72dd] hover:bg-[#1557b8]">
+                    Browse FAQ
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
-            <div className="border-b border-gray-200 pb-3">
-              <h3 className="font-medium text-[#2a3256]">How can I view my sales reports?</h3>
-              <p className="text-sm text-[#545454] mt-1">Navigate to the Reports section to view detailed analytics.</p>
-            </div>
-            <div>
-              <h3 className="font-medium text-[#2a3256]">How do I upgrade to premium?</h3>
-              <p className="text-sm text-[#545454] mt-1">Click the "Upgrade to Premium" button in the sidebar.</p>
-            </div>
+
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold text-[#1a72dd]">Email</h3>
+                    <p className="text-gray-600">support@zaibkadhaba.com</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#1a72dd]">Phone</h3>
+                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#1a72dd]">Hours</h3>
+                    <p className="text-gray-600">Mon-Fri: 9AM-6PM</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[#1a72dd]">Response Time</h3>
+                    <p className="text-gray-600">Within 24 hours</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

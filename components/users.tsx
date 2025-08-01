@@ -107,9 +107,10 @@ export default function Users() {
   const users = usersData?.data || []
   const assignedUsers = assignedUsersData?.data || []
   const meta = activeTab === "users" ? usersData?.meta : assignedUsersData?.meta
+console.log(assignedUsers, "assignedUsers");
 
   // Get assigned user IDs for filtering
-  const assignedUserIds = assignedUsers.map((au: any) => au.user.id)
+  const assignedUserIds = assignedUsers.map((au: any) => au.id)
 
   // Filter users based on active tab
   const getFilteredUsers = () => {
@@ -599,7 +600,7 @@ export default function Users() {
             ) : (
               filteredUsers.map((user) => {
                 // Find the assigned user data to get location information
-                const assignedUserData = assignedUsers.find((au: any) => au.user.id === user.id)
+                const assignedUserData = assignedUsers.find((au: any) => au.id === user.id)
                 const location = assignedUserData?.location
                 
                 return (

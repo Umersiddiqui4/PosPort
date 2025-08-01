@@ -143,22 +143,7 @@ export default function CompanyLocationsPage() {
     )
   }
 
-  if (!location) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Location not found</h3>
-          <p className="text-gray-600 mb-4">The location you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.push(`/companies`)} variant="outline">
-            Back to Locations
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  const brand = getBrandFromName(location.locationName)
+ 
 
   return (<Locations companyId={locationId} />
    

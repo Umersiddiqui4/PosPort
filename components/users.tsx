@@ -110,7 +110,7 @@ export default function Users() {
 console.log(assignedUsers, "assignedUsers");
 
   // Get assigned user IDs for filtering
-  const assignedUserIds = assignedUsers.map((au: any) => au.id)
+  const assignedUserIds = assignedUsers.map((au: any) => au.user?.id)
 
   // Filter users based on active tab
   const getFilteredUsers = () => {

@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Copy, Check } from "lucide-react"
+import { ArrowLeft, Copy, Check, Users, MapPin, Building, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUsers } from "@/hooks/use-users"
+import { useAssignedUsers } from "@/hooks/useAssignedUsers"
 import { toast } from "@/hooks/use-toast"
 
 // Add a helper function for random background color
@@ -67,10 +68,15 @@ export default function UserDetailPage() {
   const userId = params?.userId as string
 
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [showAssignedData, setShowAssignedData] = useState(false)
 
   const { data: usersData, isLoading } = useUsers()
+  const { data: assignedUsersData, isLoading: assignedUsersLoading } = useAssignedUsers(1, 100)
   const users = usersData?.data || []
   const selectedUser = users.find((user: any) => user.id === userId)
+  
+  // Find assigned user data for this specific user
+  const assignedUserData = assignedUsersData?.data?.find((assignment: any) => assignment.user?.id === userId)
 
   const handleBack = () => {
     router.push('/users')
@@ -94,7 +100,7 @@ export default function UserDetailPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || assignedUsersLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -119,7 +125,7 @@ export default function UserDetailPage() {
 
   return (
     
-    <div className="m-4 space-y-6" >
+    <div className="m-4 space-y-6 h-screen overflow-auto pb-10" >
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button onClick={handleBack} variant="outline" size="icon">
@@ -150,7 +156,235 @@ export default function UserDetailPage() {
             </Badge>
           </div>
         </div>
+        {(assignedUserData || assignedUsersLoading) && (
+          <Button
+            onClick={() => setShowAssignedData(!showAssignedData)}
+            variant="outline"
+            className="flex items-center gap-2"
+            disabled={assignedUsersLoading}
+          >
+            <Users className="w-4 h-4" />
+            {showAssignedData ? "Hide Assignment" : "Show Assignment"}
+          </Button>
+        )}
       </div>
+
+      {/* Assigned User Data Section */}
+      {showAssignedData && assignedUserData && (
+        <Card className="border-2 border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2 text-blue-800">
+              <Users className="w-5 h-5" />
+              Assignment Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Assignment Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Assignment Information
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Assignment ID:</span>
+                    <span className="font-mono">{assignedUserData.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Assigned At:</span>
+                    <span>{new Date(assignedUserData.assignedAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Assigned By ID:</span>
+                    <span className="font-mono">{assignedUserData.assignedById}</span>
+                  </div>
+                  {assignedUserData.unassignedAt && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Unassigned At:</span>
+                      <span>{new Date(assignedUserData.unassignedAt).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {assignedUserData.unassignedById && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Unassigned By ID:</span>
+                      <span className="font-mono">{assignedUserData.unassignedById}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  User Information
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">User ID:</span>
+                    <span className="font-mono">{assignedUserData.user.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Name:</span>
+                    <span>{assignedUserData.user.firstName} {assignedUserData.user.lastName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span>{assignedUserData.user.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span>{assignedUserData.user.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Role:</span>
+                    <Badge className={getRoleColor(assignedUserData.user.role)}>
+                      {formatRoleName(assignedUserData.user.role)}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Company ID:</span>
+                    <span className="font-mono">{assignedUserData.user.companyId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span>{new Date(assignedUserData.user.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Updated:</span>
+                    <span>{new Date(assignedUserData.user.updatedAt).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Location Details */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Location Information
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Location ID:</span>
+                    <span className="font-mono">{assignedUserData.location.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Location Name:</span>
+                    <span>{assignedUserData.location.locationName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Address:</span>
+                    <span>{assignedUserData.location.address}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">City:</span>
+                    <span>{assignedUserData.location.city}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">State:</span>
+                    <span>{assignedUserData.location.state}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Country:</span>
+                    <span>{assignedUserData.location.country}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Postal Code:</span>
+                    <span>{assignedUserData.location.postalCode}</span>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Phone:</span>
+                    <span>{assignedUserData.location.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Email:</span>
+                    <span>{assignedUserData.location.email}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">QR Code:</span>
+                    <span className="font-mono">{assignedUserData.location.qrCode}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Company ID:</span>
+                    <span className="font-mono">{assignedUserData.location.companyId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span>{new Date(assignedUserData.location.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Updated:</span>
+                    <span>{new Date(assignedUserData.location.updatedAt).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Company Information (if available in location data) */}
+            {assignedUserData.location.company && (
+              <div className="space-y-3">
+                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                  <Building className="w-4 h-4" />
+                  Company Information
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Company ID:</span>
+                      <span className="font-mono">{assignedUserData.location.company.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Company Name:</span>
+                      <span>{assignedUserData.location.company.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Email:</span>
+                      <span>{assignedUserData.location.company.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Phone:</span>
+                      <span>{assignedUserData.location.company.phone}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Address:</span>
+                      <span>{assignedUserData.location.company.address}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Industry:</span>
+                      <span>{assignedUserData.location.company.industry}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">NTN:</span>
+                      <span>{assignedUserData.location.company.ntn}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <Badge className={assignedUserData.location.company.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                        {assignedUserData.location.company.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span>{new Date(assignedUserData.location.company.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Updated:</span>
+                      <span>{new Date(assignedUserData.location.company.updatedAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* User Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

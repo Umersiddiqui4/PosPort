@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useCallback, memo, useRef } from "react"
 import {
   Plus,
   Search,
@@ -47,16 +48,97 @@ interface User {
   createdAt: string
 }
 
+// Memoized search input component to prevent re-renders
+const SearchInput = memo(({ 
+  searchTerm, 
+  onSearchChange, 
+  placeholder, 
+  isLoading,
+  inputRef
+}: { 
+  searchTerm: string
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder: string
+  isLoading: boolean
+  inputRef?: React.RefObject<HTMLInputElement | null>
+}) => {
+  // Internal state to maintain focus
+  const [internalValue, setInternalValue] = useState(searchTerm)
+  const [isFocused, setIsFocused] = useState(false)
+  
+  // Update internal value when prop changes
+  useEffect(() => {
+    setInternalValue(searchTerm)
+  }, [searchTerm])
+  
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setInternalValue(value)
+    onSearchChange(e)
+  }, [onSearchChange])
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true)
+  }, [])
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false)
+  }, [])
+
+  // Preserve focus after loading completes
+  useEffect(() => {
+    if (!isLoading && isFocused && inputRef?.current) {
+      setTimeout(() => {
+        inputRef.current?.focus()
+        // Restore cursor position
+        if (inputRef.current) {
+          const length = inputRef.current.value.length
+          inputRef.current.setSelectionRange(length, length)
+        }
+      }, 50)
+    }
+  }, [isLoading, isFocused, inputRef])
+  
+  return (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+      <Input
+        ref={inputRef}
+        placeholder={placeholder}
+        value={internalValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        className="pl-10"
+        // Remove disabled state to prevent focus loss
+      />
+      {isLoading && searchTerm && (
+        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1a72dd]"></div>
+        </div>
+      )}
+    </div>
+  )
+})
+
+SearchInput.displayName = 'SearchInput'
+
 export default function Users() {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState<string>("")
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
   const [activeTab, setActiveTab] = useState<string>("users")
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  
+  // Refs to maintain input focus
+  const usersSearchRef = useRef<HTMLInputElement>(null)
+  const assignedUsersSearchRef = useRef<HTMLInputElement>(null)
+  
   // API hooks
   // console.log(currentUser, "currentUser");
   
@@ -65,13 +147,90 @@ export default function Users() {
   console.log(currentUser, "currentUser");
   
   // Use companyId filter if current user is COMPANY_OWNER
-  const companyIdFilter = currentUser?.role === "COMPANY_OWNER" ? currentUser.companyId : undefined
+  const companyIdFilter = useMemo(() => 
+    currentUser?.role === "COMPANY_OWNER" ? currentUser.companyId : undefined, 
+    [currentUser?.role, currentUser?.companyId]
+  )
   
-  const { data: usersData, isLoading, error } = useUsers(companyIdFilter, currentPage, 10)
+  const { data: usersData, isLoading, error } = useUsers(companyIdFilter, currentPage, 10, debouncedSearchTerm)
   const { data: assignedUsersData, isLoading: isAssignedUsersLoading } = useAssignedUsers(currentPage, 10)
   const createUserMutation = useCreateUser()
   const updateUserMutation = useUpdateUser()
   const deleteUserMutation = useDeleteUser()
+
+  // Memoize the search handler to prevent re-renders
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchTerm(value)
+  }, [])
+
+  // Memoize the search input props to prevent re-renders
+  const searchInputProps = useMemo(() => ({
+    searchTerm,
+    onSearchChange: handleSearchChange,
+  }), [searchTerm, handleSearchChange])
+
+  // Focus restoration effect
+  useEffect(() => {
+    // Restore focus to the appropriate input based on active tab
+    const currentRef = activeTab === "users" ? usersSearchRef : assignedUsersSearchRef
+    if (currentRef.current && document.activeElement !== currentRef.current) {
+      // Only restore focus if the input has a value (user was typing)
+      if (searchTerm) {
+        setTimeout(() => {
+          currentRef.current?.focus()
+        }, 0)
+      }
+    }
+  }, [activeTab, searchTerm])
+
+  // Preserve focus during loading states
+  useEffect(() => {
+    const currentRef = activeTab === "users" ? usersSearchRef : assignedUsersSearchRef
+    const wasFocused = currentRef.current === document.activeElement
+    
+    // If the input was focused and we have a search term, preserve focus after loading
+    if (wasFocused && searchTerm && !isLoading && !isAssignedUsersLoading) {
+      setTimeout(() => {
+        currentRef.current?.focus()
+        // Restore cursor position to end of input
+        if (currentRef.current) {
+          const length = currentRef.current.value.length
+          currentRef.current.setSelectionRange(length, length)
+        }
+      }, 100) // Small delay to ensure DOM is updated
+    }
+  }, [isLoading, isAssignedUsersLoading, searchTerm, activeTab])
+
+  // Debounced search effect - optimized to prevent aggressive re-rendering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only update if the search term has actually changed
+      if (debouncedSearchTerm !== searchTerm) {
+        setDebouncedSearchTerm(searchTerm)
+        // Only reset page if we're not already on page 1
+        if (currentPage !== 1) {
+          setCurrentPage(1)
+        }
+      }
+    }, 800) // Increased delay to 800ms for less aggressive updates
+
+    return () => clearTimeout(timer)
+  }, [searchTerm, debouncedSearchTerm, currentPage])
+
+  // Reset search when tab changes - optimized
+  useEffect(() => {
+    const resetSearch = () => {
+      setSearchTerm("")
+      setDebouncedSearchTerm("")
+      setCurrentPage(1)
+    }
+    
+    // Only reset if we're actually changing tabs
+    if (activeTab !== "users" && activeTab !== "assigned-users") {
+      resetSearch()
+    }
+  }, [activeTab])
 
   // Fetch companies for dropdown
   const { data: companiesData, isLoading: isCompaniesLoading } = useQuery({
@@ -109,34 +268,45 @@ export default function Users() {
   const meta = activeTab === "users" ? usersData?.meta : assignedUsersData?.meta
 console.log(assignedUsers, "assignedUsers");
 
-  // Get assigned user IDs for filtering
-  const assignedUserIds = assignedUsers.map((au: any) => au.user?.id)
+  // Get assigned user IDs for filtering - memoized
+  const assignedUserIds = useMemo(() => 
+    assignedUsers.map((au: any) => au.user?.id).filter(Boolean), 
+    [assignedUsers]
+  )
 
-  // Filter users based on active tab
-  const getFilteredUsers = () => {
+  // Filter users based on active tab - memoized to prevent unnecessary recalculations
+  const filteredUsers = useMemo(() => {
     let allUsers = users
     if (activeTab === "assigned-users") {
       // Show only assigned users
-      allUsers = assignedUsers.map((au: any) => au.user)
+      allUsers = assignedUsers.map((au: any) => au.user).filter(Boolean) // Filter out undefined users
     } else {
       // Show users who are NOT assigned (exclude assigned users)
       allUsers = users.filter((user: any) => !assignedUserIds.includes(user.id))
     }
 
-    return allUsers.filter((user) => {
-      return (
-        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    })
-  }
+    // For assigned users, we still need client-side filtering since the API doesn't support search for assigned users
+    if (activeTab === "assigned-users" && searchTerm) {
+      allUsers = allUsers.filter((user) => {
+        // Add null checks to prevent errors
+        if (!user || !user.firstName || !user.lastName || !user.email || !user.role) {
+          return false
+        }
+        
+        return (
+          user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      })
+    }
 
-  const filteredUsers = getFilteredUsers()
+    return allUsers
+  }, [users, assignedUsers, activeTab, searchTerm, assignedUserIds])
 
-  // Get role badge color
-  const getRoleBadgeColor = (role: string) => {
+  // Get role badge color - memoized
+  const getRoleBadgeColor = useCallback((role: string) => {
     switch (role) {
       case "POSPORT_ADMIN":
         return "bg-red-100 text-red-800 border-red-200"
@@ -147,15 +317,15 @@ console.log(assignedUsers, "assignedUsers");
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
-  }
+  }, [])
 
-  // Format role name
-  const formatRoleName = (role: string) => {
+  // Format role name - memoized
+  const formatRoleName = useCallback((role: string) => {
     return role
       .replace(/_/g, " ")
       .toLowerCase()
       .replace(/\b\w/g, (l: string) => l.toUpperCase())
-  }
+  }, [])
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -231,15 +401,7 @@ console.log(assignedUsers, "assignedUsers");
     setEditingUser(null)
   }
 
-  if (isLoading || isAssignedUsersLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a72dd]"></div>
-        <span className="ml-2 text-gray-600">Loading users...</span>
-      </div>
-    )
-  }
-
+  // Show error if there's an error
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -466,18 +628,27 @@ console.log(assignedUsers, "assignedUsers");
 
         <TabsContent value="users" className="space-y-4">
           {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search users by name, email, or role..."
-              value={searchTerm}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <SearchInput
+            key="users-search"
+            searchTerm={searchInputProps.searchTerm}
+            onSearchChange={searchInputProps.onSearchChange}
+            placeholder="Search users by name, email, or role..."
+            isLoading={isLoading}
+            inputRef={usersSearchRef}
+          />
 
           {/* Users List */}
-          <div className="space-y-4">
+          <div className="space-y-4 relative">
+            {/* Loading overlay - only show when loading and no users */}
+            {isLoading && filteredUsers.length === 0 && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
+                <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-lg">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd]"></div>
+                  <span className="text-gray-600">Loading users...</span>
+                </div>
+              </div>
+            )}
+            
             {filteredUsers.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -499,13 +670,13 @@ console.log(assignedUsers, "assignedUsers");
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                       <div className="flex items-start space-x-3 sm:space-x-4">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1a72dd] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base flex-shrink-0">
-                          {user.firstName.charAt(0)}
-                          {user.lastName.charAt(0)}
+                          {user.firstName?.charAt(0) || 'U'}
+                          {user.lastName?.charAt(0) || ''}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                              {user.firstName} {user.lastName}
+                              {user.firstName || 'Unknown'} {user.lastName || 'User'}
                             </h3>
                             <div className="flex flex-wrap gap-1">
                               <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
@@ -514,11 +685,11 @@ console.log(assignedUsers, "assignedUsers");
                           <div className="space-y-1">
                             <div className="flex items-center text-xs sm:text-sm text-gray-600">
                               <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                              <span className="truncate">{user.email}</span>
+                              <span className="truncate">{user.email || 'No email'}</span>
                             </div>
                             <div className="flex items-center text-xs sm:text-sm text-gray-600">
                               <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                              <span className="truncate">{user.phone}</span>
+                              <span className="truncate">{user.phone || 'No phone'}</span>
                             </div>
                             {user.companyId && (
                               <div className="flex items-center text-xs sm:text-sm text-gray-600">
@@ -575,18 +746,27 @@ console.log(assignedUsers, "assignedUsers");
 
         <TabsContent value="assigned-users" className="space-y-4">
           {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Search assigned users by name, email, or role..."
-              value={searchTerm}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <SearchInput
+            key="assigned-users-search"
+            searchTerm={searchInputProps.searchTerm}
+            onSearchChange={searchInputProps.onSearchChange}
+            placeholder="Search assigned users by name, email, or role..."
+            isLoading={isAssignedUsersLoading}
+            inputRef={assignedUsersSearchRef}
+          />
 
           {/* Assigned Users List */}
-          <div className="space-y-4">
+          <div className="space-y-4 relative">
+            {/* Loading overlay - only show when loading and no users */}
+            {isAssignedUsersLoading && filteredUsers.length === 0 && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
+                <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-lg">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd]"></div>
+                  <span className="text-gray-600">Loading assigned users...</span>
+                </div>
+              </div>
+            )}
+            
             {filteredUsers.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -600,7 +780,7 @@ console.log(assignedUsers, "assignedUsers");
             ) : (
               filteredUsers.map((user) => {
                 // Find the assigned user data to get location information
-                const assignedUserData = assignedUsers.find((au: any) => au.id === user.id)
+                const assignedUserData = assignedUsers.find((au: any) => au.user?.id === user.id)
                 const location = assignedUserData?.location
                 
                 return (
@@ -621,13 +801,13 @@ console.log(assignedUsers, "assignedUsers");
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                         <div className="flex items-start space-x-3 sm:space-x-4">
                           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base flex-shrink-0">
-                            {user.firstName.charAt(0)}
-                            {user.lastName.charAt(0)}
+                            {user.firstName?.charAt(0) || 'U'}
+                            {user.lastName?.charAt(0) || ''}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                               <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                                {user.firstName} {user.lastName}
+                                {user.firstName || 'Unknown'} {user.lastName || 'User'}
                               </h3>
                               <div className="flex flex-wrap gap-1">
                                 <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
@@ -637,11 +817,11 @@ console.log(assignedUsers, "assignedUsers");
                             <div className="space-y-1">
                               <div className="flex items-center text-xs sm:text-sm text-gray-600">
                                 <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                                <span className="truncate">{user.email}</span>
+                                <span className="truncate">{user.email || 'No email'}</span>
                               </div>
                               <div className="flex items-center text-xs sm:text-sm text-gray-600">
                                 <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
-                                <span className="truncate">{user.phone}</span>
+                                <span className="truncate">{user.phone || 'No phone'}</span>
                               </div>
                               {location && (
                                 <div className="flex items-center text-xs sm:text-sm text-gray-600">

@@ -46,7 +46,7 @@ export interface UpdateUserData extends CreateUserData {
 // API Functions
 // Remove API_BASE_URL, use api's baseURL
 
-const fetchUsers = async (companyId?: string, page = 1, take = 10): Promise<UsersResponse> => {
+const fetchUsers = async (companyId?: string, page = 1, take = 10, searchTerm?: string): Promise<UsersResponse> => {
   const params: any = {
     page,
     take,
@@ -55,6 +55,11 @@ const fetchUsers = async (companyId?: string, page = 1, take = 10): Promise<User
   // Add companyId to params if provided
   if (companyId) {
     params.companyId = companyId;
+  }
+
+  // Add search term to params if provided
+  if (searchTerm && searchTerm.trim()) {
+    params.q = searchTerm.trim();
   }
   
   const response = await api.get(`/users`, { params })
@@ -86,11 +91,15 @@ const deleteUser = async (id: string): Promise<void> => {
 }
 
 // Custom Hooks
-export const useUsers = (companyId?: string, page = 1, take = 10) => {
+export const useUsers = (companyId?: string, page = 1, take = 10, searchTerm?: string) => {
   return useQuery({
-    queryKey: ["users", companyId, page, take],
-    queryFn: () => fetchUsers(companyId, page, take),
+    queryKey: ["users", companyId, page, take, searchTerm],
+    queryFn: () => fetchUsers(companyId, page, take, searchTerm),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnMount: false, // Prevent refetch on mount if data exists
+    refetchOnReconnect: false, // Prevent refetch on reconnect
   })
 }
 

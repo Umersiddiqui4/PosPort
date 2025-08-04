@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import * as ReactQRCode from "react-qr-code"
+// @ts-ignore
+import QRCode from "react-qr-code"
 import { QrCode, Download, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -84,7 +85,7 @@ export default function QRCodeDisplay({
       </div>
       
       <div className="bg-white p-4 rounded-lg border">
-        <ReactQRCode.QRCode
+        <QRCode
           id={`qr-${value.replace(/[^a-zA-Z0-9]/g, '')}`}
           value={value}
           size={size}

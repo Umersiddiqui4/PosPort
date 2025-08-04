@@ -186,22 +186,44 @@ export const useDeleteLocation = () => {
 
 // Assign user to location
 export const useAssignUserToLocation = () => {
+  const queryClient = useQueryClient()
+  
   return useMutation({
     mutationFn: assignUserToLocation,
+    onSuccess: () => {
+      // Invalidate and refetch location users and users data
+      queryClient.invalidateQueries({ queryKey: ["location-users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["assigned-users"] })
+    },
   });
 };
 
 // Unassign user from location
 export const useUnassignUserFromLocation = () => {
+  const queryClient = useQueryClient()
+  
   return useMutation({
     mutationFn: unassignUserFromLocation,
+    onSuccess: () => {
+      // Invalidate and refetch location users and users data
+      queryClient.invalidateQueries({ queryKey: ["location-users"] })
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+      queryClient.invalidateQueries({ queryKey: ["assigned-users"] })
+    },
   });
 };
 
 // Update user in location
 export const useUpdateLocationUser = () => {
+  const queryClient = useQueryClient()
+  
   return useMutation({
     mutationFn: updateLocationUser,
+    onSuccess: () => {
+      // Invalidate and refetch location users data
+      queryClient.invalidateQueries({ queryKey: ["location-users"] })
+    },
   });
 };
 

@@ -96,10 +96,6 @@ export const useUsers = (companyId?: string, page = 1, take = 10, searchTerm?: s
     queryKey: ["users", companyId, page, take, searchTerm],
     queryFn: () => fetchUsers(companyId, page, take, searchTerm),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false, // Prevent refetch on window focus
-    refetchOnMount: false, // Prevent refetch on mount if data exists
-    refetchOnReconnect: false, // Prevent refetch on reconnect
   })
 }
 

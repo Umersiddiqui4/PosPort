@@ -59,6 +59,17 @@ interface Role {
 }
 
 export default function Roles() {
+  const user = useUserDataStore((state) => state.user);
+
+  // Prevent COMPANY_OWNER from accessing roles
+  if (user?.role === "COMPANY_OWNER") {
+    return (
+      <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">
+        Access Denied: Company owners cannot access roles management
+      </div>
+    );
+  }
+
   // const [roles, setRoles] = useState<Role[]>(mockRoles)
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -70,7 +81,6 @@ export default function Roles() {
 
   const queryClient = useQueryClient();
   const [editModal, setEditModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null });
-  const user = useUserDataStore((state) => state.user);
 
   // Add Role Mutation
   const addRoleMutation = useMutation({

@@ -71,14 +71,14 @@ export default function LocationUsersPage() {
     status: "active",
   })
 
-  // API hooks
-  const { data: allUsersData, isLoading: isLoadingUsers } = useUsers() // Get all users for assignment
+  // API hooks - Get users filtered by company for assignment
+  const { data: allUsersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers(companyId, 1, 1000)
   const assignUserMutation = useAssignUserToLocation()
   const unassignUserMutation = useUnassignUserFromLocation();
   const updateUserMutation = useUpdateLocationUser();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useLocationUsers(locationId, 1, 10);
+  const { data, isLoading, refetch: refetchLocationUsers } = useLocationUsers(locationId, 1, 1000);
   const locationUsers = data?.data || [];
 
   console.log("Location Users Data:", locationUsers)
@@ -138,6 +138,13 @@ export default function LocationUsersPage() {
       })
       setIsAssignModalOpen(false)
       setSearchTerm("")
+      
+      // Explicitly refetch both users and location users data
+      await Promise.all([
+        refetchUsers(),
+        refetchLocationUsers()
+      ])
+      
       toast({
         title: "Success",
         description: "User assigned to location successfully",
@@ -146,7 +153,7 @@ export default function LocationUsersPage() {
       console.error("Error assigning user:", error)
       toast({
         title: "Error",
-        description: "Failed to assign user to location",
+        description: (error as any)?.response?.data?.message || "Failed to assign user to location",
         variant: "destructive",
       })
     }
@@ -170,7 +177,6 @@ export default function LocationUsersPage() {
         title: "Success",
         description: "User updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["location-users", locationId, 1, 10] });
     } catch (error) {
       toast({
         title: "Error",
@@ -209,7 +215,6 @@ export default function LocationUsersPage() {
         title: "Success",
         description: "User unassigned from location successfully",
       })
-      queryClient.invalidateQueries({ queryKey: ["location-users"] })
     } catch (error) {
       toast({
         title: "Error",
@@ -450,7 +455,10 @@ export default function LocationUsersPage() {
                   </p>
                 </div>
               ) : (
-                filteredAvailableUsers.map((user: any) => (
+                // Only show STORE_KEEPER users for assignment
+                filteredAvailableUsers
+                  .filter((user: any) => user.role === "STORE_KEEPER")
+                  .map((user: any) => (
                   <div
                     key={user.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"

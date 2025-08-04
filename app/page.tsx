@@ -109,6 +109,9 @@ function App() {
           return <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">Not authorized</div>;
         }
       case "roles":
+        if (user?.role === "COMPANY_OWNER") {
+          return <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">Not authorized</div>;
+        }
         return <RolesPage />
       case "confirm-email":
         return <EmailVerified  />

@@ -55,6 +55,12 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
 
   // Build menu items with Location logic
   let menuItems = baseMenuItems.filter((item) => {
+    // Hide Roles section for COMPANY_OWNER
+    if (item.id === "roles") {
+      if (user?.role === "COMPANY_OWNER") return false;
+      return true;
+    }
+    // Hide Location section for POSPORT_ADMIN
     if (item.id === "location") {
       if (user?.role === "POSPORT_ADMIN") return false;
       return true;

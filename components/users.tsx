@@ -415,19 +415,28 @@ console.log(assignedUsers, "assignedUsers");
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
-          <p className="text-gray-600">Manage your team members and their roles</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {currentUser?.role === "COMPANY_OWNER" ? "Store Keepers Management" : "Users Management"}
+          </h1>
+          <p className="text-gray-600">
+            {currentUser?.role === "COMPANY_OWNER" 
+              ? "Manage your store keepers and their assignments" 
+              : "Manage your team members and their roles"
+            }
+          </p>
         </div>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
             <Button className="bg-[#1a72dd] hover:bg-[#1557b8]">
               <Plus className="w-4 h-4 mr-2" />
-              Add User
+              {currentUser?.role === "COMPANY_OWNER" ? "Add Store Keeper" : "Add User"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>
+                {currentUser?.role === "COMPANY_OWNER" ? "Add New Store Keeper" : "Add New User"}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -506,10 +515,14 @@ console.log(assignedUsers, "assignedUsers");
                   <SelectContent>
                     {roles
                       .filter(role => {
+                        // For COMPANY_OWNER, only show STORE_KEEPER
+                        if (currentUser?.role === "COMPANY_OWNER") {
+                          return role.name === "STORE_KEEPER";
+                        }
                         // Show all roles except COMPANY_OWNER and POSPORT_ADMIN by default
                         if (role.name !== "COMPANY_OWNER" && role.name !== "POSPORT_ADMIN") return true;
-                        // If current user is POSPORT_ADMIN or COMPANY_OWNER, show these roles too
-                        if (currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") return true;
+                        // If current user is POSPORT_ADMIN, show these roles too
+                        if (currentUser?.role === "POSPORT_ADMIN") return true;
                         return false;
                       })
                       .map(role => (
@@ -551,7 +564,10 @@ console.log(assignedUsers, "assignedUsers");
                   Cancel
                 </Button>
                 <Button type="submit" disabled={createUserMutation.isPending}>
-                  {createUserMutation.isPending ? "Creating..." : "Add User"}
+                  {createUserMutation.isPending 
+                    ? "Creating..." 
+                    : currentUser?.role === "COMPANY_OWNER" ? "Add Store Keeper" : "Add User"
+                  }
                 </Button>
               </div>
             </form>
@@ -572,38 +588,44 @@ console.log(assignedUsers, "assignedUsers");
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Admins</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                  {users.filter((user) => user.role === "POSPORT_ADMIN").length}
-                </p>
+        {currentUser?.role !== "COMPANY_OWNER" && (
+          <Card>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center space-x-2">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Admins</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                    {users.filter((user) => user.role === "POSPORT_ADMIN").length}
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center space-x-2">
-              <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-              <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Owners</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                  {users.filter((user) => user.role === "COMPANY_OWNER").length}
-                </p>
+            </CardContent>
+          </Card>
+        )}
+        {currentUser?.role !== "COMPANY_OWNER" && (
+          <Card>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex items-center space-x-2">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Owners</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                    {users.filter((user) => user.role === "COMPANY_OWNER").length}
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
               <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Keepers</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                  {currentUser?.role === "COMPANY_OWNER" ? "Store Keepers" : "Keepers"}
+                </p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900">
                   {users.filter((user) => user.role === "STORE_KEEPER").length}
                 </p>
@@ -632,7 +654,11 @@ console.log(assignedUsers, "assignedUsers");
             key="users-search"
             searchTerm={searchInputProps.searchTerm}
             onSearchChange={searchInputProps.onSearchChange}
-            placeholder="Search users by name, email, or role..."
+            placeholder={
+              currentUser?.role === "COMPANY_OWNER" 
+                ? "Search store keepers by name, email, or role..." 
+                : "Search users by name, email, or role..."
+            }
             isLoading={isLoading}
             inputRef={usersSearchRef}
           />
@@ -653,9 +679,16 @@ console.log(assignedUsers, "assignedUsers");
               <Card>
                 <CardContent className="p-8 text-center">
                   <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {currentUser?.role === "COMPANY_OWNER" ? "No store keepers found" : "No users found"}
+                  </h3>
                   <p className="text-gray-600">
-                    {searchTerm ? "Try adjusting your search terms." : "Get started by adding your first user."}
+                    {searchTerm 
+                      ? "Try adjusting your search terms." 
+                      : currentUser?.role === "COMPANY_OWNER" 
+                        ? "Get started by adding your first store keeper." 
+                        : "Get started by adding your first user."
+                    }
                   </p>
                 </CardContent>
               </Card>
@@ -888,7 +921,9 @@ console.log(assignedUsers, "assignedUsers");
       {meta && meta.pageCount > 1 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-            Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, meta.itemCount)} of {meta.itemCount} users
+            Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, meta.itemCount)} of {meta.itemCount} {
+              currentUser?.role === "COMPANY_OWNER" ? "store keepers" : "users"
+            }
           </div>
           <div className="flex items-center justify-center sm:justify-end gap-2">
             <Button
@@ -922,7 +957,9 @@ console.log(assignedUsers, "assignedUsers");
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>
+              {currentUser?.role === "COMPANY_OWNER" ? "Edit Store Keeper" : "Edit User"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -985,10 +1022,14 @@ console.log(assignedUsers, "assignedUsers");
                 <SelectContent>
                   {roles
                     .filter(role => {
+                      // For COMPANY_OWNER, only show STORE_KEEPER
+                      if (currentUser?.role === "COMPANY_OWNER") {
+                        return role.name === "STORE_KEEPER";
+                      }
                       // Show all roles except COMPANY_OWNER and POSPORT_ADMIN by default
                       if (role.name !== "COMPANY_OWNER" && role.name !== "POSPORT_ADMIN") return true;
-                      // If current user is POSPORT_ADMIN or COMPANY_OWNER, show these roles too
-                      if (currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") return true;
+                      // If current user is POSPORT_ADMIN, show these roles too
+                      if (currentUser?.role === "POSPORT_ADMIN") return true;
                       return false;
                     })
                     .map(role => (
@@ -1031,7 +1072,10 @@ console.log(assignedUsers, "assignedUsers");
                 Cancel
               </Button>
               <Button type="submit" disabled={updateUserMutation.isPending}>
-                {updateUserMutation.isPending ? "Updating..." : "Update User"}
+                {updateUserMutation.isPending 
+                  ? "Updating..." 
+                  : currentUser?.role === "COMPANY_OWNER" ? "Update Store Keeper" : "Update User"
+                }
               </Button>
             </div>
           </form>

@@ -33,6 +33,7 @@ import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation, 
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { useUserDataStore } from "@/lib/store";
+import QRCodeDisplay from "@/components/qr-code-display";
 
 interface Location {
   id: string
@@ -89,6 +90,13 @@ export default function Locations({ companyId }: LocationsProps) {
     email: "",
     qrCode: "",
   })
+
+  const generateQRCode = () => {
+    const timestamp = Date.now()
+    const random = Math.random().toString(36).substring(2, 8)
+    const qrValue = `LOC-${timestamp}-${random}`
+    setFormData(prev => ({ ...prev, qrCode: qrValue }))
+  }
 
   console.log(effectiveCompanyId ,"effectiveCompanyId");
   
@@ -272,12 +280,23 @@ export default function Locations({ companyId }: LocationsProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="qrCode">QR Code</Label>
-                    <Input
-                      id="qrCode"
-                      value={formData.qrCode}
-                      onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-                      placeholder="Auto-generated if empty"
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="qrCode"
+                        value={formData.qrCode}
+                        onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
+                        placeholder="Auto-generated if empty"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={generateQRCode}
+                        className="whitespace-nowrap"
+                      >
+                        Generate
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -411,9 +430,9 @@ export default function Locations({ companyId }: LocationsProps) {
                 <Card 
                   key={location.id} 
                   className="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer"
-                  onClick={() => handleLocationClick(location.id)}
+                  
                 >
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-3" onClick={() => handleLocationClick(location.id)}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
@@ -473,9 +492,18 @@ export default function Locations({ companyId }: LocationsProps) {
                       <span className="text-sm text-gray-600">{location.email}</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <QrCode className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600 font-mono">{location.qrCode}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <QrCode className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600 font-mono">{location.qrCode}</span>
+                      </div>
+                      {location.qrCode && (
+                        <QRCodeDisplay 
+                          value={location.qrCode} 
+                          locationName={location.locationName}
+                          size={80}
+                        />
+                      )}
                     </div>
 
                     <div className="pt-2 border-t">
@@ -537,12 +565,23 @@ export default function Locations({ companyId }: LocationsProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-qrCode">QR Code</Label>
-                <Input
-                  id="edit-qrCode"
-                  value={formData.qrCode}
-                  onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-                  placeholder="QR Code"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="edit-qrCode"
+                    value={formData.qrCode}
+                    onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
+                    placeholder="QR Code"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={generateQRCode}
+                    className="whitespace-nowrap"
+                  >
+                    Generate
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="space-y-2">

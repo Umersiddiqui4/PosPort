@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useLocationById, useUpdateLocation, useDeleteLocation } from "@/hooks/useLocation"
 import { useQueryClient } from "@tanstack/react-query"
+import QRCodeDisplay from "@/components/qr-code-display"
 
 export default function LocationDetailPage() {
   const params = useParams()
@@ -106,6 +107,13 @@ export default function LocationDetailPage() {
       email: "",
       qrCode: "",
     })
+  }
+
+  const generateQRCode = () => {
+    const timestamp = Date.now()
+    const random = Math.random().toString(36).substring(2, 8)
+    const qrValue = `LOC-${timestamp}-${random}`
+    setFormData(prev => ({ ...prev, qrCode: qrValue }))
   }
 
   const isSubmitting = updateLocationMutation.isPending || deleteLocationMutation.isPending
@@ -209,12 +217,24 @@ export default function LocationDetailPage() {
             <CardTitle className="text-lg font-semibold text-gray-900">QR Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <QrCode className="w-5 h-5 text-gray-400" />
-              <div>
-                <div className="text-sm text-gray-600">QR Code ID</div>
-                <div className="font-mono text-gray-900">{location.qrCode}</div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <QrCode className="w-5 h-5 text-gray-400" />
+                <div>
+                  <div className="text-sm text-gray-600">QR Code ID</div>
+                  <div className="font-mono text-gray-900">{location.qrCode}</div>
+                </div>
               </div>
+              {location.qrCode && (
+                <div className="flex justify-center">
+                  <QRCodeDisplay 
+                    value={location.qrCode} 
+                    locationName={location.locationName}
+                    size={200}
+                    showDialog={false}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -296,12 +316,23 @@ export default function LocationDetailPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-qrCode">QR Code</Label>
-                <Input
-                  id="edit-qrCode"
-                  value={formData.qrCode}
-                  onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-                  placeholder="QR Code"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="edit-qrCode"
+                    value={formData.qrCode}
+                    onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
+                    placeholder="QR Code"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={generateQRCode}
+                    className="whitespace-nowrap"
+                  >
+                    Generate
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="space-y-2">

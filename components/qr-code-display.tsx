@@ -84,13 +84,12 @@ export default function QRCodeDisplay({
         <p className="text-sm text-gray-600 mb-4">QR Code</p>
       </div>
       
-      <div className="bg-white p-4 rounded-lg border">
+      <div className="bg-white p-8 rounded-lg border">
         <QRCode
           id={`qr-${value.replace(/[^a-zA-Z0-9]/g, '')}`}
           value={value}
           size={size}
           level="M"
-          includeMargin={true}
         />
       </div>
       

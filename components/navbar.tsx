@@ -17,6 +17,7 @@ import {
   Users,
   Building2,
   Shield,
+  BookOpen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -34,6 +35,7 @@ const baseMenuItems = [
   { id: "manage-store", label: "Manage Store", icon: Store, href: "/manage-store" },
   // { id: "product-list", label: "Product List", icon: Package },
   // { id: "customer", label: "Customers", icon: Users },
+  { id: "catalogs", label: "Catalogs", icon: BookOpen, href: "/catalogs" },
   { id: "users", label: "Users", icon: User, href: "/users" },
   { id: "roles", label: "Roles", icon: Shield, href: "/roles" },
   { id: "account", label: "Account", icon: User, href: "/account" },

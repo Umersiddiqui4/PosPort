@@ -4,6 +4,7 @@ import ProtectedLayout from "./ProtectedLayout";
 import {Providers} from "./Providers";
 import { Toaster } from "@/components/ui/sonner";
 import { Inter } from "next/font/google"
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -16,12 +17,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
      <html lang="en">
       <body suppressHydrationWarning={true}  className={inter.className}>
-          <Providers>
-            <ProtectedLayout>
-              {children}
-              <Toaster />
-            </ProtectedLayout>
-          </Providers>
+          <ErrorBoundary>
+            <Providers>
+              <ProtectedLayout>
+                {children}
+                <Toaster />
+              </ProtectedLayout>
+            </Providers>
+          </ErrorBoundary>
       </body>
     </html>
   );

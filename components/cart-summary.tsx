@@ -4,7 +4,7 @@ import { ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface CartItem {
-  id: number
+  id: string
   name: string
   price: number
   quantity: number

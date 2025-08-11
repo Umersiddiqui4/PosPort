@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo, useTransition, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu, Sidebar, X, Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,19 +13,30 @@ import SuccessScreen from "../components/success-screen"
 import CartSummary from "../components/cart-summary"
 import OrderSummary from "../components/order-summary"
 import React from "react"
-import { useUserDataStore } from "@/lib/store";
+import { useUserDataStore } from "@/lib/store"
+import { useProducts, Product as APIProduct } from "@/hooks/use-products"
+import { useCatalogs } from "@/hooks/use-catalogs"
+import { useProductCategories } from "@/hooks/use-product-categories"
+import { useCatalogById } from "@/hooks/use-cataogById"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import ProductForm from "@/components/product-form"
 
+// UI Product interface for the cashier page
 interface Product {
-  id: number
+  id: string
   name: string
   price: number
   image: string
   quantity?: number
-  category: string
+  productName?: string
+  category?: string
+  description?: string
+  status?: "active" | "inactive" | "draft"
+  categoryId?: string
 }
 
 interface CartItem {
-  id: number
+  id: string
   name: string
   price: number
   quantity: number
@@ -37,101 +49,113 @@ interface CashierPageProps {
 type ViewType = "products" | "manual" | "payment" | "success"
 type ViewMode = "grid" | "list"
 
-const initialProducts: Product[] = [
-  {
-    id: 1,
-    name: "Salad Egg",
-    price: 1150,
-    image: "https://www.daysoftheyear.com/cdn-cgi/image/dpr=1%2Cf=auto%2Cfit=cover%2Ch=675%2Cq=85%2Cw=1200/wp-content/uploads/national-fast-food-day.jpg",
-    quantity: 0,
-    category: "Special Menu",
-  },
-  {
-    id: 2,
-    name: "Maggi Sale",
-    price: 750,
-    image: "https://media.istockphoto.com/id/184354422/photo/club-sandwich.jpg?s=612x612&w=0&k=20&c=oekKP1LciqidyIPbTMe6CJp4M8iaasktEjqx2OcxpAU=",
-    quantity: 0,
-    category: "Main Course",
-  },
-  {
-    id: 3,
-    name: "Maggi Black Paper",
-    price: 1500,
-    image: "https://m-foodz.com/pk/wp-content/uploads/2023/05/Fast-Food-Restaurants-In-Karachi.jpg",
-    quantity: 0,
-    category: "Main Course",
-  },
-  {
-    id: 4,
-    name: "Chicken Biryani",
-    price: 2000,
-    image: "https://images.getrecipekit.com/20230606152327-25_Instant_ramen.jpg?aspect_ratio=16:9&quality=90&",
-    quantity: 0,
-    category: "Special Menu",
-  },
-  {
-    id: 5,
-    name: "Beef Karahi",
-    price: 1800,
-    image: "https://images.immediate.co.uk/production/volatile/sites/30/2024/12/Chicken-Karahi-847828f.jpg",
-    quantity: 0,
-    category: "Main Course",
-  },
-  {
-    id: 6,
-    name: "Fish Curry",
-    price: 1200,
-    image: "https://i.ytimg.com/vi/NvQMLzhLm88/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLA5rGZOuqqg-bP7A21-rLdC4r3sOg",
-    quantity: 0,
-    category: "Special Menu",
-  },
-  {
-    id: 7,
-    name: "Pepperoni Pizza",
-    price: 1600,
-    image: "https://www.spiceandcolour.com/wp-content/uploads/2020/06/samosa-de-pollo-1.jpg",
-    quantity: 0,
-    category: "Fast Food",
-  },
-  {
-    id: 8,
-    name: "Cheese Burger",
-    price: 900,
-    image: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Momo_nepal.jpg",
-    quantity: 0,
-    category: "Fast Food",
-  },
-  {
-    id: 9,
-    name: "French Fries",
-    price: 500,
-    image: "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    quantity: 0,
-    category: "Fast Food",
-  },
-];
+
 
 
 export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
+  const params = useParams()
+  const router = useRouter()
+  
+  // Get catalog and category from URL params
+  const catalogIdFromUrl = params?.userId as string
+  const categoryIdFromUrl = params?.Id as string
+  
   const [currentView, setCurrentView] = useState<ViewType>("products")
   const [selectedCategory, setSelectedCategory] = useState("All Product")
+  const [selectedCatalog, setSelectedCatalog] = useState<string>("all")
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all")
   const [cart, setCart] = useState<CartItem[]>([])
   const [manualPrice, setManualPrice] = useState("")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
-  const [productList, setProductList] = useState(initialProducts)
   const [searchQuery, setSearchQuery] = useState("")
   const [showOrderSummary, setShowOrderSummary] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isLoadingCatalogForProduct, setIsLoadingCatalogForProduct] = useState(false)
   const isLoggedIn = useUserDataStore((state) => state.isLoggedIn);
   const user = useUserDataStore((state) => state.user);
+  
+  // Use the products API with category filtering
+  const { products: apiProducts, isLoading: productsLoading, error: productsError, createProduct, updateProduct, deleteProduct } = useProducts(1, 1000) // Get more products for filtering
+  
+  // Use the catalogs API
+  const { catalogs, isLoading: catalogsLoading } = useCatalogs()
+  
+  // Use the categories API
+  const { data: categories = [], isLoading: categoriesLoading } = useProductCategories()
+  
+  // Fetch catalog data when needed for product creation
+  const { data: catalogData, isLoading: catalogLoading, refetch: refetchCatalog } = useCatalogById(selectedCatalog !== "all" ? selectedCatalog : "")
+  
+  // Debug logging for catalog data
+  console.log("CashierPage Catalog Debug:", {
+    selectedCatalog,
+    selectedCategoryId,
+    selectedCategory,
+    catalogData,
+    catalogLoading,
+    catalogIdFromUrl,
+    categoryIdFromUrl,
+    isLoadingCatalogForProduct,
+    currentPath: window.location.pathname
+  })
+  
+  // Function to get updated params from current URL
+  const getUpdatedParams = useCallback(() => {
+    const currentPath = window.location.pathname
+    const pathParts = currentPath.split('/').filter(Boolean)
+    
+    console.log("Getting updated params from path:", currentPath)
+    console.log("Path parts:", pathParts)
+    
+    let updatedParams = {
+      catalogId: "",
+      categoryId: "",
+      isProductCreation: false
+    }
+    
+    if (pathParts.length >= 2 && pathParts[0] === "catalogs") {
+      updatedParams.catalogId = pathParts[1]
+      
+      if (pathParts.length >= 4 && pathParts[2] === "categories") {
+        updatedParams.categoryId = pathParts[3]
+        
+        if (pathParts.length >= 6 && pathParts[4] === "products" && pathParts[5] === "create") {
+          updatedParams.isProductCreation = true
+        }
+      } else if (pathParts.length >= 4 && pathParts[2] === "categories" && pathParts[3] === "create") {
+        updatedParams.isProductCreation = true
+      }
+    } else if (pathParts.length >= 2 && pathParts[0] === "products" && pathParts[1] === "create") {
+      updatedParams.isProductCreation = true
+    }
+    
+    console.log("Updated params:", updatedParams)
+    return updatedParams
+  }, [])
+  
+  // Transform API products to match the expected format
+  const productList = useMemo(() => {
+    return apiProducts.map((apiProduct: APIProduct): Product => ({
+      id: apiProduct.id,
+      name: apiProduct.productName || "Unknown Product",
+      price: apiProduct.price || 0,
+      image: apiProduct.image || "/placeholder.svg",
+      quantity: 0,
+      productName: apiProduct.productName,
+      category: apiProduct.category || "General",
+      description: apiProduct.description,
+      status: apiProduct.status,
+      categoryId: (apiProduct as any).categoryId
+    }))
+  }, [apiProducts])
 
-  console.log("Logged in user data:", user);
-  console.log('LoginEmployeePage Rendered', isLoggedIn);
+  // Product management state
+  const [isCreateProductDialogOpen, setIsCreateProductDialogOpen] = useState(false)
+  const [isEditProductDialogOpen, setIsEditProductDialogOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
   const [isMobile, setIsMobile] = useState(false);
-
-  console.log(user, "user.user");
   
 
 useEffect(() => {
@@ -144,8 +168,6 @@ useEffect(() => {
 
   return () => window.removeEventListener("resize", handleResize);
 }, []);
-  console.log(isMobile, "isMobile");
-
   React.useEffect(() => {
     onSidebarToggle?.(isSidebarCollapsed)
   }, [isSidebarCollapsed, onSidebarToggle])
@@ -153,7 +175,6 @@ useEffect(() => {
   const handleSidebarToggle = useCallback(() => {
     setIsSidebarCollapsed((prev) => !prev)
   }, [])
-  console.log(isSidebarCollapsed, "isSidebarCollapsed");
   
   useEffect(() => {
 
@@ -162,29 +183,48 @@ useEffect(() => {
 
     }, [cart.length])
 
-  // Memoized filtered products
+  // Memoized filtered products with category filtering
   const filteredProducts = useMemo(() => {
-    return productList.filter((product) => {
-      const matchesCategory = selectedCategory === "All Product" || product.category === selectedCategory
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchesCategory && matchesSearch
+    const filtered = productList.filter((product) => {
+      // Filter by categoryId if selected (skip if "all" is selected)
+      const matchesCategoryId = !selectedCategoryId || selectedCategoryId === "all" || 
+        product.categoryId === selectedCategoryId ||
+        product.category === selectedCategory // Fallback to category name
+      
+      // Filter by search query
+      const matchesSearch = (product.name || product.productName || "").toLowerCase().includes(searchQuery.toLowerCase())
+      
+      return matchesCategoryId && matchesSearch
     })
-  }, [productList, selectedCategory, searchQuery])
+    
+    return filtered
+  }, [productList, selectedCategoryId, selectedCategory, searchQuery])
+
+  // Debug logging (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Debug Info:", {
+      selectedCatalog,
+      selectedCategoryId,
+      selectedCategory,
+      totalProducts: productList.length,
+      productsWithCategoryId: productList.filter(p => p.categoryId).length,
+      productsWithCategory: productList.filter(p => p.category).length,
+      filteredProductsCount: filteredProducts.length,
+      sampleProduct: productList[0],
+      sampleFilteredProduct: filteredProducts[0]
+    })
+  }
 
   // Memoized total calculation
   const totalAmount = useMemo(() => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }, [cart])
-
-  console.log("Cart Items:", cart);
   
-  const handleQuantityChange = useCallback((productId: number, quantity: number) => {
+  const handleQuantityChange = useCallback((productId: string, quantity: number) => {
     startTransition(() => {
-      setProductList((prev) => prev.map((product) => (product.id === productId ? { ...product, quantity } : product)))
-
       setCart((prev) => {
         const existingItem = prev.find((item) => item.id === productId)
-        const product = initialProducts.find((p) => p.id === productId)!
+        const product = productList.find((p) => p.id === productId)!
 
         if (quantity === 0) {
           return prev.filter((item) => item.id !== productId)
@@ -205,20 +245,17 @@ useEffect(() => {
         }
       })
     })
-  }, [])
+  }, [productList])
 
   const handleAddToCart = useCallback(
-    (productId: number) => {
+    (productId: string) => {
       handleQuantityChange(productId, 1)
     },
     [handleQuantityChange],
   )
 
-  const handleRemoveFromCart = useCallback((productId: number) => {
+  const handleRemoveFromCart = useCallback((productId: string) => {
     startTransition(() => {
-      setProductList((prev) =>
-        prev.map((product) => (product.id === productId ? { ...product, quantity: 0 } : product)),
-      )
       setCart((prev) => prev.filter((item) => item.id !== productId))
     })
   }, [])
@@ -241,7 +278,6 @@ useEffect(() => {
 
   const handleNextOrder = useCallback(() => {
     setCart([])
-    setProductList(initialProducts)
     setCurrentView("products")
     setSearchQuery("")
   }, [])
@@ -250,7 +286,7 @@ useEffect(() => {
     const price = Number.parseInt(manualPrice) || 0
     if (price > 0) {
       const manualItem: CartItem = {
-        id: Date.now(),
+        id: Date.now().toString(),
         name: "Manual Item",
         price,
         quantity: 1,
@@ -261,9 +297,255 @@ useEffect(() => {
     setManualPrice("")
   }, [manualPrice])
 
+  // Product management handlers
+  const handleCreateProduct = useCallback(() => {
+    // Update URL params to include product creation context
+    let newUrl = ""
+    
+    if (selectedCatalog && selectedCatalog !== "all") {
+      if (selectedCategoryId && selectedCategoryId !== "all") {
+        // Navigate to product creation within specific category
+        newUrl = `/catalogs/${selectedCatalog}/categories/${selectedCategoryId}/products/create`
+      } else {
+        // Navigate to product creation within catalog (no specific category)
+        newUrl = `/catalogs/${selectedCatalog}/categories/create`
+      }
+    } else {
+      // Navigate to general product creation
+      newUrl = `/products/create`
+    }
+    
+    console.log("Updating URL for product creation:", newUrl)
+    console.log("Current params:", { selectedCatalog, selectedCategoryId, selectedCategory })
+    
+    // Update URL using window.history
+    window.history.pushState({}, '', newUrl)
+    
+    // Dispatch custom event for product creation
+    window.dispatchEvent(new CustomEvent('productCreationStarted', { 
+      detail: { 
+        catalogId: selectedCatalog,
+        categoryId: selectedCategoryId,
+        categoryName: selectedCategory
+      } 
+    }))
+    
+    // Load catalog data when creating a product
+    if (selectedCatalog && selectedCatalog !== "all") {
+      console.log("Loading catalog data for product creation:", selectedCatalog)
+      setIsLoadingCatalogForProduct(true)
+      refetchCatalog().finally(() => {
+        setIsLoadingCatalogForProduct(false)
+      })
+    }
+    
+    console.log("Opening create product dialog with category:", {
+      selectedCategoryId,
+      selectedCategory,
+      catalogId: selectedCatalog
+    })
+    setIsCreateProductDialogOpen(true)
+  }, [selectedCatalog, selectedCategoryId, selectedCategory, refetchCatalog])
+
+  const handleEditProduct = useCallback((product: Product) => {
+    setSelectedProduct(product)
+    setIsEditProductDialogOpen(true)
+  }, [])
+
+  const handleDeleteProduct = useCallback(async (productId: string) => {
+    try {
+      await deleteProduct.mutateAsync(productId)
+    } catch (error) {
+      console.error("Failed to delete product:", error)
+    }
+  }, [deleteProduct])
+
+  const handleCreateProductSuccess = useCallback(() => {
+    console.log("Product creation successful, restoring original URL")
+    
+    // Restore the original URL based on current selection
+    let restoreUrl = ""
+    
+    if (selectedCatalog && selectedCatalog !== "all") {
+      if (selectedCategoryId && selectedCategoryId !== "all") {
+        restoreUrl = `/catalogs/${selectedCatalog}/categories/${selectedCategoryId}/products`
+      } else {
+        restoreUrl = `/catalogs/${selectedCatalog}/categories`
+      }
+    } else {
+      restoreUrl = "/"
+    }
+    
+    console.log("Restoring URL to:", restoreUrl)
+    window.history.pushState({}, '', restoreUrl)
+    
+    // Dispatch event for product creation success
+    window.dispatchEvent(new CustomEvent('productCreationSuccess', { 
+      detail: { 
+        catalogId: selectedCatalog,
+        categoryId: selectedCategoryId
+      } 
+    }))
+    
+    setIsCreateProductDialogOpen(false)
+  }, [selectedCatalog, selectedCategoryId])
+
+  const handleEditProductSuccess = useCallback(() => {
+    setIsEditProductDialogOpen(false)
+    setSelectedProduct(null)
+  }, [])
+  
+  const handleCreateProductCancel = useCallback(() => {
+    console.log("Product creation canceled, restoring original URL")
+    
+    // Restore the original URL based on current selection
+    let restoreUrl = ""
+    
+    if (selectedCatalog && selectedCatalog !== "all") {
+      if (selectedCategoryId && selectedCategoryId !== "all") {
+        restoreUrl = `/catalogs/${selectedCatalog}/categories/${selectedCategoryId}/products`
+      } else {
+        restoreUrl = `/catalogs/${selectedCatalog}/categories`
+      }
+    } else {
+      restoreUrl = "/"
+    }
+    
+    console.log("Restoring URL to:", restoreUrl)
+    window.history.pushState({}, '', restoreUrl)
+    
+    // Dispatch event for product creation cancel
+    window.dispatchEvent(new CustomEvent('productCreationCancel', { 
+      detail: { 
+        catalogId: selectedCatalog,
+        categoryId: selectedCategoryId
+      } 
+    }))
+    
+    setIsCreateProductDialogOpen(false)
+  }, [selectedCatalog, selectedCategoryId])
+
   const toggleViewMode = useCallback(() => {
     setViewMode((prev) => (prev === "grid" ? "list" : "grid"))
   }, [])
+
+  // Sync URL params with state on mount
+  useEffect(() => {
+    if (catalogIdFromUrl) {
+      setSelectedCatalog(catalogIdFromUrl)
+      if (categoryIdFromUrl) {
+        setSelectedCategoryId(categoryIdFromUrl)
+        // Find category name for display
+        const category = categories.find(cat => cat.id === categoryIdFromUrl)
+        setSelectedCategory(category?.categoryName || "All Product")
+      } else {
+        setSelectedCategoryId("all")
+        setSelectedCategory("All Product")
+      }
+    }
+  }, [catalogIdFromUrl, categoryIdFromUrl, categories])
+  
+  // Listen for URL changes and update params when create product dialog is opened
+  useEffect(() => {
+    if (isCreateProductDialogOpen) {
+      const updatedParams = getUpdatedParams()
+      console.log("Product creation dialog opened with params:", updatedParams)
+      
+      // Update state based on new params if needed
+      if (updatedParams.catalogId && updatedParams.catalogId !== selectedCatalog) {
+        console.log("Updating selected catalog from URL params:", updatedParams.catalogId)
+        setSelectedCatalog(updatedParams.catalogId)
+      }
+      
+      if (updatedParams.categoryId && updatedParams.categoryId !== selectedCategoryId) {
+        console.log("Updating selected category from URL params:", updatedParams.categoryId)
+        setSelectedCategoryId(updatedParams.categoryId)
+        // Find category name for display
+        const category = categories.find(cat => cat.id === updatedParams.categoryId)
+        setSelectedCategory(category?.categoryName || "All Product")
+      }
+    }
+  }, [isCreateProductDialogOpen, getUpdatedParams, selectedCatalog, selectedCategoryId, categories])
+  
+  // Track selectedCategoryId changes
+  useEffect(() => {
+    console.log("selectedCategoryId changed:", selectedCategoryId)
+  }, [selectedCategoryId])
+
+  // Catalog and category selection handlers
+  const handleCatalogSelect = useCallback((catalogId: string) => {
+    const actualCatalogId = catalogId === "all" ? "" : catalogId
+    console.log("Catalog selection:", { catalogId, actualCatalogId })
+    
+    setSelectedCatalog(actualCatalogId)
+    setSelectedCategoryId("all") // Reset category when catalog changes
+    setSelectedCategory("All Product")
+    
+    // Update URL
+    if (actualCatalogId) {
+      const newUrl = `/catalogs/${actualCatalogId}/categories`
+      console.log("Navigating to:", newUrl)
+      console.log("Current pathname:", window.location.pathname)
+      
+      // Update URL using window.history
+      window.history.pushState({}, '', newUrl)
+      
+      // Dispatch a custom event to notify parent components
+      window.dispatchEvent(new CustomEvent('catalogChanged', { 
+        detail: { catalogId: actualCatalogId } 
+      }))
+    } else {
+      console.log("Navigating to home")
+      window.history.pushState({}, '', "/")
+      
+      // Dispatch a custom event to notify parent components
+      window.dispatchEvent(new CustomEvent('catalogChanged', { 
+        detail: { catalogId: null } 
+      }))
+    }
+  }, [])
+
+  const handleCategorySelect = useCallback((categoryId: string) => {
+    const actualCategoryId = categoryId === "all" ? "" : categoryId
+    console.log("Category selection changed:", {
+      originalCategoryId: categoryId,
+      actualCategoryId: actualCategoryId,
+      previousSelectedCategoryId: selectedCategoryId
+    })
+    
+    setSelectedCategoryId(actualCategoryId)
+    
+    // Find category name for display
+    const category = categories.find(cat => cat.id === categoryId)
+    setSelectedCategory(category?.categoryName || "All Product")
+    
+    // Update URL
+    if (selectedCatalog && selectedCatalog !== "all") {
+      if (actualCategoryId) {
+        const newUrl = `/catalogs/${selectedCatalog}/categories/${actualCategoryId}/products`
+        window.history.pushState({}, '', newUrl)
+        
+        // Dispatch a custom event to notify parent components
+        window.dispatchEvent(new CustomEvent('categoryChanged', { 
+          detail: { categoryId: actualCategoryId, catalogId: selectedCatalog } 
+        }))
+      } else {
+        const newUrl = `/catalogs/${selectedCatalog}/categories`
+        window.history.pushState({}, '', newUrl)
+        
+        // Dispatch a custom event to notify parent components
+        window.dispatchEvent(new CustomEvent('categoryChanged', { 
+          detail: { categoryId: null, catalogId: selectedCatalog } 
+        }))
+      }
+    }
+  }, [categories, selectedCatalog])
+
+  // Filter categories for selected catalog
+  const filteredCategories = useMemo(() => {
+    if (!selectedCatalog || selectedCatalog === "all") return []
+    return categories.filter(category => category.menuId === selectedCatalog)
+  }, [categories, selectedCatalog])
 
   const renderHeader = () => (
     <header
@@ -286,7 +568,17 @@ useEffect(() => {
         </div>
 
         <h1 className="text-lg sm:text-xl font-bold text-[#1a72dd] flex-1 text-center">
-          {currentView === "products" && "Cashier"}
+          {currentView === "products" && (
+            <div className="flex flex-col items-center">
+              <span>Cashier</span>
+              {selectedCatalog && selectedCatalog !== "all" && (
+                <span className="text-sm font-normal text-gray-600">
+                  {catalogs.find(c => c.id === selectedCatalog)?.name}
+                  {selectedCategoryId && selectedCategoryId !== "all" && ` - ${categories.find(c => c.id === selectedCategoryId)?.categoryName}`}
+                </span>
+              )}
+            </div>
+          )}
           {currentView === "manual" && "Manual Input"}
           {currentView === "payment" && "Payment Method"}
         </h1>
@@ -340,29 +632,63 @@ useEffect(() => {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            {/* Catalog Selection */}
+            <Select value={selectedCatalog || "all"} onValueChange={handleCatalogSelect}>
               <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
-                <SelectValue placeholder="Select Category" />
+                <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select Catalog"}>
+                  {selectedCatalog && selectedCatalog !== "all" && catalogs.find(c => c.id === selectedCatalog)?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="rounded-xl border-2 border-gray-200 shadow-xl backdrop-blur-md">
                 <SelectItem
-                  value="All Product"
+                  value="all"
                   className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
                 >
-                  All Products
+                  All Catalogs
                 </SelectItem>
+                {catalogs.map((catalog) => (
+                  <SelectItem
+                    key={catalog.id}
+                    value={catalog.id}
+                    className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
+                  >
+                    {catalog.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Category Selection */}
+            <Select 
+              value={selectedCategoryId || "all"} 
+              onValueChange={handleCategorySelect}
+              disabled={!selectedCatalog || selectedCatalog === "all" || categoriesLoading}
+            >
+              <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                <SelectValue placeholder={!selectedCatalog || selectedCatalog === "all" ? "Select catalog first" : categoriesLoading ? "Loading categories..." : "Select Category"}>
+                  {selectedCategoryId && selectedCategoryId !== "all" && categories.find(c => c.id === selectedCategoryId)?.categoryName}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-2 border-gray-200 shadow-xl backdrop-blur-md">
                 <SelectItem
-                  value="Special Menu"
+                  value="all"
                   className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
                 >
-                  Special Menu
+                  All Categories
                 </SelectItem>
-                <SelectItem
-                  value="Main Course"
-                  className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
-                >
-                  Main Course
-                </SelectItem>
+                {filteredCategories.map((category) => (
+                  <SelectItem
+                    key={category.id}
+                    value={category.id}
+                    className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: category.color }}>{category.icon}</span>
+                      {category.categoryName}
+                      <span className="text-xs text-gray-500">({category.productCount || 0})</span>
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -393,16 +719,32 @@ useEffect(() => {
 
       <main className="flex-1 overflow-auto">
         {currentView === "products" && (
-          <ProductGrid
-            products={filteredProducts}
-            cartItems={cart}
-            onQuantityChange={handleQuantityChange}
-            onAddToCart={handleAddToCart}
-            onRemoveFromCart={handleRemoveFromCart}
-            onProceedToPayment={handleProceedToPayment}
-            viewMode={viewMode}
-            isSidebarCollapsed={isSidebarCollapsed}
-          />
+          <>
+            {productsLoading && apiProducts.length === 0 ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a72dd] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading products...</p>
+                </div>
+              </div>
+            ) : (
+              <ProductGrid
+                products={filteredProducts}
+                cartItems={cart}
+                onQuantityChange={handleQuantityChange}
+                onAddToCart={handleAddToCart}
+                onRemoveFromCart={handleRemoveFromCart}
+                onProceedToPayment={handleProceedToPayment}
+                viewMode={viewMode}
+                isSidebarCollapsed={isSidebarCollapsed}
+                onEditProduct={handleEditProduct}
+                onDeleteProduct={handleDeleteProduct}
+                onCreateProduct={handleCreateProduct}
+                currentFilter={selectedCategory !== "All Product" ? selectedCategory : searchQuery || undefined}
+                isCreatingProduct={isLoadingCatalogForProduct}
+              />
+            )}
+          </>
         )}
 
         {currentView === "manual" && (
@@ -507,7 +849,49 @@ useEffect(() => {
         />
       )}
 
+      {/* Create Product Dialog */}
+      <Dialog open={isCreateProductDialogOpen} onOpenChange={setIsCreateProductDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Product</DialogTitle>
+          </DialogHeader>
+                          <ProductForm 
+                            onSuccess={handleCreateProductSuccess} 
+                            onCancel={handleCreateProductCancel}
+                            selectedCategoryId={selectedCategoryId !== "all" ? selectedCategoryId : ""}
+                          />
+        </DialogContent>
+      </Dialog>
 
+      {/* Edit Product Dialog */}
+      <Dialog open={isEditProductDialogOpen} onOpenChange={setIsEditProductDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+          </DialogHeader>
+          {selectedProduct && (
+            <ProductForm
+              product={{
+                id: selectedProduct.id,
+                productName: selectedProduct.productName || selectedProduct.name,
+                price: selectedProduct.price,
+                image: selectedProduct.image,
+                description: selectedProduct.description,
+                category: selectedProduct.category,
+                status: selectedProduct.status,
+                stock: 0,
+                createdAt: "",
+                updatedAt: "",
+                companyId: "",
+                locationId: "",
+                catalogId: ""
+              } as any}
+              onSuccess={handleEditProductSuccess}
+              onCancel={() => setIsEditProductDialogOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
     </div>
   )

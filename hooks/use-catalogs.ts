@@ -1,0 +1,93 @@
+"use client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "@/hooks/use-toast"
+import { getCatalogs, Catalog as APICatalog } from "@/lib/Api/getCatalogs"
+import { createCatalog } from "@/lib/Api/createCatalog"
+import { updateCatalog } from "@/lib/Api/updateCatalog"
+import { deleteCatalog } from "@/lib/Api/deleteCatalog"
+import type { CreateCatalogRequest } from "@/lib/Api/createCatalog"
+import type { UpdateCatalogRequest } from "@/lib/Api/updateCatalog"
+
+// Catalog interface matching API
+export interface Catalog extends APICatalog {}
+
+export function useCatalogs() {
+  const queryClient = useQueryClient()
+
+  // Fetch all catalogs
+  const {
+    data: catalogs = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["catalogs"],
+    queryFn: () => getCatalogs(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  // Create catalog
+  const createCatalogMutation = useMutation({
+    mutationFn: (catalogData: CreateCatalogRequest) => createCatalog(catalogData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["catalogs"] })
+      toast({
+        title: "Success",
+        description: "Catalog created successfully",
+      })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to create catalog",
+        variant: "destructive",
+      })
+    },
+  })
+
+  // Update catalog
+  const updateCatalogMutation = useMutation({
+    mutationFn: ({ id, ...catalogData }: { id: string } & UpdateCatalogRequest) => updateCatalog(id, catalogData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["catalogs"] })
+      toast({
+        title: "Success",
+        description: "Catalog updated successfully",
+      })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to update catalog",
+        variant: "destructive",
+      })
+    },
+  })
+
+  // Delete catalog
+  const deleteCatalogMutation = useMutation({
+    mutationFn: (id: string) => deleteCatalog(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["catalogs"] })
+      toast({
+        title: "Success",
+        description: "Catalog deleted successfully",
+      })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to delete catalog",
+        variant: "destructive",
+      })
+    },
+  })
+
+  return {
+    catalogs,
+    isLoading,
+    error,
+    createCatalog: createCatalogMutation,
+    updateCatalog: updateCatalogMutation,
+    deleteCatalog: deleteCatalogMutation,
+  }
+}

@@ -1,12 +1,13 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://dev-api.posport.io/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://dev-api.posport.io/api/v1";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // ✅ Request Interceptor — add token in all requests
@@ -17,6 +18,8 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 // ✅ Response Interceptor — handle 401 and retry
@@ -37,9 +40,13 @@ api.interceptors.response.use(
         return Promise.reject(err);
       }
 
-        try {
-          const refreshToken = localStorage.getItem("refreshToken");
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
         
+        if (!refreshToken) {
+          throw new Error("No refresh token available");
+        }
+
         const body = {
           deviceToken: "myDeviceToken",
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -48,12 +55,12 @@ api.interceptors.response.use(
         const refreshRes = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
           body,
-          
           {
             headers: {
               "Content-Type": "application/json",
-              "x-refresh-token": refreshToken || "",
+              "x-refresh-token": refreshToken,
             },
+            timeout: 5000, // 5 second timeout for refresh
           }
         );
 
@@ -92,6 +99,5 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
-
 
 export default api;

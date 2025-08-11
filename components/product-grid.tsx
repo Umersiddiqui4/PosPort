@@ -1,12 +1,15 @@
 "use client"
 
-import { Plus, Minus, ShoppingCart, X, ChevronDown } from "lucide-react"
+import { Plus, Minus, ShoppingCart, X, ChevronDown, Edit, Trash2, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { memo, useCallback, useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"
+import { useUserDataStore } from "@/lib/store"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import ProductForm from "./product-form"
 
 interface Product {
-  id: number
+  id: string
   name: string
   price: number
   image: string
@@ -14,7 +17,7 @@ interface Product {
 }
 
 interface CartItem {
-  id: number
+  id: string
   name: string
   price: number
   quantity: number
@@ -23,12 +26,17 @@ interface CartItem {
 interface ProductGridProps {
   products: Product[]
   cartItems: CartItem[]
-  onQuantityChange: (productId: number, quantity: number) => void
-  onAddToCart: (productId: number) => void
-  onRemoveFromCart: (productId: number) => void
+  onQuantityChange: (productId: string, quantity: number) => void
+  onAddToCart: (productId: string) => void
+  onRemoveFromCart: (productId: string) => void
   onProceedToPayment: () => void
   viewMode: "grid" | "list"
   isSidebarCollapsed?: boolean
+  onEditProduct?: (product: Product) => void
+  onDeleteProduct?: (productId: string) => void
+  onCreateProduct?: () => void
+  currentFilter?: string
+  isCreatingProduct?: boolean
 }
 
 const ProductCard = memo(
@@ -36,13 +44,19 @@ const ProductCard = memo(
     product,
     onQuantityChange,
     onAddToCart,
+    onEditProduct,
+    onDeleteProduct,
     viewMode,
   }: {
     product: Product
-    onQuantityChange: (productId: number, quantity: number) => void
-    onAddToCart: (productId: number) => void
+    onQuantityChange: (productId: string, quantity: number) => void
+    onAddToCart: (productId: string) => void
+    onEditProduct?: (product: Product) => void
+    onDeleteProduct?: (productId: string) => void
     viewMode: "grid" | "list"
   }) => {
+    const user = useUserDataStore((state) => state.user)
+    const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
     const handleIncrement = useCallback(() => {
       onQuantityChange(product.id, (product.quantity || 0) + 1)
     }, [product.id, product.quantity, onQuantityChange])
@@ -76,38 +90,74 @@ const ProductCard = memo(
                 <p className="text-[#1a72dd] font-bold text-sm sm:text-base lg:text-lg">{product.price} PKR</p>
               </div>
 
-              {product.quantity ? (
-                <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center justify-between mt-2">
+                {product.quantity ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleDecrement}
+                      className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 p-0 rounded-full border-2 border-[#1a72dd] text-[#1a72dd] hover:bg-[#1a72dd] hover:text-white transition-all duration-200 hover:scale-110 bg-transparent"
+                      aria-label={`Decrease ${product.name} quantity`}
+                    >
+                      <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </Button>
+                    <span className="font-bold text-sm sm:text-base lg:text-lg min-w-[24px] sm:min-w-[30px] text-center text-[#2a3256]">
+                      {product.quantity}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={handleIncrement}
+                      className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 p-0 rounded-full bg-[#1a72dd] hover:bg-[#1557b8] transition-all duration-200 hover:scale-110 shadow-lg"
+                      aria-label={`Increase ${product.name} quantity`}
+                    >
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </Button>
+                  </div>
+                ) : (
                   <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleDecrement}
-                    className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 p-0 rounded-full border-2 border-[#1a72dd] text-[#1a72dd] hover:bg-[#1a72dd] hover:text-white transition-all duration-200 hover:scale-110 bg-transparent"
-                    aria-label={`Decrease ${product.name} quantity`}
+                    onClick={handleAddToCart}
+                    className="bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg text-xs sm:text-sm lg:text-base"
                   >
-                    <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    ADD
                   </Button>
-                  <span className="font-bold text-sm sm:text-base lg:text-lg min-w-[24px] sm:min-w-[30px] text-center text-[#2a3256]">
-                    {product.quantity}
-                  </span>
-                  <Button
-                    size="sm"
-                    onClick={handleIncrement}
-                    className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 p-0 rounded-full bg-[#1a72dd] hover:bg-[#1557b8] transition-all duration-200 hover:scale-110 shadow-lg"
-                    aria-label={`Increase ${product.name} quantity`}
-                  >
-                    <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  onClick={handleAddToCart}
-                  className="bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 font-semibold mt-2 transition-all duration-200 hover:scale-105 shadow-lg text-xs sm:text-sm lg:text-base w-fit"
-                >
-                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  ADD
-                </Button>
-              )}
+                )}
+
+                {/* Edit/Delete buttons for authorized users */}
+                {canManageProducts && (
+                  <div className="flex gap-1 ml-2">
+                    {onEditProduct && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEditProduct(product)
+                        }}
+                        className="w-8 h-8 p-0"
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                    )}
+                    {onDeleteProduct && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
+                            onDeleteProduct(product.id)
+                          }
+                        }}
+                        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </article>
@@ -124,6 +174,40 @@ const ProductCard = memo(
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Edit/Delete buttons overlay for authorized users */}
+          {canManageProducts && (
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {onEditProduct && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEditProduct(product)
+                  }}
+                  className="w-8 h-8 p-0 bg-white/90 hover:bg-white shadow-md"
+                >
+                  <Edit className="w-3 h-3" />
+                </Button>
+              )}
+              {onDeleteProduct && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
+                      onDeleteProduct(product.id)
+                    }
+                  }}
+                  className="w-8 h-8 p-0 bg-red-500/90 hover:bg-red-600 shadow-md"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="space-y-1.5 sm:space-y-2">
@@ -179,8 +263,8 @@ const CartItemCard = memo(
     isCompact = false,
   }: {
     item: CartItem
-    onQuantityChange: (productId: number, quantity: number) => void
-    onRemove: (productId: number) => void
+    onQuantityChange: (productId: string, quantity: number) => void
+    onRemove: (productId: string) => void
     isCompact?: boolean
   }) => {
     const handleIncrement = useCallback(() => {
@@ -320,12 +404,19 @@ export default function ProductGrid({
   onProceedToPayment,
   viewMode,
   isSidebarCollapsed = false,
+  onEditProduct,
+  onDeleteProduct,
+  onCreateProduct,
+  currentFilter,
+  isCreatingProduct = false,
 }: ProductGridProps) {
   const [showMobileCart, setShowMobileCart] = useState(false)
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   
- const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false)
+  const user = useUserDataStore((state) => state.user)
+  const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
 
 
 useEffect(() => {
@@ -337,8 +428,7 @@ useEffect(() => {
   window.addEventListener("resize", handleResize);
 
   return () => window.removeEventListener("resize", handleResize);
-}, []);
-  console.log(isMobile, "isMobile"); 
+}, []); 
   
   const getGridColumns = () => {
     if (viewMode === "list") return ""
@@ -370,15 +460,75 @@ useEffect(() => {
             }`}
           aria-label="Product catalog"
         >
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onQuantityChange={onQuantityChange}
-              onAddToCart={onAddToCart}
-              viewMode={viewMode}
-            />
-          ))}
+          {/* Create Product Button for authorized users */}
+          {canManageProducts && onCreateProduct && (
+            <div className="col-span-full mb-4">
+              <Button
+                onClick={onCreateProduct}
+                disabled={isCreatingProduct}
+                className="bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-6 py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+              >
+                {isCreatingProduct ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Loading Catalog...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Product
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+          {products.length > 0 ? (
+            products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onQuantityChange={onQuantityChange}
+                onAddToCart={onAddToCart}
+                onEditProduct={onEditProduct}
+                onDeleteProduct={onDeleteProduct}
+                viewMode={viewMode}
+              />
+            ))
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Package className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
+              <p className="text-gray-600 max-w-md">
+                {currentFilter 
+                  ? `No products found for "${currentFilter}". Try changing the category or search term.`
+                  : canManageProducts 
+                    ? "No products match your current selection. Try changing the category or create a new product."
+                    : "No products match your current selection. Try changing the category."
+                }
+              </p>
+              {canManageProducts && onCreateProduct && (
+                <Button
+                  onClick={onCreateProduct}
+                  disabled={isCreatingProduct}
+                  className="mt-4 bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-6 py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+                >
+                  {isCreatingProduct ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Loading Catalog...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Product
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Desktop Cart Sidebar - Only show on large screens when in grid mode */}

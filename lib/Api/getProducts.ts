@@ -1,0 +1,59 @@
+import api from "@/utils/axios";
+
+export interface Product {
+  id: string;
+  productName: string;
+  description?: string;
+  price: number;
+  image?: string;
+  category?: string;
+  stock?: number;
+  status?: "active" | "inactive" | "draft";
+  createdAt?: string;
+  updatedAt?: string;
+  companyId?: string;
+  locationId?: string;
+  catalogId?: string;
+}
+
+export interface GetProductsResponse {
+  items: Product[];
+  message?: string;
+  meta?: {
+    page: number;
+    take: number;
+    itemCount: number;
+    pageCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
+}
+
+export const getProducts = async (page: number = 1, take: number = 10): Promise<Product[]> => {
+  try {
+    const response = await api.get<GetProductsResponse>(
+      "/products",
+      {
+        params: { page, take },
+      }
+    );
+    // Use items instead of data
+    return (response.data.items || []).map((product: any) => ({
+      id: product.id,
+      productName: product.productName,
+      description: product.description || "",
+      price: product.price || 0,
+      image: product.image || "/placeholder.svg",
+      category: product.category || "General",
+      stock: product.stock || 0,
+      status: product.status || "active",
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
+      companyId: product.companyId,
+      locationId: product.locationId,
+      categoryId: product.categoryId,
+    }));
+  } catch (error: any) {
+    throw new Error(error?.response?.data?.message || "Failed to fetch products");
+  }
+}; 

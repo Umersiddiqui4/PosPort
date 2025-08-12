@@ -47,10 +47,19 @@ export const useGoogleAuth = () => {
           console.log('Access token:', data.data.tokens.access.token);
           console.log('Refresh token:', data.data.tokens.refresh.token);
           
-          // Update store with correct structure
+          // Convert API response to internal format
           const storeData = {
             user: data.data.user,
-            tokens: data.data.tokens
+            tokens: {
+              access: {
+                token: data.data.tokens.access.token,
+                expiresIn: data.data.tokens.access.expires
+              },
+              refresh: {
+                token: data.data.tokens.refresh.token,
+                expiresIn: data.data.tokens.refresh.expires
+              }
+            }
           };
           loginUserData(storeData);
           

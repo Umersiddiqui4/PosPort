@@ -19,8 +19,23 @@ export const useGoogleLogin = () => {
       localStorage.setItem("token", data.data.tokens.access.token);
       localStorage.setItem("refreshToken", data.data.tokens.refresh.token);
       
+      // Convert API response to internal format
+      const internalData = {
+        user: data.data.user,
+        tokens: {
+          access: {
+            token: data.data.tokens.access.token,
+            expiresIn: data.data.tokens.access.expires
+          },
+          refresh: {
+            token: data.data.tokens.refresh.token,
+            expiresIn: data.data.tokens.refresh.expires
+          }
+        }
+      };
+      
       // Update store
-      loginUserData(data.data);
+      loginUserData(internalData);
       
       toast({
         title: "Google Login Successful",

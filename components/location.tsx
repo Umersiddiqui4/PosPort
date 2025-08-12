@@ -67,7 +67,7 @@ export default function Locations({ companyId }: LocationsProps) {
   if (!effectiveCompanyId && user) {
     if (user?.role === "COMPANY_OWNER" && user?.companyId) {
       effectiveCompanyId = user.companyId;
-    } else if (user?.role === "STORE_KEEPER" && user?.id) {
+    } else if (user?.role === "LOCATION_MANAGER" && user?.id) {
       userId = user.id;
     }
   }

@@ -33,7 +33,22 @@ export default function LoginEmployeePage() {
 
   useEffect(() => {
     if (isSuccess && data) {
-      login(data.data);
+      // Convert API response to internal format
+      const internalData = {
+        user: data.data.user,
+        tokens: {
+          access: {
+            token: data.data.tokens.access.token,
+            expiresIn: data.data.tokens.access.expires
+          },
+          refresh: {
+            token: data.data.tokens.refresh.token,
+            expiresIn: data.data.tokens.refresh.expires
+          }
+        }
+      };
+      
+      login(internalData);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
         if (typeof window !== 'undefined') {

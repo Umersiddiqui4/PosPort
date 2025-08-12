@@ -107,8 +107,11 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
         status: "pending",
       })
       // Update user data with new companyId if present
-      if (data?.data?.id) {
-        setUser({ ...user, companyId: data.data.id });
+      if (data?.data?.id && user) {
+        setUser({ 
+          ...user, 
+          companyId: data.data.id 
+        } as User);
       }
     },
   })

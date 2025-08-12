@@ -334,7 +334,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
       // Fallback meta must match GetCompaniesResponse meta type
       return {
         data: user?.companyId
-          ? [{ id: user.companyId, name: user.companyName || "My Company" }]
+          ? [{ id: user.companyId, name: "My Company" }]
           : [],
         meta: {
           page: 1,

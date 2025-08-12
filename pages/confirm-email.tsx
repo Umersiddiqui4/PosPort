@@ -13,6 +13,8 @@ export default function EmailVerified() {
   const { mutate, isPending, isSuccess, isError, data, error } = useVerifyEmail();
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get("hash") || urlParams.get("token");
     setToken(tokenFromUrl);

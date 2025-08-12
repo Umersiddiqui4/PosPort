@@ -55,6 +55,8 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
   }
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleGlobalKeyPress = (e: KeyboardEvent) => {
       if (e.key >= "0" && e.key <= "9") {
         handleNumberClick(e.key)

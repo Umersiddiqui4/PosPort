@@ -80,7 +80,7 @@ export default function ProductCategories() {
   const categoryId = params?.userId || ""
   console.log(params?.userId, "params");
   console.log(user, "user");
-  const userRole = user.role === "POSPORT_ADMIN"
+  const userRole = user?.role === "POSPORT_ADMIN"
   const router = useRouter();
   const handleDeleteCategory = (id: string) => {
     deleteCategory(id)

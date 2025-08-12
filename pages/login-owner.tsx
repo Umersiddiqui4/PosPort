@@ -30,7 +30,9 @@ export default function LoginOwnerPage() {
       login(data.data);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
-        window.location.href = "/";
+        if (typeof window !== 'undefined') {
+          window.location.href = "/";
+        }
       }, 700);
     }
   }, [isSuccess, login, toast, data]);
@@ -49,7 +51,9 @@ export default function LoginOwnerPage() {
   };
 
   function screenChange(screen: string) {
-    window.location.href = `/${screen}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `/${screen}`;
+    }
   }
 
   return (

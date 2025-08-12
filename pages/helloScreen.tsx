@@ -8,7 +8,9 @@ import "@/styles/globals.css"
 export default function HelloScreen() {
 
   function screenChange(screen: string) {
-    window.location.href = `/${screen}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `/${screen}`;
+    }
   }
 
   return (

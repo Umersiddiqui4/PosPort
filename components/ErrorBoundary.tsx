@@ -68,7 +68,11 @@ class ErrorBoundary extends Component<Props, State> {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.reload()
+                  }
+                }}
                 className="w-full"
               >
                 Refresh Page

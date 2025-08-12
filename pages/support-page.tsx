@@ -5,7 +5,9 @@ import { ArrowLeft, Mail, Phone, MessageCircle, Clock } from "lucide-react"
 import "@/app/globals.css"
 export default function SupportPage() {
   function screenChange(screen: string) {
-    window.location.href = `/${screen}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `/${screen}`;
+    }
   }
 
   return (

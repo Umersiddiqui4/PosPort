@@ -73,7 +73,7 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
     if (item.id === "location" && user?.role === "COMPANY_OWNER") {
       return {
         ...item,
-        href: `/companies/${user.companyId}/locations`,
+        href: `/companies/${user?.companyId}/locations`,
       };
     }
     return item;

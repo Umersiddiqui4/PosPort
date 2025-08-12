@@ -65,9 +65,9 @@ export default function Locations({ companyId }: LocationsProps) {
   let userId: string | undefined = undefined;
   // If not admin and no companyId is provided, restrict by user/company
   if (!effectiveCompanyId && user) {
-    if (user.role === "COMPANY_OWNER" && user.companyId) {
+    if (user?.role === "COMPANY_OWNER" && user?.companyId) {
       effectiveCompanyId = user.companyId;
-    } else if (user.role === "STORE_KEEPER" && user.id) {
+    } else if (user?.role === "STORE_KEEPER" && user?.id) {
       userId = user.id;
     }
   }

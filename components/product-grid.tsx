@@ -466,6 +466,8 @@ export default function ProductGrid({
 
 
 useEffect(() => {
+  if (typeof window === 'undefined') return;
+  
   const handleResize = () => {
     setIsMobile(window.innerWidth < 1024);
   };

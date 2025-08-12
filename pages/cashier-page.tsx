@@ -97,11 +97,19 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
     catalogIdFromUrl,
     categoryIdFromUrl,
     isLoadingCatalogForProduct,
-    currentPath: window.location.pathname
+    currentPath: typeof window !== 'undefined' ? window.location.pathname : 'server-side'
   })
   
   // Function to get updated params from current URL
   const getUpdatedParams = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return {
+        catalogId: "",
+        categoryId: "",
+        isProductCreation: false
+      }
+    }
+    
     const currentPath = window.location.pathname
     const pathParts = currentPath.split('/').filter(Boolean)
     
@@ -159,6 +167,8 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   
 
 useEffect(() => {
+  if (typeof window === 'undefined') return;
+  
   const handleResize = () => {
     setIsMobile(window.innerWidth < 1024);
   };
@@ -319,16 +329,18 @@ useEffect(() => {
     console.log("Current params:", { selectedCatalog, selectedCategoryId, selectedCategory })
     
     // Update URL using window.history
-    window.history.pushState({}, '', newUrl)
-    
-    // Dispatch custom event for product creation
-    window.dispatchEvent(new CustomEvent('productCreationStarted', { 
-      detail: { 
-        catalogId: selectedCatalog,
-        categoryId: selectedCategoryId,
-        categoryName: selectedCategory
-      } 
-    }))
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', newUrl)
+      
+      // Dispatch custom event for product creation
+      window.dispatchEvent(new CustomEvent('productCreationStarted', { 
+        detail: { 
+          catalogId: selectedCatalog,
+          categoryId: selectedCategoryId,
+          categoryName: selectedCategory
+        } 
+      }))
+    }
     
     // Load catalog data when creating a product
     if (selectedCatalog && selectedCatalog !== "all") {
@@ -377,15 +389,17 @@ useEffect(() => {
     }
     
     console.log("Restoring URL to:", restoreUrl)
-    window.history.pushState({}, '', restoreUrl)
-    
-    // Dispatch event for product creation success
-    window.dispatchEvent(new CustomEvent('productCreationSuccess', { 
-      detail: { 
-        catalogId: selectedCatalog,
-        categoryId: selectedCategoryId
-      } 
-    }))
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', restoreUrl)
+      
+      // Dispatch event for product creation success
+      window.dispatchEvent(new CustomEvent('productCreationSuccess', { 
+        detail: { 
+          catalogId: selectedCatalog,
+          categoryId: selectedCategoryId
+        } 
+      }))
+    }
     
     setIsCreateProductDialogOpen(false)
   }, [selectedCatalog, selectedCategoryId])
@@ -412,15 +426,17 @@ useEffect(() => {
     }
     
     console.log("Restoring URL to:", restoreUrl)
-    window.history.pushState({}, '', restoreUrl)
-    
-    // Dispatch event for product creation cancel
-    window.dispatchEvent(new CustomEvent('productCreationCancel', { 
-      detail: { 
-        catalogId: selectedCatalog,
-        categoryId: selectedCategoryId
-      } 
-    }))
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', restoreUrl)
+      
+      // Dispatch event for product creation cancel
+      window.dispatchEvent(new CustomEvent('productCreationCancel', { 
+        detail: { 
+          catalogId: selectedCatalog,
+          categoryId: selectedCategoryId
+        } 
+      }))
+    }
     
     setIsCreateProductDialogOpen(false)
   }, [selectedCatalog, selectedCategoryId])
@@ -485,23 +501,27 @@ useEffect(() => {
     if (actualCatalogId) {
       const newUrl = `/catalogs/${actualCatalogId}/categories`
       console.log("Navigating to:", newUrl)
-      console.log("Current pathname:", window.location.pathname)
+      console.log("Current pathname:", typeof window !== 'undefined' ? window.location.pathname : 'server-side')
       
       // Update URL using window.history
-      window.history.pushState({}, '', newUrl)
-      
-      // Dispatch a custom event to notify parent components
-      window.dispatchEvent(new CustomEvent('catalogChanged', { 
-        detail: { catalogId: actualCatalogId } 
-      }))
+      if (typeof window !== 'undefined') {
+        window.history.pushState({}, '', newUrl)
+        
+        // Dispatch a custom event to notify parent components
+        window.dispatchEvent(new CustomEvent('catalogChanged', { 
+          detail: { catalogId: actualCatalogId } 
+        }))
+      }
     } else {
       console.log("Navigating to home")
-      window.history.pushState({}, '', "/")
-      
-      // Dispatch a custom event to notify parent components
-      window.dispatchEvent(new CustomEvent('catalogChanged', { 
-        detail: { catalogId: null } 
-      }))
+      if (typeof window !== 'undefined') {
+        window.history.pushState({}, '', "/")
+        
+        // Dispatch a custom event to notify parent components
+        window.dispatchEvent(new CustomEvent('catalogChanged', { 
+          detail: { catalogId: null } 
+        }))
+      }
     }
   }, [])
 
@@ -523,20 +543,24 @@ useEffect(() => {
     if (selectedCatalog && selectedCatalog !== "all") {
       if (actualCategoryId) {
         const newUrl = `/catalogs/${selectedCatalog}/categories/${actualCategoryId}/products`
-        window.history.pushState({}, '', newUrl)
-        
-        // Dispatch a custom event to notify parent components
-        window.dispatchEvent(new CustomEvent('categoryChanged', { 
-          detail: { categoryId: actualCategoryId, catalogId: selectedCatalog } 
-        }))
+        if (typeof window !== 'undefined') {
+          window.history.pushState({}, '', newUrl)
+          
+          // Dispatch a custom event to notify parent components
+          window.dispatchEvent(new CustomEvent('categoryChanged', { 
+            detail: { categoryId: actualCategoryId, catalogId: selectedCatalog } 
+          }))
+        }
       } else {
         const newUrl = `/catalogs/${selectedCatalog}/categories`
-        window.history.pushState({}, '', newUrl)
-        
-        // Dispatch a custom event to notify parent components
-        window.dispatchEvent(new CustomEvent('categoryChanged', { 
-          detail: { categoryId: null, catalogId: selectedCatalog } 
-        }))
+        if (typeof window !== 'undefined') {
+          window.history.pushState({}, '', newUrl)
+          
+          // Dispatch a custom event to notify parent components
+          window.dispatchEvent(new CustomEvent('categoryChanged', { 
+            detail: { categoryId: null, catalogId: selectedCatalog } 
+          }))
+        }
       }
     }
   }, [categories, selectedCatalog])

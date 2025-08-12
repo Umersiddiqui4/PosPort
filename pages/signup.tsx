@@ -38,13 +38,17 @@ export default function Signup() {
     if (isSuccess) {
       toast({ title: "Signup successful", description: "Redirecting to login..." });
       setTimeout(() => {
-        window.location.href = "/login";
+        if (typeof window !== 'undefined') {
+          window.location.href = "/login";
+        }
       }, 700);
     }
   }, [isSuccess, toast]);
 
   function screenChange(screen: string) {
-    window.location.href = `/${screen}`;
+    if (typeof window !== 'undefined') {
+      window.location.href = `/${screen}`;
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

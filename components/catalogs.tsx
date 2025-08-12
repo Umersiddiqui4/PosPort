@@ -235,7 +235,7 @@ export default function Catalogs() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => router.push(`/catalogs/${catalog.id}/categories`)}>
                       <Eye className="w-4 h-4 mr-1" />
                       View
                     </Button>

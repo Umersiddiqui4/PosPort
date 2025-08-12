@@ -685,7 +685,6 @@ useEffect(() => {
                     <div className="flex items-center gap-2">
                       <span style={{ color: category.color }}>{category.icon}</span>
                       {category.categoryName}
-                      <span className="text-xs text-gray-500">({category.productCount || 0})</span>
                     </div>
                   </SelectItem>
                 ))}

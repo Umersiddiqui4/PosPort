@@ -6,6 +6,7 @@ import { memo, useCallback, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUserDataStore } from "@/lib/store"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import ProductForm from "./product-form"
 
 interface Product {
@@ -57,6 +58,7 @@ const ProductCard = memo(
   }) => {
     const user = useUserDataStore((state) => state.user)
     const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const handleIncrement = useCallback(() => {
       onQuantityChange(product.id, (product.quantity || 0) + 1)
     }, [product.id, product.quantity, onQuantityChange])
@@ -141,19 +143,41 @@ const ProductCard = memo(
                       </Button>
                     )}
                     {onDeleteProduct && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-                            onDeleteProduct(product.id)
-                          }
-                        }}
-                        className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setIsDeleteDialogOpen(true)
+                          }}
+                          className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  onDeleteProduct(product.id)
+                                  setIsDeleteDialogOpen(false)
+                                }}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
                     )}
                   </div>
                 )}
@@ -192,19 +216,41 @@ const ProductCard = memo(
                 </Button>
               )}
               {onDeleteProduct && (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-                      onDeleteProduct(product.id)
-                    }
-                  }}
-                  className="w-8 h-8 p-0 bg-red-500/90 hover:bg-red-600 shadow-md"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsDeleteDialogOpen(true)
+                    }}
+                    className="w-8 h-8 p-0 bg-red-500/90 hover:bg-red-600 shadow-md"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                  <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Product</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete "{product.name}"? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            onDeleteProduct(product.id)
+                            setIsDeleteDialogOpen(false)
+                          }}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
             </div>
           )}

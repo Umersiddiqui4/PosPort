@@ -69,7 +69,7 @@ console.log(params, "params");
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
-        <span className="ml-2 text-gray-600">Loading location details...</span>
+        <span className="ml-2 text-gray-600 dark:text-gray-300">Loading location details...</span>
       </div>
     )
   }
@@ -92,8 +92,8 @@ console.log(params, "params");
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Location not found</h3>
-          <p className="text-gray-600 mb-4">The location you're looking for doesn't exist or has been removed.</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Location not found</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">The location you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => router.push(`/companies/${companyId}/locations`)} variant="outline">
             Back to Locations
           </Button>
@@ -112,27 +112,27 @@ console.log(params, "params");
           variant="ghost"
           size="icon"
           onClick={() => router.push(`/companies/${companyId}/locations`)}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Location Management</h1>
-          <p className="text-sm sm:text-base text-gray-600">Manage location details, users, and devices</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Location Management</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">Manage location details, users, and devices</p>
         </div>
       </div>
 
       {/* Location Header Card */}
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardHeader>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#1a72dd]/10 rounded-xl flex items-center justify-center">
-              <Building2 className="w-8 h-8 text-[#1a72dd]" />
+            <div className="w-16 h-16 bg-[#1a72dd]/10 dark:bg-blue-900/20 rounded-xl flex items-center justify-center">
+              <Building2 className="w-8 h-8 text-[#1a72dd] dark:text-blue-400" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-2">{location.locationName}</CardTitle>
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{location.locationName}</CardTitle>
               <Badge className={brand.color}>{brand.name}</Badge>
-              <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 mt-2 text-sm text-gray-600 dark:text-gray-300">
                 <MapPin className="w-4 h-4" />
                 <span>{location.address}</span>
               </div>
@@ -142,13 +142,13 @@ console.log(params, "params");
       </Card>
 
       {/* Navigation Tabs */}
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardContent className="p-0">
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="grid w-full grid-cols-3 rounded-none border-b bg-transparent h-auto p-0">
               <TabsTrigger
                 value="location"
-                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] data-[state=active]:bg-transparent"
+                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] dark:data-[state=active]:border-blue-400 data-[state=active]:bg-transparent dark:text-gray-300"
               >
                 <Building2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Location Details</span>
@@ -156,7 +156,7 @@ console.log(params, "params");
               </TabsTrigger>
               <TabsTrigger
                 value="users"
-                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] data-[state=active]:bg-transparent"
+                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] dark:data-[state=active]:border-blue-400 data-[state=active]:bg-transparent dark:text-gray-300"
               >
                 <Users className="w-4 h-4" />
                 <span className="hidden sm:inline">Users</span>
@@ -164,7 +164,7 @@ console.log(params, "params");
               </TabsTrigger>
               <TabsTrigger
                 value="devices"
-                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] data-[state=active]:bg-transparent"
+                className="flex items-center gap-2 py-4 px-6 rounded-none border-b-2 border-transparent data-[state=active]:border-[#1a72dd] dark:data-[state=active]:border-blue-400 data-[state=active]:bg-transparent dark:text-gray-300"
               >
                 <Monitor className="w-4 h-4" />
                 <span className="hidden sm:inline">Devices</span>

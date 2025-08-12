@@ -12,6 +12,7 @@ import { changePassword } from "@/lib/Api/auth/changePassword"
 import { useToast } from "@/hooks/use-toast"
 import { useLogout } from "@/hooks/useLogout"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function AccountPage() {
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
@@ -90,17 +91,17 @@ export default function AccountPage() {
         <div className="p-4 sm:p-6 mt-16 md:mt-16">
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold text-[#1a72dd]">Account Settings</h1>
-              <p className="text-gray-600 text-lg">Manage your profile and preferences</p>
+              <h1 className="text-3xl font-bold text-[#1a72dd] dark:text-blue-400">Account Settings</h1>
+              <p className="text-gray-600 dark:text-gray-300 text-lg">Manage your profile and preferences</p>
             </div>
 
             {/* Profile Section */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#1a72dd]" />
-                  Profile Information
-                </CardTitle>
+                                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-[#1a72dd] dark:text-blue-400" />
+                    Profile Information
+                  </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -117,43 +118,43 @@ export default function AccountPage() {
                         : user?.email || 'User'
                       }
                     </h3>
-                    <p className="text-gray-600">{user?.email || 'No email'}</p>
-                    <p className="text-sm text-gray-500">{user?.role || 'User'}</p>
+                    <p className="text-gray-600 dark:text-gray-300">{user?.email || 'No email'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{user?.role || 'User'}</p>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Full Name</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
                     <input 
                       type="text" 
                       defaultValue={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : ''}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Email</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                     <input 
                       type="email" 
                       defaultValue={user?.email || ''}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Phone</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
                     <input 
                       type="tel" 
                       defaultValue={user?.phone || ''}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#1a72dd] focus:ring-1 focus:ring-[#1a72dd]"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Role</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
                     <input 
                       type="text" 
                       defaultValue={user?.role || ''}
                       disabled
-                      className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"
+                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 dark:text-gray-300"
                     />
                   </div>
                 </div>
@@ -163,10 +164,10 @@ export default function AccountPage() {
             {/* Security Section */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#1a72dd]" />
-                  Security Settings
-                </CardTitle>
+                                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-[#1a72dd] dark:text-blue-400" />
+                    Security Settings
+                  </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
@@ -267,7 +268,7 @@ export default function AccountPage() {
                       <Button
                         onClick={handlePasswordChange}
                         disabled={isLoading}
-                        className="bg-[#1a72dd] hover:bg-[#1557b8]"
+                        className="bg-[#1a72dd] hover:bg-[#1557b8] dark:bg-blue-600 dark:hover:bg-blue-700"
                       >
                         {isLoading ? "Changing..." : "Change Password"}
                       </Button>
@@ -283,10 +284,10 @@ export default function AccountPage() {
             {/* Preferences Section */}
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-[#1a72dd]" />
-                  Preferences
-                </CardTitle>
+                                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-[#1a72dd] dark:text-blue-400" />
+                    Preferences
+                  </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -299,15 +300,15 @@ export default function AccountPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Dark Mode</span>
-                  <input type="checkbox" className="w-4 h-4" />
+                  <ThemeToggle />
                 </div>
               </CardContent>
             </Card>
 
             {/* Logout Section */}
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-600">
+                <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
                   <LogOut className="w-5 h-5" />
                   Danger Zone
                 </CardTitle>
@@ -315,7 +316,7 @@ export default function AccountPage() {
               <CardContent>
                 <Button 
                   variant="outline" 
-                  className="w-full border-red-300 text-red-600 hover:bg-red-100"
+                  className="w-full border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20"
                   onClick={handleLogout}
                 >
                   Sign Out

@@ -185,25 +185,25 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "accepted":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800"
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800"
       case "rejected":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600"
     }
   }
 
   return (
-    <div className="h-full overflow-auto  bg-gray-50">
+    <div className="h-full overflow-auto bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-[#1a72dd]" />
-              <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
+              <Building2 className="w-6 h-6 text-[#1a72dd] dark:text-blue-400" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Companies</h1>
             </div>
           </div>
 
@@ -318,15 +318,15 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
       </header>
 
       {/* Filters */}
-      <div className="p-4 bg-white border-b border-gray-200">
+      <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <Input
               placeholder="Search companies..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
             />
           </div>
           <div className="flex gap-2">
@@ -352,9 +352,9 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
         {error && (
           <div className="text-center py-12 h-full flex flex-col items-center justify-center">
             <>
-              <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
-              <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+              <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No companies found</h3>
+              <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filter criteria.</p>
             </>
           </div>
         )}
@@ -390,28 +390,28 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
             ))
           ) : (
             filteredCompanies.map((company: any) => (
-              <Card
-                key={company.id}
-                className="hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                onClick={() => {
-                  if (user?.role === "POSPORT_ADMIN") {
-                    router.push(`/companies/${company.id}/locations`);
-                  } else if (onCompanySelect) {
-                    onCompanySelect(company.id);
-                  }
-                }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-[#1a72dd]/10 rounded-lg flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-[#1a72dd]" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">{company.name}</CardTitle>
-                        <p className="text-sm text-gray-500">{company.industry}</p>
-                      </div>
+                          <Card
+              key={company.id}
+              className="hover:shadow-lg transition-shadow duration-200 cursor-pointer dark:bg-gray-800 dark:border-gray-700"
+              onClick={() => {
+                if (user?.role === "POSPORT_ADMIN") {
+                  router.push(`/companies/${company.id}/locations`);
+                } else if (onCompanySelect) {
+                  onCompanySelect(company.id);
+                }
+              }}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-[#1a72dd]/10 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-[#1a72dd] dark:text-blue-400" />
                     </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">{company.name}</CardTitle>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{company.industry}</p>
+                    </div>
+                  </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">

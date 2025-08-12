@@ -24,7 +24,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a] overflow-hidden">
       <Navbar isMobileOpen={isMobileSidebarOpen} onMobileToggle={handleMobileToggle} isCollapsed={isSidebarCollapsed} />
 
       {/* Main Content */}
@@ -40,7 +40,7 @@ export default function DashboardLayout({
             variant="ghost"
             size="icon"
             onClick={handleMobileToggle}
-            className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full w-10 h-10"
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
           >
             <Menu className="w-5 h-5" />
           </Button>
@@ -52,7 +52,7 @@ export default function DashboardLayout({
             variant="ghost"
             size="icon"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200 hover:bg-white text-gray-700 hover:text-gray-900 rounded-full w-10 h-10"
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
           >
             <Menu className="w-5 h-5" />
           </Button>

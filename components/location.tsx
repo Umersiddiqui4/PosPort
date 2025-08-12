@@ -220,10 +220,10 @@ export default function Locations({ companyId }: LocationsProps) {
   }
 
   const getBrandFromName = (name: string) => {
-    if (name.includes("Pizza Palace")) return { name: "Pizza Palace", color: "bg-red-100 text-red-800" }
-    if (name.includes("Burger Bistro")) return { name: "Burger Bistro", color: "bg-orange-100 text-orange-800" }
-    if (name.includes("Sushi Central")) return { name: "Sushi Central", color: "bg-green-100 text-green-800" }
-    return { name: "Other", color: "bg-gray-100 text-gray-800" }
+    if (name.includes("Pizza Palace")) return { name: "Pizza Palace", color: "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400" }
+    if (name.includes("Burger Bistro")) return { name: "Burger Bistro", color: "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400" }
+    if (name.includes("Sushi Central")) return { name: "Sushi Central", color: "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400" }
+    return { name: "Other", color: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300" }
   }
 
   const handleLocationClick = (locationId: string) => {
@@ -237,10 +237,10 @@ export default function Locations({ companyId }: LocationsProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading locations</h3>
-          <p className="text-gray-600">Please try refreshing the page.</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Error loading locations</h3>
+          <p className="text-gray-600 dark:text-gray-300">Please try refreshing the page.</p>
         </div>
       </div>
     )
@@ -252,8 +252,8 @@ export default function Locations({ companyId }: LocationsProps) {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 hidden md:block">Location Management</h1>
-            <p className="text-gray-600 hidden md:block">Manage all your restaurant locations</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 hidden md:block">Location Management</h1>
+            <p className="text-gray-600 dark:text-gray-300 hidden md:block">Manage all your restaurant locations</p>
           </div>
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
             <DialogTrigger asChild>
@@ -399,13 +399,13 @@ export default function Locations({ companyId }: LocationsProps) {
             />
           </div>
           <div className="flex gap-4">
-            <Card className="px-4 py-2">
-              <div className="text-sm text-gray-600">Total Locations</div>
-              <div className="text-2xl font-bold text-[#1a72dd]">{pagination.itemCount}</div>
+            <Card className="px-4 py-2 dark:bg-gray-800 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-300">Total Locations</div>
+              <div className="text-2xl font-bold text-[#1a72dd] dark:text-blue-400">{pagination.itemCount}</div>
             </Card>
-            <Card className="px-4 py-2">
-              <div className="text-sm text-gray-600">Current Page</div>
-              <div className="text-2xl font-bold text-green-600">
+            <Card className="px-4 py-2 dark:bg-gray-800 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-300">Current Page</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {pagination.page} of {pagination.pageCount}
               </div>
             </Card>
@@ -429,13 +429,13 @@ export default function Locations({ companyId }: LocationsProps) {
               return (
                 <Card 
                   key={location.id} 
-                  className="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer"
+                  className="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700"
                   
                 >
                   <CardHeader className="pb-3" onClick={() => handleLocationClick(location.id)}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg font-semibold text-gray-900 mb-2">
+                        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                           {location.locationName}
                         </CardTitle>
                         <Badge className={brand.color}>{brand.name}</Badge>
@@ -472,8 +472,8 @@ export default function Locations({ companyId }: LocationsProps) {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-gray-600">
+                      <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-gray-600 dark:text-gray-300">
                         <div>{location.address}</div>
                         <div>
                           {location.city}, {location.state} {location.postalCode}
@@ -483,19 +483,19 @@ export default function Locations({ companyId }: LocationsProps) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{location.phone}</span>
+                      <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300">{location.phone}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{location.email}</span>
+                      <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300">{location.email}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <QrCode className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600 font-mono">{location.qrCode}</span>
+                        <QrCode className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                        <span className="text-sm text-gray-600 dark:text-gray-300 font-mono">{location.qrCode}</span>
                       </div>
                       {location.qrCode && (
                         <QRCodeDisplay 

@@ -60,14 +60,14 @@ export default function LoginEmployeePage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-md mx-auto shadow-xl border-0">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md mx-auto shadow-xl border-0 dark:bg-gray-800 dark:border-gray-700">
         <CardHeader className="text-center pb-4 relative">
           <button
             onClick={() => screenChange("helloScreen")}
             className="absolute left-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
+            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
           <div className="">
             <div className="text-2xl font-extrabold flex justify-center text-blue-600 mb-2">
@@ -80,7 +80,7 @@ export default function LoginEmployeePage() {
         <CardContent className="p-8 pt-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-gray-700 font-medium">
+              <Label htmlFor="email" className="text-gray-700 dark:text-gray-300 font-medium">
                 Email
                 {error && (
                   <span className="text-red-500 text-sm">
@@ -96,12 +96,12 @@ export default function LoginEmployeePage() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your email"
-                className="mt-1 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 rounded-xl border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
               />
             </div>
 
             <div className="pb-4">
-              <Label htmlFor="password" className="text-gray-700 font-medium">
+              <Label htmlFor="password" className="text-gray-700 dark:text-gray-300 font-medium">
                 Password
               </Label>
               {/* <div className="relative mt-1"> */}
@@ -113,7 +113,7 @@ export default function LoginEmployeePage() {
                 required
                 onChange={handleChange}
                 placeholder="Enter password"
-                className="rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                className="rounded-xl border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 pr-10"
               />
 
 
@@ -135,10 +135,10 @@ export default function LoginEmployeePage() {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-gray-300" />
+                <span className="w-full border-t border-gray-300 dark:border-gray-600" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">Or continue with</span>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function LoginEmployeePage() {
               type="button"
               onClick={handleGoogleLogin}
               variant="outline"
-              className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
+              className="w-full border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-xl font-semibold flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

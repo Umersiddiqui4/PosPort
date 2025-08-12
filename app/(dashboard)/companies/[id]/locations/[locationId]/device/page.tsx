@@ -135,26 +135,26 @@ export default function LocationDevicesPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "online":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
       case "offline":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
     }
   }
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case "pos":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400"
       case "mobile":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
       case "tablet":
-        return "bg-purple-100 text-purple-800"
+        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400"
       case "display":
-        return "bg-orange-100 text-orange-800"
+        return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400"
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
     }
   }
 
@@ -229,8 +229,8 @@ export default function LocationDevicesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Devices</h1>
-          <p className="text-gray-600">Manage devices connected to this location</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Devices</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage devices connected to this location</p>
         </div>
         {isAdmin && (
           <Button
@@ -245,28 +245,28 @@ export default function LocationDevicesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Monitor className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <Monitor className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Devices</p>
-                <p className="text-2xl font-bold text-gray-900">{devices.length}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Total Devices</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{devices.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Monitor className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <Monitor className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">POS Terminals</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-300">POS Terminals</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {devices.filter((d: AssignedDevice) => (d.device?.deviceType || 'pos') === "pos").length}
                 </p>
               </div>
@@ -277,43 +277,43 @@ export default function LocationDevicesPage() {
 
       {/* Devices Grid */}
       {isLoading ? (
-        <div className="text-center py-12">Loading devices...</div>
+        <div className="text-center py-12 text-gray-600 dark:text-gray-300">Loading devices...</div>
       ) : isError ? (
-        <div className="text-center py-12 text-red-600">Failed to load devices.</div>
+        <div className="text-center py-12 text-red-600 dark:text-red-400">Failed to load devices.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {devices.map((device: AssignedDevice) => {
             const DeviceIcon = getDeviceIcon(device.device?.deviceType || 'pos')
             return (
-              <Card key={device.id} className="hover:shadow-lg transition-shadow">
+              <Card key={device.id} className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm border">
-                        <DeviceIcon className="w-6 h-6 text-gray-600" />
+                      <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-lg flex items-center justify-center shadow-sm border dark:border-gray-600">
+                        <DeviceIcon className="w-6 h-6 text-gray-600 dark:text-gray-300" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">{device.device?.deviceName || 'Unknown Device'}</CardTitle>
-                        <p className="text-sm text-gray-600">{device.device?.deviceCode || 'No Code'}</p>
+                        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">{device.device?.deviceName || 'Unknown Device'}</CardTitle>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{device.device?.deviceCode || 'No Code'}</p>
                       </div>
                     </div>
                     {isAdmin && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
+                          <Button variant="ghost" size="icon" className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+                          <DropdownMenuItem className="dark:text-gray-200 dark:hover:bg-gray-700">
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openEditModal(device)}>
+                          <DropdownMenuItem onClick={() => openEditModal(device)} className="dark:text-gray-200 dark:hover:bg-gray-700">
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Device
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600" onClick={() => handleUnassignDevice(device.device?.id || device.id)}>
+                          <DropdownMenuItem className="text-red-600 dark:text-red-400 dark:hover:bg-red-900/20" onClick={() => handleUnassignDevice(device.device?.id || device.id)}>
                             <Trash2 className="w-4 h-4 mr-2" />
                             Remove Device
                           </DropdownMenuItem>
@@ -332,20 +332,20 @@ export default function LocationDevicesPage() {
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Assigned:</span>
-                      <span className="text-gray-900">{new Date(device.assignedAt).toLocaleDateString()}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Assigned:</span>
+                      <span className="text-gray-900 dark:text-gray-200">{new Date(device.assignedAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Location:</span>
-                      <span className="font-medium text-gray-900">{device.location?.locationName || 'Unknown Location'}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Location:</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-200">{device.location?.locationName || 'Unknown Location'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Device Code:</span>
-                      <span className="font-mono text-gray-900">{device.device?.deviceCode || 'N/A'}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Device Code:</span>
+                      <span className="font-mono text-gray-900 dark:text-gray-200">{device.device?.deviceCode || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Created:</span>
-                      <span className="text-gray-900">{new Date(device.device?.createdAt || '').toLocaleDateString()}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                      <span className="text-gray-900 dark:text-gray-200">{new Date(device.device?.createdAt || '').toLocaleDateString()}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -358,14 +358,14 @@ export default function LocationDevicesPage() {
       {/* Show empty state if no devices and not loading */}
       {!isLoading && devices.length === 0 && (
         <div className="text-center py-12">
-          <Monitor className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No devices connected</h3>
-          <p className="text-gray-600 mb-4">Add devices to this location to monitor their status.</p>
+          <Monitor className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No devices connected</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Add devices to this location to monitor their status.</p>
           {isAdmin && (
             <Button
               onClick={() => setIsAssignModalOpen(true)}
               variant="outline"
-              className="text-[#1a72dd] border-[#1a72dd] bg-transparent"
+              className="text-[#1a72dd] dark:text-blue-400 border-[#1a72dd] dark:border-blue-400 bg-transparent"
             >
               <Plus className="w-4 h-4 mr-2" />
               Assign Device

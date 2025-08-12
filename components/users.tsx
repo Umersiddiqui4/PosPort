@@ -309,13 +309,13 @@ console.log(assignedUsers, "assignedUsers");
   const getRoleBadgeColor = useCallback((role: string) => {
     switch (role) {
       case "POSPORT_ADMIN":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800"
       case "COMPANY_OWNER":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800"
       case "STORE_KEEPER":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600"
     }
   }, [])
 
@@ -415,10 +415,10 @@ console.log(assignedUsers, "assignedUsers");
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {currentUser?.role === "COMPANY_OWNER" ? "Store Keepers Management" : "Users Management"}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             {currentUser?.role === "COMPANY_OWNER" 
               ? "Manage your store keepers and their assignments" 
               : "Manage your team members and their roles"
@@ -487,7 +487,7 @@ console.log(assignedUsers, "assignedUsers");
                       required: true,
                       id: 'phone',
                     }}
-                    inputClass="!w-full !h-10 !text-base !border !border-gray-300 rounded-md p-2"
+                    inputClass="!w-full !h-10 !text-base !border !border-gray-300 dark:!border-gray-600 rounded-md p-2 dark:!bg-gray-700 dark:!text-gray-200"
                     buttonClass="!h-3"
                     containerClass="!w-full"
                     placeholder="Enter phone number"
@@ -577,25 +577,25 @@ console.log(assignedUsers, "assignedUsers");
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#1a72dd]" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-[#1a72dd] dark:text-blue-400" />
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">{meta?.itemCount || 0}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">Total Users</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{meta?.itemCount || 0}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         {currentUser?.role !== "COMPANY_OWNER" && (
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 dark:text-red-400" />
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">Admins</p>
-                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">Admins</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {users.filter((user) => user.role === "POSPORT_ADMIN").length}
                   </p>
                 </div>
@@ -604,13 +604,13 @@ console.log(assignedUsers, "assignedUsers");
           </Card>
         )}
         {currentUser?.role !== "COMPANY_OWNER" && (
-          <Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center space-x-2">
-                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 dark:text-blue-400" />
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">Owners</p>
-                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">Owners</p>
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {users.filter((user) => user.role === "COMPANY_OWNER").length}
                   </p>
                 </div>
@@ -618,15 +618,15 @@ console.log(assignedUsers, "assignedUsers");
             </CardContent>
           </Card>
         )}
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center space-x-2">
-              <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 dark:text-green-400" />
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
                   {currentUser?.role === "COMPANY_OWNER" ? "Store Keepers" : "Keepers"}
                 </p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {users.filter((user) => user.role === "STORE_KEEPER").length}
                 </p>
               </div>
@@ -667,22 +667,22 @@ console.log(assignedUsers, "assignedUsers");
           <div className="space-y-4 relative">
             {/* Loading overlay - only show when loading and no users */}
             {isLoading && filteredUsers.length === 0 && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
-                <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-lg">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd]"></div>
-                  <span className="text-gray-600">Loading users...</span>
+              <div className="absolute inset-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
+                <div className="flex items-center space-x-2 bg-white dark:bg-gray-700 p-3 rounded-lg shadow-lg">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd] dark:border-blue-400"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading users...</span>
                 </div>
               </div>
             )}
             
             {filteredUsers.length === 0 ? (
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-8 text-center">
-                  <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <User className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                     {currentUser?.role === "COMPANY_OWNER" ? "No store keepers found" : "No users found"}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     {searchTerm 
                       ? "Try adjusting your search terms." 
                       : currentUser?.role === "COMPANY_OWNER" 
@@ -696,7 +696,7 @@ console.log(assignedUsers, "assignedUsers");
               filteredUsers.map((user) => (
                 <Card 
                   key={user.id} 
-                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  className="hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700"
                   onClick={() => router.push(`/users/${user.id}/detail`)}
                 >
                   <CardContent className="p-4 sm:p-6">
@@ -708,7 +708,7 @@ console.log(assignedUsers, "assignedUsers");
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                               {user.firstName || 'Unknown'} {user.lastName || 'User'}
                             </h3>
                             <div className="flex flex-wrap gap-1">
@@ -716,22 +716,22 @@ console.log(assignedUsers, "assignedUsers");
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                            <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                               <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                               <span className="truncate">{user.email || 'No email'}</span>
                             </div>
-                            <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                            <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                               <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                               <span className="truncate">{user.phone || 'No phone'}</span>
                             </div>
                             {user.companyId && (
-                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                 <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                 <span className="truncate">Company ID: {user.companyId.slice(0, 8)}...</span>
                               </div>
                             )}
                           </div>
-                          <div className="mt-2 text-xs text-gray-500">
+                          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                             Created: {new Date(user.createdAt).toLocaleDateString()}
                           </div>
                         </div>
@@ -748,11 +748,11 @@ console.log(assignedUsers, "assignedUsers");
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
                             <DropdownMenuItem onClick={(e) => {
                               e.stopPropagation()
                               handleEdit(user)
-                            }}>
+                            }} className="dark:text-gray-200 dark:hover:bg-gray-700">
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
@@ -761,7 +761,7 @@ console.log(assignedUsers, "assignedUsers");
                                 e.stopPropagation()
                                 openDeleteDialog(user)
                               }} 
-                              className="text-red-600"
+                              className="text-red-600 dark:text-red-400 dark:hover:bg-red-900/20"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
@@ -792,20 +792,20 @@ console.log(assignedUsers, "assignedUsers");
           <div className="space-y-4 relative">
             {/* Loading overlay - only show when loading and no users */}
             {isAssignedUsersLoading && filteredUsers.length === 0 && (
-              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
-                <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-lg">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd]"></div>
-                  <span className="text-gray-600">Loading assigned users...</span>
+              <div className="absolute inset-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
+                <div className="flex items-center space-x-2 bg-white dark:bg-gray-700 p-3 rounded-lg shadow-lg">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#1a72dd] dark:border-blue-400"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading assigned users...</span>
                 </div>
               </div>
             )}
             
             {filteredUsers.length === 0 ? (
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardContent className="p-8 text-center">
-                  <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No assigned users found</h3>
-                  <p className="text-gray-600">
+                  <MapPin className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No assigned users found</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
                     {searchTerm ? "Try adjusting your search terms." : "No users are currently assigned to locations."}
                   </p>
                 </CardContent>
@@ -819,7 +819,7 @@ console.log(assignedUsers, "assignedUsers");
                 return (
                   <Card 
                     key={user.id} 
-                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    className="hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700"
                     onClick={() => {
                       if (location) {
                         // Navigate to location-specific user detail page
@@ -839,37 +839,37 @@ console.log(assignedUsers, "assignedUsers");
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">
                                 {user.firstName || 'Unknown'} {user.lastName || 'User'}
                               </h3>
                               <div className="flex flex-wrap gap-1">
                                 <Badge className={getRoleBadgeColor(user.role)}>{formatRoleName(user.role)}</Badge>
-                                <Badge className="bg-green-100 text-green-800">Assigned</Badge>
+                                <Badge className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400">Assigned</Badge>
                               </div>
                             </div>
                             <div className="space-y-1">
-                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                 <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                 <span className="truncate">{user.email || 'No email'}</span>
                               </div>
-                              <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                              <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                 <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                 <span className="truncate">{user.phone || 'No phone'}</span>
                               </div>
                               {location && (
-                                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                   <span className="truncate">{location.locationName}</span>
                                 </div>
                               )}
                               {user.companyId && (
-                                <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                   <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                                   <span className="truncate">Company ID: {user.companyId.slice(0, 8)}...</span>
                                 </div>
                               )}
                             </div>
-                            <div className="mt-2 text-xs text-gray-500">
+                            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                               Created: {new Date(user.createdAt).toLocaleDateString()}
                             </div>
                           </div>
@@ -886,11 +886,11 @@ console.log(assignedUsers, "assignedUsers");
                                 <MoreHorizontal className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
                               <DropdownMenuItem onClick={(e) => {
                                 e.stopPropagation()
                                 handleEdit(user)
-                              }}>
+                              }} className="dark:text-gray-200 dark:hover:bg-gray-700">
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
                               </DropdownMenuItem>
@@ -899,7 +899,7 @@ console.log(assignedUsers, "assignedUsers");
                                   e.stopPropagation()
                                   openDeleteDialog(user)
                                 }} 
-                                className="text-red-600"
+                                className="text-red-600 dark:text-red-400 dark:hover:bg-red-900/20"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
                                 Delete

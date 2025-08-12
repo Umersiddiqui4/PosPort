@@ -73,9 +73,9 @@ export default function ReportPage({ onMobileToggle }: ReportPageProps) {
   ]
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd]">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a]">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 shadow-sm">
+      <header className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md p-3 sm:p-4 border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {onMobileToggle && (
@@ -90,7 +90,7 @@ export default function ReportPage({ onMobileToggle }: ReportPageProps) {
               </Button>
             )}
           </div>
-          <h1 className="text-lg font-bold text-[#1a72dd] flex-1 text-center">Reports & Analytics</h1>
+          <h1 className="text-lg font-bold text-[#1a72dd] dark:text-blue-400 flex-1 text-center">Reports & Analytics</h1>
           <div className="w-10"></div>
         </div>
       </header>
@@ -215,10 +215,10 @@ export default function ReportPage({ onMobileToggle }: ReportPageProps) {
         </div>
 
         {/* Best-Selling Product Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-[#2a3256]">Best-Selling Product</h2>
-            <ChevronRight className="w-5 h-5 text-[#545454]" />
+            <h2 className="text-lg font-semibold text-[#2a3256] dark:text-gray-200">Best-Selling Product</h2>
+            <ChevronRight className="w-5 h-5 text-[#545454] dark:text-gray-400" />
           </div>
 
           <div className="space-y-4">
@@ -226,12 +226,12 @@ export default function ReportPage({ onMobileToggle }: ReportPageProps) {
               <div key={index} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-[#2a3256]">{product.name}</div>
-                    <div className="text-sm text-[#545454]">{product.sales} Sales</div>
+                    <div className="font-medium text-[#2a3256] dark:text-gray-200">{product.name}</div>
+                    <div className="text-sm text-[#545454] dark:text-gray-400">{product.sales} Sales</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-[#2a3256]">{product.amount.toFixed(2)}</div>
-                    <div className="text-sm font-medium text-[#545454]">{product.percentage}%</div>
+                    <div className="font-bold text-[#2a3256] dark:text-gray-200">{product.amount.toFixed(2)}</div>
+                    <div className="text-sm font-medium text-[#545454] dark:text-gray-400">{product.percentage}%</div>
                   </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -246,20 +246,20 @@ export default function ReportPage({ onMobileToggle }: ReportPageProps) {
         </div>
 
         {/* Payment Method Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-[#2a3256]">Payment Method</h2>
-            <ChevronRight className="w-5 h-5 text-[#545454]" />
+            <h2 className="text-lg font-semibold text-[#2a3256] dark:text-gray-200">Payment Method</h2>
+            <ChevronRight className="w-5 h-5 text-[#545454] dark:text-gray-400" />
           </div>
 
           <div className="space-y-4">
             {paymentMethods.map((method, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div>
-                  <div className="font-medium text-[#2a3256]">
+                  <div className="font-medium text-[#2a3256] dark:text-gray-200">
                     {method.method} - {method.amount.toFixed(2)}
                   </div>
-                  <div className="text-sm text-[#545454]">{method.sales} Sales</div>
+                  <div className="text-sm text-[#545454] dark:text-gray-400">{method.sales} Sales</div>
                 </div>
                 <div className={`text-2xl font-bold ${method.color}`}>{method.percentage}%</div>
               </div>

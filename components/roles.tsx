@@ -64,7 +64,7 @@ export default function Roles() {
   // Prevent COMPANY_OWNER from accessing roles
   if (user?.role === "COMPANY_OWNER") {
     return (
-      <div className="flex items-center justify-center h-full text-xl font-bold text-red-600">
+      <div className="flex items-center justify-center h-full text-xl font-bold text-red-600 dark:text-red-400">
         Access Denied: Company owners cannot access roles management
       </div>
     );
@@ -166,12 +166,12 @@ export default function Roles() {
   const userRoles = roles && roles.filter((role:any) => !role.name.includes("ADMIN") && !role.name.includes("OWNER")).length
 
   return (
-    <div className="p-4 sm:p-6 h-screen mt-10 md:mt-0  overflow-x-auto  space-y-6 bg-gray-50 ">
+    <div className="p-4 sm:p-6 h-screen mt-10 md:mt-0  overflow-x-auto  space-y-6 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="flex  flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Roles Management</h1>
-          <p className="text-gray-600 mt-1">Manage user roles and permissions</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Roles Management</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Manage user roles and permissions</p>
         </div>
 
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
@@ -220,36 +220,36 @@ export default function Roles() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3  gap-4">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium dark:text-gray-200">Total Roles</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalRoles}</div>
-            <p className="text-xs text-muted-foreground">Active roles in system</p>
+            <div className="text-2xl font-bold dark:text-gray-100">{totalRoles}</div>
+            <p className="text-xs text-muted-foreground dark:text-gray-400">Active roles in system</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admin Roles</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium dark:text-gray-200">Admin Roles</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{adminRoles}</div>
-            <p className="text-xs text-muted-foreground">Administrative access</p>
+            <div className="text-2xl font-bold dark:text-gray-100">{adminRoles}</div>
+            <p className="text-xs text-muted-foreground dark:text-gray-400">Administrative access</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">User Roles</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium dark:text-gray-200">User Roles</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground dark:text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userRoles}</div>
-            <p className="text-xs text-muted-foreground">Standard user access</p>
+            <div className="text-2xl font-bold dark:text-gray-100">{userRoles}</div>
+            <p className="text-xs text-muted-foreground dark:text-gray-400">Standard user access</p>
           </CardContent>
         </Card>
       </div>
@@ -257,9 +257,9 @@ export default function Roles() {
        {error && (
           <div className="text-center py-12 h-full flex flex-col items-center justify-center">
             <>
-            <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No roles found</h3>
-            <p className="text-gray-500">Plz.. cheack your internet connection </p>
+            <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No roles found</h3>
+            <p className="text-gray-500 dark:text-gray-400">Plz.. cheack your internet connection </p>
             </>
           </div>
         )}
@@ -270,31 +270,31 @@ export default function Roles() {
           const IconComponent = roleType.icon
 
           return (
-            <Card key={role.id} className="hover:shadow-lg transition-shadow duration-200">
+            <Card key={role.id} className="hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#1a72dd]/10 rounded-lg">
-                      <IconComponent className="w-5 h-5 text-[#1a72dd]" />
+                    <div className="p-2 bg-[#1a72dd]/10 dark:bg-blue-900/20 rounded-lg">
+                      <IconComponent className="w-5 h-5 text-[#1a72dd] dark:text-blue-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg font-semibold text-gray-900">{formatRoleName(role.name)}</CardTitle>
+                      <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatRoleName(role.name)}</CardTitle>
                       <Badge className={`mt-1 ${roleType.color} border-0`}>{roleType.type}</Badge>
                     </div>
                   </div>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 dark:text-gray-400 dark:hover:text-gray-300">
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditModal({ open: true, role })}>
+                    <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
+                      <DropdownMenuItem onClick={() => setEditModal({ open: true, role })} className="dark:text-gray-200 dark:hover:bg-gray-700">
                         <Edit className="w-4 h-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteRole(role.id)}>
+                      <DropdownMenuItem className="text-red-600 dark:text-red-400 dark:hover:bg-red-900/20" onClick={() => handleDeleteRole(role.id)}>
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
                       </DropdownMenuItem>
@@ -304,8 +304,8 @@ export default function Roles() {
               </CardHeader>
 
               <CardContent className="pt-0">
-                <p className="text-gray-600 text-sm mb-4">{role.description}</p>
-                <div className="text-xs text-gray-500">Created: {new Date(role.createdAt).toLocaleDateString()}</div>
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{role.description}</p>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Created: {new Date(role.createdAt).toLocaleDateString()}</div>
               </CardContent>
             </Card>
           )
@@ -314,9 +314,9 @@ export default function Roles() {
 
       {filteredRoles.length === 0 && (
         <div className="text-center py-12">
-          <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No roles found</h3>
-          <p className="text-gray-600">Try adjusting your search or add a new role.</p>
+          <Shield className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No roles found</h3>
+          <p className="text-gray-600 dark:text-gray-300">Try adjusting your search or add a new role.</p>
         </div>
       )}
 

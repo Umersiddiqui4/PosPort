@@ -73,7 +73,7 @@ const ProductCard = memo(
 
     if (viewMode === "list") {
       return (
-        <article className="bg-white rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-gray-100 hover:shadow-lg hover:border-[#1a72dd]/20 transition-all duration-300 group">
+        <article className="bg-white dark:bg-gray-800 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-[#1a72dd]/20 dark:hover:border-blue-500/20 transition-all duration-300 group">
           <div className="flex gap-3 sm:gap-4 lg:gap-5">
             <div className="relative overflow-hidden rounded-xl flex-shrink-0">
               <img
@@ -86,10 +86,10 @@ const ProductCard = memo(
             </div>
             <div className="flex-1 flex flex-col justify-between min-w-0">
               <div>
-                <h3 className="font-semibold text-[#2a3256] text-sm sm:text-base lg:text-lg mb-1 group-hover:text-[#1a72dd] transition-colors truncate">
+                <h3 className="font-semibold text-[#2a3256] dark:text-gray-200 text-sm sm:text-base lg:text-lg mb-1 group-hover:text-[#1a72dd] dark:group-hover:text-blue-400 transition-colors truncate">
                   {product.name}
                 </h3>
-                <p className="text-[#1a72dd] font-bold text-sm sm:text-base lg:text-lg">{product.price} PKR</p>
+                <p className="text-[#1a72dd] dark:text-blue-400 font-bold text-sm sm:text-base lg:text-lg">{product.price} PKR</p>
               </div>
 
               <div className="flex items-center justify-between mt-2">
@@ -137,7 +137,7 @@ const ProductCard = memo(
                           e.stopPropagation()
                           onEditProduct(product)
                         }}
-                        className="w-8 h-8 p-0"
+                        className="w-8 h-8 p-0 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         <Edit className="w-3 h-3" />
                       </Button>
@@ -151,7 +151,7 @@ const ProductCard = memo(
                             e.stopPropagation()
                             setIsDeleteDialogOpen(true)
                           }}
-                          className="w-8 h-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="w-8 h-8 p-0 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800"
                         >
                           <Trash2 className="w-3 h-3" />
                         </Button>
@@ -189,7 +189,7 @@ const ProductCard = memo(
     }
 
     return (
-      <article className="bg-white rounded-2xl p-2 sm:p-3 lg:p-4 shadow-sm border border-gray-100 hover:shadow-xl hover:border-[#1a72dd]/20 transition-all duration-300 group hover:-translate-y-1">
+      <article className="bg-white dark:bg-gray-800 rounded-2xl p-2 sm:p-3 lg:p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-[#1a72dd]/20 dark:hover:border-blue-500/20 transition-all duration-300 group hover:-translate-y-1">
         <div className="relative overflow-hidden rounded-xl mb-2 sm:mb-3">
           <img
             src={product.image || "/placeholder.svg"}
@@ -201,7 +201,7 @@ const ProductCard = memo(
           
           {/* Edit/Delete buttons overlay for authorized users */}
           {canManageProducts && (
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute top-2 right-2 flex gap-1 opacity-100 transition-opacity duration-300">
               {onEditProduct && (
                 <Button
                   size="sm"
@@ -210,9 +210,9 @@ const ProductCard = memo(
                     e.stopPropagation()
                     onEditProduct(product)
                   }}
-                  className="w-8 h-8 p-0 bg-white/90 hover:bg-white shadow-md"
+                  className="w-8 h-8 p-0 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 shadow-md dark:shadow-gray-900/50"
                 >
-                  <Edit className="w-3 h-3" />
+                  <Edit className="w-3 h-3 text-gray-700 dark:text-gray-300" />
                 </Button>
               )}
               {onDeleteProduct && (
@@ -257,10 +257,10 @@ const ProductCard = memo(
         </div>
 
         <div className="space-y-1.5 sm:space-y-2">
-          <h3 className="font-semibold text-[#2a3256] text-xs sm:text-sm lg:text-base mb-1 group-hover:text-[#1a72dd] transition-colors line-clamp-2 leading-tight">
+          <h3 className="font-semibold text-[#2a3256] dark:text-gray-200 text-xs sm:text-sm lg:text-base mb-1 group-hover:text-[#1a72dd] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight">
             {product.name}
           </h3>
-          <p className="text-[#1a72dd] font-bold text-xs sm:text-sm lg:text-base">{product.price} PKR</p>
+          <p className="text-[#1a72dd] dark:text-blue-400 font-bold text-xs sm:text-sm lg:text-base">{product.price} PKR</p>
 
           {product.quantity ? (
             <div className="flex items-center justify-between pt-1">
@@ -273,7 +273,7 @@ const ProductCard = memo(
               >
                 <Minus className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
               </Button>
-              <span className="font-bold text-xs sm:text-sm lg:text-base text-[#2a3256] px-1">{product.quantity}</span>
+              <span className="font-bold text-xs sm:text-sm lg:text-base text-[#2a3256] dark:text-gray-200 px-1">{product.quantity}</span>
               <Button
                 size="sm"
                 onClick={handleIncrement}
@@ -331,15 +331,15 @@ const CartItemCard = memo(
 
     if (isCompact) {
       return (
-        <div className="bg-white rounded-xl p-3 border border-gray-100 hover:border-[#1a72dd]/30 transition-all duration-300">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-100 dark:border-gray-700 hover:border-[#1a72dd]/30 dark:hover:border-blue-500/30 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-[#2a3256] text-sm truncate">{item.name}</h4>
+              <h4 className="font-semibold text-[#2a3256] dark:text-gray-200 text-sm truncate">{item.name}</h4>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-[#545454]">
+                <span className="text-xs text-[#545454] dark:text-gray-400">
                   {item.price} PKR × {item.quantity}
                 </span>
-                <span className="text-xs font-semibold text-[#1a72dd]">{item.price * item.quantity} PKR</span>
+                <span className="text-xs font-semibold text-[#1a72dd] dark:text-blue-400">{item.price * item.quantity} PKR</span>
               </div>
             </div>
 
@@ -352,7 +352,7 @@ const CartItemCard = memo(
               >
                 <Minus className="w-2.5 h-2.5" />
               </Button>
-              <span className="font-bold text-sm text-[#2a3256] min-w-[20px] text-center">{item.quantity}</span>
+              <span className="font-bold text-sm text-[#2a3256] dark:text-gray-200 min-w-[20px] text-center">{item.quantity}</span>
               <Button
                 size="sm"
                 onClick={handleIncrement}
@@ -542,11 +542,11 @@ useEffect(() => {
             ))
           ) : (
             <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <Package className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <Package className="w-8 h-8 text-gray-400 dark:text-gray-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-              <p className="text-gray-600 max-w-md">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No products found</h3>
+              <p className="text-gray-600 dark:text-gray-300 max-w-md">
                 {currentFilter 
                   ? `No products found for "${currentFilter}". Try changing the category or search term.`
                   : canManageProducts 
@@ -673,15 +673,15 @@ useEffect(() => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 p-4 bg-gray-50">
+                <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-lg font-semibold text-[#2a3256]">Total:</span>
-                    <span className="text-xl font-bold text-[#1a72dd]">{totalAmount} PKR</span>
+                    <span className="text-lg font-semibold text-[#2a3256] dark:text-gray-200">Total:</span>
+                    <span className="text-xl font-bold text-[#1a72dd] dark:text-blue-400">{totalAmount} PKR</span>
                   </div>
                   <div className="flex gap-3 mb-4">
                     <button
                       onClick={() => setShowMobileCart(false)}
-                      className="flex-1 bg-gray-200 text-[#2a3256] py-3 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
+                      className="flex-1 bg-gray-200 dark:bg-gray-700 text-[#2a3256] dark:text-gray-200 py-3 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                     >
                       Continue Shopping
                     </button>

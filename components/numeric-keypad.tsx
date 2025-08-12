@@ -72,8 +72,8 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
   }, [value, handleNumberClick, handleEnter, handleDelete, handleClear])
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 p-4 sm:p-6 min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-bold text-[#2a3256] mb-4 sm:mb-6 text-center">{title}</h2>
+    <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 p-4 sm:p-6 min-h-screen">
+      <h2 className="text-xl sm:text-2xl font-bold text-[#2a3256] dark:text-gray-200 mb-4 sm:mb-6 text-center">{title}</h2>
 
       <div className="mb-6 sm:mb-8">
         <Input
@@ -82,7 +82,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
           onChange={handleInputChange}
           onKeyDown={handleKeyPress}
           placeholder="Enter amount"
-          className="text-2xl sm:text-4xl font-bold text-center p-4 sm:p-6 bg-white rounded-2xl shadow-sm border-2 border-[#1a72dd]/20 min-h-[60px] sm:min-h-[80px] text-[#1a72dd] focus:border-[#1a72dd]"
+          className="text-2xl sm:text-4xl font-bold text-center p-4 sm:p-6 bg-white dark:bg-gray-700 rounded-2xl shadow-sm border-2 border-[#1a72dd]/20 dark:border-blue-500/20 min-h-[60px] sm:min-h-[80px] text-[#1a72dd] dark:text-blue-400 focus:border-[#1a72dd] dark:focus:border-blue-500"
           autoFocus
         />
       </div>
@@ -92,7 +92,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
           <Button
             key={num}
             variant="outline"
-            className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white hover:bg-[#1a72dd] hover:text-white border-2 border-gray-200 rounded-xl transition-all"
+            className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white dark:bg-gray-700 hover:bg-[#1a72dd] dark:hover:bg-blue-600 hover:text-white border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all text-gray-800 dark:text-gray-200"
             onClick={() => handleNumberClick(num.toString())}
           >
             {num}
@@ -101,7 +101,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
 
         <Button
           variant="outline"
-          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white hover:bg-red-500 hover:text-white border-2 border-gray-200 rounded-xl transition-all"
+          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white dark:bg-gray-700 hover:bg-red-500 hover:text-white border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all text-gray-800 dark:text-gray-200"
           onClick={handleClear}
         >
           C
@@ -109,7 +109,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
 
         <Button
           variant="outline"
-          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white hover:bg-[#1a72dd] hover:text-white border-2 border-gray-200 rounded-xl transition-all"
+          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white dark:bg-gray-700 hover:bg-[#1a72dd] dark:hover:bg-blue-600 hover:text-white border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all text-gray-800 dark:text-gray-200"
           onClick={() => handleNumberClick("0")}
         >
           0
@@ -117,7 +117,7 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
 
         <Button
           variant="outline"
-          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white hover:bg-[#1a72dd] hover:text-white border-2 border-gray-200 rounded-xl transition-all"
+          className="h-12 sm:h-16 text-lg sm:text-xl font-bold bg-white dark:bg-gray-700 hover:bg-[#1a72dd] dark:hover:bg-blue-600 hover:text-white border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all text-gray-800 dark:text-gray-200"
           onClick={() => handleNumberClick("00")}
         >
           000
@@ -127,14 +127,14 @@ export default function NumericKeypad({ onValueChange, onEnter, title }: Numeric
       <div className="flex gap-3 sm:gap-4">
         <Button
           variant="outline"
-          className="flex-1 h-12 sm:h-14 bg-white hover:bg-orange-500 hover:text-white border-2 border-gray-200 rounded-xl transition-all"
+          className="flex-1 h-12 sm:h-14 bg-white dark:bg-gray-700 hover:bg-orange-500 hover:text-white border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all text-gray-800 dark:text-gray-200"
           onClick={handleDelete}
         >
           <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
 
         <Button
-          className="flex-1 h-12 sm:h-14 bg-[#1a72dd] hover:bg-[#1a72dd]/90 text-lg sm:text-xl font-bold rounded-xl shadow-lg"
+          className="flex-1 h-12 sm:h-14 bg-[#1a72dd] dark:bg-blue-600 hover:bg-[#1a72dd]/90 dark:hover:bg-blue-700 text-lg sm:text-xl font-bold rounded-xl shadow-lg"
           onClick={handleEnter}
         >
           ENTER

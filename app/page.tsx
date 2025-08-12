@@ -125,7 +125,7 @@ function App() {
   }
 
   return (
-    <div className="flex h-screen bg-background transition-colors duration-300 overflow-hidden">
+    <div className="flex h-screen bg-background dark:bg-gray-900 transition-colors duration-300 overflow-hidden">
       <Navbar
        
         

@@ -549,7 +549,7 @@ useEffect(() => {
 
   const renderHeader = () => (
     <header
-      className={`bg-white/95 backdrop-blur-md ${cart.length > 0 && !isMobile ? "w-3/" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 shadow-sm`}
+      className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-md ${cart.length > 0 && !isMobile ? "w-3/" : ""} rounded-lg p-3 sm:p-4 border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm`}
     >
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <div className="flex items-center gap-3">
@@ -627,14 +627,14 @@ useEffect(() => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 sm:pl-12 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm"
+              className="pl-10 sm:pl-12 h-10 sm:h-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:border-[#1a72dd] dark:focus:border-blue-400 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm dark:text-gray-200"
             />
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
             {/* Catalog Selection */}
             <Select value={selectedCatalog || "all"} onValueChange={handleCatalogSelect}>
-              <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+              <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:border-[#1a72dd] dark:focus:border-blue-400 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm dark:text-gray-200">
                 <SelectValue placeholder={catalogsLoading ? "Loading catalogs..." : "Select Catalog"}>
                   {selectedCatalog && selectedCatalog !== "all" && catalogs.find(c => c.id === selectedCatalog)?.name}
                 </SelectValue>
@@ -664,7 +664,7 @@ useEffect(() => {
               onValueChange={handleCategorySelect}
               disabled={!selectedCatalog || selectedCatalog === "all" || categoriesLoading}
             >
-              <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 rounded-xl font-medium focus:border-[#1a72dd] bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+              <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:border-[#1a72dd] dark:focus:border-blue-400 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm dark:text-gray-200">
                 <SelectValue placeholder={!selectedCatalog || selectedCatalog === "all" ? "Select catalog first" : categoriesLoading ? "Loading categories..." : "Select Category"}>
                   {selectedCategoryId && selectedCategoryId !== "all" && categories.find(c => c.id === selectedCategoryId)?.categoryName}
                 </SelectValue>
@@ -709,7 +709,7 @@ useEffect(() => {
   }
 
   return (
-   <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] ">
+   <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a]">
       {/* Main Content Area */}
       <div
         className={`flex-1 flex flex-col transition-all duration-300 ${cart.length > 0 && !isMobile ? "mr-80" : ""}`}
@@ -723,7 +723,7 @@ useEffect(() => {
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a72dd] mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading products...</p>
+                  <p className="text-gray-600 dark:text-gray-300">Loading products...</p>
                 </div>
               </div>
             ) : (
@@ -762,10 +762,10 @@ useEffect(() => {
 
       {/* Desktop Selected Items Sidebar */}
       {cart.length > 0 && !isMobile && (
-        <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg flex flex-col z-40">
+        <div className="fixed right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-lg flex flex-col z-40">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 bg-white">
-            <div className="flex items-center gap-2 text-[#1a72dd] font-semibold">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="flex items-center gap-2 text-[#1a72dd] dark:text-blue-400 font-semibold">
               <ShoppingCart className="w-5 h-5" />
               <span>Selected Items ({cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
             </div>
@@ -775,14 +775,14 @@ useEffect(() => {
           <div className="flex-1 overflow-auto p-4">
             <div className="space-y-4">
               {cart.map((item) => (
-                <div key={item.id} className="bg-gray-50 rounded-lg p-4">
+                <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 bg-[#1a72dd] rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-[#1a72dd] dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                       <ShoppingCart className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-800 truncate">{item.name}</h4>
-                      <p className="text-sm text-gray-600">{item.price} PKR each</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-200 truncate">{item.name}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{item.price} PKR each</p>
                     </div>
                   </div>
 

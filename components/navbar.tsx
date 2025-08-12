@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavbarProps {
   isMobileOpen: boolean
@@ -94,7 +95,7 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
 
       {/* Sidebar */}
       <aside
-        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] text-white transition-all duration-300 ease-in-out overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl
+        className={`bg-gradient-to-b from-[#1a72dd] to-[#1557b8] dark:from-[#1e3a8a] dark:to-[#1e40af] text-white transition-all duration-300 ease-in-out overflow-hidden fixed left-0 top-0 h-full z-50 shadow-2xl
           ${isMobileOpen ? "w-80 translate-x-0" : "w-80 -translate-x-full"} 
           ${isCollapsed ? "md:w-0 md:translate-x-0 lg:w-0 lg:translate-x-0" : "md:w-80 lg:w-80"} 
           md:translate-x-0`}
@@ -115,9 +116,12 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
 
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-2xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-              Zaib Ka Dhaba
-            </h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                Zaib Ka Dhaba
+              </h1>
+              <ThemeToggle />
+            </div>
 
             {/* Branch Selector */}
             <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10">
@@ -125,14 +129,14 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
                 <SelectTrigger className="bg-transparent border-none text-white hover:bg-white/10 transition-colors">
                   <SelectValue placeholder="Select Branch" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-none shadow-xl rounded-xl">
-                  <SelectItem value="branch1" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                <SelectContent className="bg-white dark:bg-gray-800 border-none shadow-xl rounded-xl">
+                  <SelectItem value="branch1" className="hover:bg-[#1a72dd]/10 dark:hover:bg-blue-600/20 focus:bg-[#1a72dd]/10 dark:focus:bg-blue-600/20 rounded-lg dark:text-gray-200">
                     Branch 1
                   </SelectItem>
-                  <SelectItem value="branch2" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                  <SelectItem value="branch2" className="hover:bg-[#1a72dd]/10 dark:hover:bg-blue-600/20 focus:bg-[#1a72dd]/10 dark:focus:bg-blue-600/20 rounded-lg dark:text-gray-200">
                     Branch 2
                   </SelectItem>
-                  <SelectItem value="branch3" className="hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 rounded-lg">
+                  <SelectItem value="branch3" className="hover:bg-[#1a72dd]/10 dark:hover:bg-blue-600/20 focus:bg-[#1a72dd]/10 dark:focus:bg-blue-600/20 rounded-lg dark:text-gray-200">
                     Branch 3
                   </SelectItem>
                 </SelectContent>

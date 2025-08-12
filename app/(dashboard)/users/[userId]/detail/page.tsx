@@ -29,32 +29,32 @@ function getRandomBgColor(str: string) {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "active":
-      return "bg-green-100 text-green-800"
+      return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
     case "inactive":
-      return "bg-red-100 text-red-800"
+      return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
   }
 }
 
 const getRoleColor = (role: string) => {
   switch (role) {
     case "Manager":
-      return "bg-blue-100 text-blue-800"
+      return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400"
     case "Supervisor":
-      return "bg-purple-100 text-purple-800"
+      return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-400"
     case "Cashier":
-      return "bg-green-100 text-green-800"
+      return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
     case "Staff":
-      return "bg-orange-100 text-orange-800"
+      return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400"
     case "COMPANY_OWNER":
-      return "bg-red-100 text-red-800"
+      return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
     case "STORE_KEEPER":
-      return "bg-yellow-100 text-yellow-800"
+      return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400"
     case "POSPORT_ADMIN":
-      return "bg-indigo-100 text-indigo-800"
+      return "bg-indigo-100 dark:bg-indigo-900/20 text-indigo-800 dark:text-indigo-400"
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
   }
 }
 
@@ -104,7 +104,7 @@ export default function UserDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="text-gray-600 mb-4">Loading user details...</div>
+          <div className="text-gray-600 dark:text-gray-300 mb-4">Loading user details...</div>
         </div>
       </div>
     )
@@ -114,8 +114,8 @@ export default function UserDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="text-red-600 mb-4">User not found</div>
-          <Button onClick={handleBack} variant="outline">
+          <div className="text-red-600 dark:text-red-400 mb-4">User not found</div>
+          <Button onClick={handleBack} variant="outline" className="dark:border-gray-600 dark:text-gray-300">
             Back to Users
           </Button>
         </div>
@@ -128,17 +128,17 @@ export default function UserDetailPage() {
     <div className="m-4 space-y-6 h-screen overflow-auto pb-10" >
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button onClick={handleBack} variant="outline" size="icon">
+        <Button onClick={handleBack} variant="outline" size="icon" className="dark:border-gray-600 dark:text-gray-300">
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Details</h1>
-          <p className="text-gray-600">Complete information about the user.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">User Details</h1>
+          <p className="text-gray-600 dark:text-gray-300">Complete information about the user.</p>
         </div>
       </div>
 
       {/* User Header */}
-      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
         <Avatar className="w-16 h-16">
           <AvatarFallback className={getRandomBgColor(selectedUser.firstName + selectedUser.lastName) + " text-white text-lg"}>
             {selectedUser.firstName.charAt(0)}
@@ -146,10 +146,10 @@ export default function UserDetailPage() {
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-gray-900">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {selectedUser.firstName} {selectedUser.lastName}
           </h3>
-          <p className="text-gray-600">{selectedUser.email}</p>
+          <p className="text-gray-600 dark:text-gray-300">{selectedUser.email}</p>
           <div className="flex items-center gap-2 mt-2">
             <Badge className={getRoleColor(selectedUser.role)}>
               {formatRoleName(selectedUser.role)}
@@ -160,7 +160,7 @@ export default function UserDetailPage() {
           <Button
             onClick={() => setShowAssignedData(!showAssignedData)}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 dark:border-gray-600 dark:text-gray-300"
             disabled={assignedUsersLoading}
           >
             <Users className="w-4 h-4" />
@@ -171,9 +171,9 @@ export default function UserDetailPage() {
 
       {/* Assigned User Data Section */}
       {showAssignedData && assignedUserData && (
-        <Card className="border-2 border-blue-200 bg-blue-50">
+        <Card className="border-2 border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2 text-blue-800">
+            <CardTitle className="text-lg flex items-center gap-2 text-blue-800 dark:text-blue-300">
               <Users className="w-5 h-5" />
               Assignment Details
             </CardTitle>
@@ -182,33 +182,33 @@ export default function UserDetailPage() {
             {/* Assignment Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   Assignment Information
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Assignment ID:</span>
-                    <span className="font-mono">{assignedUserData.id}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Assignment ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Assigned At:</span>
-                    <span>{new Date(assignedUserData.assignedAt).toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Assigned At:</span>
+                    <span className="dark:text-gray-200">{new Date(assignedUserData.assignedAt).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Assigned By ID:</span>
-                    <span className="font-mono">{assignedUserData.assignedById}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Assigned By ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.assignedById}</span>
                   </div>
                   {assignedUserData.unassignedAt && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Unassigned At:</span>
-                      <span>{new Date(assignedUserData.unassignedAt).toLocaleString()}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Unassigned At:</span>
+                      <span className="dark:text-gray-200">{new Date(assignedUserData.unassignedAt).toLocaleString()}</span>
                     </div>
                   )}
                   {assignedUserData.unassignedById && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Unassigned By ID:</span>
-                      <span className="font-mono">{assignedUserData.unassignedById}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Unassigned By ID:</span>
+                      <span className="font-mono dark:text-gray-200">{assignedUserData.unassignedById}</span>
                     </div>
                   )}
                 </div>
@@ -216,44 +216,44 @@ export default function UserDetailPage() {
 
               {/* User Details */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                   <User className="w-4 h-4" />
                   User Information
                 </h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">User ID:</span>
-                    <span className="font-mono">{assignedUserData.user.id}</span>
+                    <span className="text-gray-600 dark:text-gray-300">User ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.user.id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Name:</span>
-                    <span>{assignedUserData.user.firstName} {assignedUserData.user.lastName}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Name:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.user.firstName} {assignedUserData.user.lastName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Email:</span>
-                    <span>{assignedUserData.user.email}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Email:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.user.email}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Phone:</span>
-                    <span>{assignedUserData.user.phone}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Phone:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.user.phone}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Role:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Role:</span>
                     <Badge className={getRoleColor(assignedUserData.user.role)}>
                       {formatRoleName(assignedUserData.user.role)}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Company ID:</span>
-                    <span className="font-mono">{assignedUserData.user.companyId}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.user.companyId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Created:</span>
-                    <span>{new Date(assignedUserData.user.createdAt).toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                    <span className="dark:text-gray-200">{new Date(assignedUserData.user.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Updated:</span>
-                    <span>{new Date(assignedUserData.user.updatedAt).toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Updated:</span>
+                    <span className="dark:text-gray-200">{new Date(assignedUserData.user.updatedAt).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -261,65 +261,65 @@ export default function UserDetailPage() {
 
             {/* Location Details */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+              <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 Location Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Location ID:</span>
-                    <span className="font-mono">{assignedUserData.location.id}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Location ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.location.id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Location Name:</span>
-                    <span>{assignedUserData.location.locationName}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Location Name:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.locationName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Address:</span>
-                    <span>{assignedUserData.location.address}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Address:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.address}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">City:</span>
-                    <span>{assignedUserData.location.city}</span>
+                    <span className="text-gray-600 dark:text-gray-300">City:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.city}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">State:</span>
-                    <span>{assignedUserData.location.state}</span>
+                    <span className="text-gray-600 dark:text-gray-300">State:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.state}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Country:</span>
-                    <span>{assignedUserData.location.country}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Country:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.country}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Postal Code:</span>
-                    <span>{assignedUserData.location.postalCode}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Postal Code:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.postalCode}</span>
                   </div>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Phone:</span>
-                    <span>{assignedUserData.location.phone}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Phone:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.phone}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Email:</span>
-                    <span>{assignedUserData.location.email}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Email:</span>
+                    <span className="dark:text-gray-200">{assignedUserData.location.email}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">QR Code:</span>
-                    <span className="font-mono">{assignedUserData.location.qrCode}</span>
+                    <span className="text-gray-600 dark:text-gray-300">QR Code:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.location.qrCode}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Company ID:</span>
-                    <span className="font-mono">{assignedUserData.location.companyId}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
+                    <span className="font-mono dark:text-gray-200">{assignedUserData.location.companyId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Created:</span>
-                    <span>{new Date(assignedUserData.location.createdAt).toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                    <span className="dark:text-gray-200">{new Date(assignedUserData.location.createdAt).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Updated:</span>
-                    <span>{new Date(assignedUserData.location.updatedAt).toLocaleString()}</span>
+                    <span className="text-gray-600 dark:text-gray-300">Updated:</span>
+                    <span className="dark:text-gray-200">{new Date(assignedUserData.location.updatedAt).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -328,55 +328,55 @@ export default function UserDetailPage() {
             {/* Company Information (if available in location data) */}
             {assignedUserData.location.company && (
               <div className="space-y-3">
-                <h4 className="font-semibold text-blue-700 flex items-center gap-2">
+                <h4 className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-2">
                   <Building className="w-4 h-4" />
                   Company Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Company ID:</span>
-                      <span className="font-mono">{assignedUserData.location.company.id}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
+                      <span className="font-mono dark:text-gray-200">{assignedUserData.location.company.id}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Company Name:</span>
-                      <span>{assignedUserData.location.company.name}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Company Name:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Email:</span>
-                      <span>{assignedUserData.location.company.email}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Email:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Phone:</span>
-                      <span>{assignedUserData.location.company.phone}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Phone:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.phone}</span>
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Address:</span>
-                      <span>{assignedUserData.location.company.address}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Address:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.address}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Industry:</span>
-                      <span>{assignedUserData.location.company.industry}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Industry:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.industry}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">NTN:</span>
-                      <span>{assignedUserData.location.company.ntn}</span>
+                      <span className="text-gray-600 dark:text-gray-300">NTN:</span>
+                      <span className="dark:text-gray-200">{assignedUserData.location.company.ntn}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
-                      <Badge className={assignedUserData.location.company.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                      <span className="text-gray-600 dark:text-gray-300">Status:</span>
+                      <Badge className={assignedUserData.location.company.status === 'accepted' ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400'}>
                         {assignedUserData.location.company.status}
                       </Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Created:</span>
-                      <span>{new Date(assignedUserData.location.company.createdAt).toLocaleString()}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                      <span className="dark:text-gray-200">{new Date(assignedUserData.location.company.createdAt).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Updated:</span>
-                      <span>{new Date(assignedUserData.location.company.updatedAt).toLocaleString()}</span>
+                      <span className="text-gray-600 dark:text-gray-300">Updated:</span>
+                      <span className="dark:text-gray-200">{new Date(assignedUserData.location.company.updatedAt).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -388,93 +388,93 @@ export default function UserDetailPage() {
 
       {/* User Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg">Personal Information</CardTitle>
+            <CardTitle className="text-lg dark:text-gray-100">Personal Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Full Name:</span>
-              <span className="font-medium">{selectedUser.firstName} {selectedUser.lastName}</span>
+              <span className="text-gray-600 dark:text-gray-300">Full Name:</span>
+              <span className="font-medium dark:text-gray-200">{selectedUser.firstName} {selectedUser.lastName}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Email:</span>
+              <span className="text-gray-600 dark:text-gray-300">Email:</span>
               <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUser.email}</span>
+                <span className="font-medium dark:text-gray-200">{selectedUser.email}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 dark:text-gray-400 dark:hover:text-gray-300"
                   onClick={() => copyToClipboard(selectedUser.email, 'Email')}
                 >
                   {copiedField === 'Email' ? (
-                    <Check className="h-3 w-3 text-green-600" />
+                    <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                   ) : (
-                    <Copy className="h-3 w-3 text-gray-500" />
+                    <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                   )}
                 </Button>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Phone:</span>
+              <span className="text-gray-600 dark:text-gray-300">Phone:</span>
               <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUser.phone || 'Not provided'}</span>
+                <span className="font-medium dark:text-gray-200">{selectedUser.phone || 'Not provided'}</span>
                 {selectedUser.phone && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 dark:text-gray-400 dark:hover:text-gray-300"
                     onClick={() => copyToClipboard(selectedUser.phone, 'Phone')}
                   >
                     {copiedField === 'Phone' ? (
-                      <Check className="h-3 w-3 text-green-600" />
+                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Copy className="h-3 w-3 text-gray-500" />
+                      <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                     )}
                   </Button>
                 )}
               </div>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Role:</span>
+              <span className="text-gray-600 dark:text-gray-300">Role:</span>
               <Badge className={getRoleColor(selectedUser.role)}>
                 {formatRoleName(selectedUser.role)}
               </Badge>
             </div>
             {selectedUser.companyId && (
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Company ID:</span>
+                <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{selectedUser.companyId}</span>
+                  <span className="font-medium dark:text-gray-200">{selectedUser.companyId}</span>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 dark:text-gray-400 dark:hover:text-gray-300"
                     onClick={() => copyToClipboard(selectedUser.companyId!, 'Company ID')}
                   >
                     {copiedField === 'Company ID' ? (
-                      <Check className="h-3 w-3 text-green-600" />
+                      <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                     ) : (
-                      <Copy className="h-3 w-3 text-gray-500" />
+                      <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                     )}
                   </Button>
                 </div>
               </div>
             )}
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">User ID:</span>
+              <span className="text-gray-600 dark:text-gray-300">User ID:</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono text-sm">{selectedUser.id}</span>
+                <span className="font-mono text-sm dark:text-gray-200">{selectedUser.id}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 dark:text-gray-400 dark:hover:text-gray-300"
                   onClick={() => copyToClipboard(selectedUser.id, 'User ID')}
                 >
                   {copiedField === 'User ID' ? (
-                    <Check className="h-3 w-3 text-green-600" />
+                    <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                   ) : (
-                    <Copy className="h-3 w-3 text-gray-500" />
+                    <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                   )}
                 </Button>
               </div>
@@ -482,19 +482,19 @@ export default function UserDetailPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg">Account Timeline</CardTitle>
+            <CardTitle className="text-lg dark:text-gray-100">Account Timeline</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Account Created:</span>
-              <span className="font-medium">{new Date(selectedUser.createdAt).toLocaleString()}</span>
+              <span className="text-gray-600 dark:text-gray-300">Account Created:</span>
+              <span className="font-medium dark:text-gray-200">{new Date(selectedUser.createdAt).toLocaleString()}</span>
             </div>
             {selectedUser.updatedAt && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Last Updated:</span>
-                <span className="font-medium">{new Date(selectedUser.updatedAt).toLocaleString()}</span>
+                <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
+                <span className="font-medium dark:text-gray-200">{new Date(selectedUser.updatedAt).toLocaleString()}</span>
               </div>
             )}
           </CardContent>
@@ -503,31 +503,31 @@ export default function UserDetailPage() {
 
       {/* Company Information */}
       {selectedUser.companyId && (
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg">Company Information</CardTitle>
+            <CardTitle className="text-lg dark:text-gray-100">Company Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Company ID:</span>
+              <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
               <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedUser.companyId}</span>
+                <span className="font-medium dark:text-gray-200">{selectedUser.companyId}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 dark:text-gray-400 dark:hover:text-gray-300"
                   onClick={() => copyToClipboard(selectedUser.companyId!, 'Company ID')}
                 >
                   {copiedField === 'Company ID' ? (
-                    <Check className="h-3 w-3 text-green-600" />
+                    <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                   ) : (
-                    <Copy className="h-3 w-3 text-gray-500" />
+                    <Copy className="h-3 w-3 text-gray-500 dark:text-gray-400" />
                   )}
                 </Button>
               </div>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Role in Company:</span>
+              <span className="text-gray-600 dark:text-gray-300">Role in Company:</span>
               <Badge className={getRoleColor(selectedUser.role)}>
                 {formatRoleName(selectedUser.role)}
               </Badge>

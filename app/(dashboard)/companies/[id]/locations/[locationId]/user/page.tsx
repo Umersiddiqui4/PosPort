@@ -242,8 +242,8 @@ export default function LocationUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Location Users</h2>
-          <p className="text-gray-600">Manage staff members assigned to this location</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Location Users</h2>
+          <p className="text-gray-600 dark:text-gray-300">Manage staff members assigned to this location</p>
         </div>
         <Button onClick={() => setIsAssignModalOpen(true)} className="bg-[#1a72dd] hover:bg-[#1557b8] text-white">
           <UserPlus className="w-4 h-4 mr-2" />
@@ -253,60 +253,60 @@ export default function LocationUsersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-gray-600 truncate">Total Users</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">Total Users</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {locationUsers.filter((u: any) => u?.user?.id).length}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-gray-600 truncate">Active</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">Active</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {locationUsers.filter((u: any) => u?.user?.status === "active").length}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-gray-600 truncate">Managers</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">Managers</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {locationUsers.filter((u: any) => u?.user?.role === "Manager" || u?.user?.role === "Supervisor").length}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs sm:text-sm text-gray-600 truncate">Staff</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">Staff</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {locationUsers.filter((u: any) => u?.user?.role === "Staff" || u?.user?.role === "Cashier").length}
                 </p>
               </div>
@@ -316,9 +316,9 @@ export default function LocationUsersPage() {
       </div>
 
       {/* Users List */}
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardHeader>
-          <CardTitle>Staff Members</CardTitle>
+          <CardTitle className="dark:text-gray-100">Staff Members</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -327,7 +327,7 @@ export default function LocationUsersPage() {
               .map((user: any) => (
               <div
                 key={user.user.id}
-                className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer"
                 onClick={() => router.push(`/companies/${companyId}/locations/${locationId}/user/${user.user.id}/userDetail`)}
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
@@ -340,18 +340,18 @@ export default function LocationUsersPage() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                      <h4 className="font-semibold text-gray-900 truncate">{user.user.firstName} {user.user.lastName}</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{user.user.firstName} {user.user.lastName}</h4>
                       <div className="flex flex-wrap gap-1">
                         <Badge className={`${getStatusColor(user.user.status)} text-xs`}>{user.user.status}</Badge>
                         <Badge className={`${getRoleColor(user.user.role)} text-xs`}>{user.user.role}</Badge>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 truncate">{user.user.email}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{user.user.email}</p>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         Assigned: {new Date(user.assignedAt).toLocaleDateString()}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         Joined: {new Date(user.user.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -362,7 +362,7 @@ export default function LocationUsersPage() {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreHorizontal className="w-4 h-4" />

@@ -139,8 +139,8 @@ function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
-        <div className="bg-[#1a72dd] text-white p-4 flex justify-between items-center">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden">
+        <div className="bg-[#1a72dd] dark:bg-blue-600 text-white p-4 flex justify-between items-center">
           <h2 className="text-xl font-bold">Add New Product</h2>
           <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20 rounded-full">
             <X className="w-5 h-5" />
@@ -149,7 +149,7 @@ function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-96 overflow-y-auto">
           <div>
-            <Label htmlFor="name" className="text-sm font-medium text-[#2a3256]">
+            <Label htmlFor="name" className="text-sm font-medium text-[#2a3256] dark:text-gray-300">
               Product Name
             </Label>
             <Input
@@ -163,7 +163,7 @@ function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
           </div>
 
           <div>
-            <Label htmlFor="category" className="text-sm font-medium text-[#2a3256]">
+            <Label htmlFor="category" className="text-sm font-medium text-[#2a3256] dark:text-gray-300">
               Category
             </Label>
             <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>

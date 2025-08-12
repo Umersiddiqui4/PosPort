@@ -122,7 +122,7 @@ export default function LocationDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
-        <span className="ml-2 text-gray-600">Loading location details...</span>
+        <span className="ml-2 text-gray-600 dark:text-gray-300">Loading location details...</span>
       </div>
     )
   }
@@ -162,39 +162,39 @@ export default function LocationDetailPage() {
       {/* Location Details */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Contact Information */}
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Contact Information</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">Contact Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Mail className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <Mail className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               <div>
-                <div className="text-sm text-gray-600">Email</div>
-                <div className="font-medium text-gray-900">{location.email}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Email</div>
+                <div className="font-medium text-gray-900 dark:text-gray-200">{location.email}</div>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Phone className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               <div>
-                <div className="text-sm text-gray-600">Phone</div>
-                <div className="font-medium text-gray-900">{location.phone || "Not provided"}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Phone</div>
+                <div className="font-medium text-gray-900 dark:text-gray-200">{location.phone || "Not provided"}</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Address Information */}
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Address</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">Address</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+            <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5" />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 mb-1">{location.address}</div>
-                <div className="text-gray-600">
+                <div className="font-medium text-gray-900 dark:text-gray-200 mb-1">{location.address}</div>
+                <div className="text-gray-600 dark:text-gray-300">
                   {location.city && location.state && location.postalCode ? (
                     <span>
                       {location.city}, {location.state} {location.postalCode}
@@ -212,17 +212,17 @@ export default function LocationDetailPage() {
         </Card>
 
         {/* QR Code Information */}
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">QR Code</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">QR Code</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <QrCode className="w-5 h-5 text-gray-400" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <QrCode className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                 <div>
-                  <div className="text-sm text-gray-600">QR Code ID</div>
-                  <div className="font-mono text-gray-900">{location.qrCode}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">QR Code ID</div>
+                  <div className="font-mono text-gray-900 dark:text-gray-200">{location.qrCode}</div>
                 </div>
               </div>
               {location.qrCode && (
@@ -240,23 +240,23 @@ export default function LocationDetailPage() {
         </Card>
 
         {/* Timeline */}
-        <Card>
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Timeline</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">Timeline</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Calendar className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <Calendar className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               <div>
-                <div className="text-sm text-gray-600">Created</div>
-                <div className="font-medium text-gray-900">
+                <div className="text-sm text-gray-600 dark:text-gray-300">Created</div>
+                <div className="font-medium text-gray-900 dark:text-gray-200">
                   {new Date(location.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
                   })}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(location.createdAt).toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -264,18 +264,18 @@ export default function LocationDetailPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <Clock className="w-5 h-5 text-gray-400" />
+            <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <Clock className="w-5 h-5 text-gray-400 dark:text-gray-500" />
               <div>
-                <div className="text-sm text-gray-600">Last Updated</div>
-                <div className="font-medium text-gray-900">
+                <div className="text-sm text-gray-600 dark:text-gray-300">Last Updated</div>
+                <div className="font-medium text-gray-900 dark:text-gray-200">
                   {new Date(location.updatedAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
                   })}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(location.updatedAt).toLocaleTimeString("en-US", {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -288,9 +288,9 @@ export default function LocationDetailPage() {
       </div>
 
       {/* Location ID */}
-      <Card>
+      <Card className="dark:bg-gray-800 dark:border-gray-700">
         <CardContent className="p-4">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             <span className="font-medium">Location ID:</span> {location.id}
           </div>
         </CardContent>

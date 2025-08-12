@@ -86,13 +86,13 @@ export default function Catalogs() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800"
       case "inactive":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800"
       case "draft":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600"
     }
   }
 
@@ -114,8 +114,8 @@ export default function Catalogs() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Catalogs</h1>
-          <p className="text-gray-600 mt-1">Manage your product catalogs and collections</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Catalogs</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your product catalogs and collections</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -137,12 +137,12 @@ export default function Catalogs() {
       {/* Search and View Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
           <Input
             placeholder="Search catalogs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -159,16 +159,16 @@ export default function Catalogs() {
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCatalogs.map((catalog) => (
-            <Card key={catalog.id} className="hover:shadow-lg transition-shadow duration-200">
+            <Card key={catalog.id} className="hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <Package className="w-5 h-5 text-[#1a72dd]" />
-                    <CardTitle className="text-lg">{catalog.name}</CardTitle>
+                    <Package className="w-5 h-5 text-[#1a72dd] dark:text-blue-400" />
+                    <CardTitle className="text-lg dark:text-gray-200">{catalog.name}</CardTitle>
                   </div>
                   <Badge className={getStatusColor(catalog.status || "draft")}>{catalog.status || "Draft"}</Badge>
                 </div>
-                <CardDescription className="text-sm text-gray-600 line-clamp-2">{catalog.description || "No description"}</CardDescription>
+                <CardDescription className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{catalog.description || "No description"}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-3">

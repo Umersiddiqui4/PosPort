@@ -34,7 +34,7 @@ import { editCompany } from "@/lib/Api/editCompany"
 import { deleteCompany } from "@/lib/Api/deleteCompany"
 import type { GetCompaniesResponse } from "@/lib/Api/getCompanies"
 import { useUserDataStore } from "@/lib/store";
-import Locations from "@/components/location";
+
 import { useRouter } from "next/navigation"
 
 interface Company {
@@ -75,7 +75,7 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
   const queryClient = useQueryClient()
 
   // Fetch companies with search and pagination
-  const { data, isLoading, error, isFetching } = useQuery<GetCompaniesResponse, Error>({
+  const { data, isLoading, error } = useQuery<GetCompaniesResponse, Error>({
     queryKey: ["companies", searchTerm, page, take],
     queryFn: () => getCompanies(searchTerm, page, take),
   })
@@ -111,7 +111,7 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
         setUser({ 
           ...user, 
           companyId: data.data.id 
-        } as User);
+        } as any);
       }
     },
   })

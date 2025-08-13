@@ -3,19 +3,26 @@
 import { loginUser } from "@/lib/Api/auth/loginUser";
 import { useMutation } from "@tanstack/react-query";
 import api from "@/utils/axios";
-import type { LoginRequest, LoginResponse } from "@/lib/Api/auth/loginUser";
+import type { LoginRequest } from "@/lib/Api/auth/loginUser";
 import type { ApiLoginResponse } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
 import { useUserDataStore } from "@/lib/store";
+import { tokenManager } from "@/lib/auth/tokenManager";
 
 export const useLogin = () => {
   const { toast } = useToast();
   const loginUserData = useUserDataStore((state) => state.login);
   return useMutation<ApiLoginResponse, Error, LoginRequest>({
     mutationFn: loginUser,
-    onSuccess: (data, variables) => {
-      localStorage.setItem("token", data.data.tokens.access.token);
-      localStorage.setItem("refreshToken", data.data.tokens.refresh.token);
+    onSuccess: (data) => {
+      // Use secure token manager
+      tokenManager.setTokens(
+        data.data.tokens.access.token,
+        data.data.tokens.refresh.token
+      );
+      
+      // Store user data securely
+      tokenManager.setUserData(data.data.user);
       
       api.defaults.headers.common["Authorization"] = `Bearer ${data.data.tokens.access.token}`;
       

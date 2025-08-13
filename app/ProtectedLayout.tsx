@@ -2,6 +2,7 @@
 import { useUserDataStore } from "@/lib/store";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { tokenManager } from "@/lib/auth/tokenManager";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
     const user = useUserDataStore((state) => state.user);
@@ -14,22 +15,24 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     useEffect(() => {
         setIsHydrated(true);
         
-        // Check if user is logged in from localStorage
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user-data-storage');
+        // Check if user is logged in using secure token manager
+        const token = tokenManager.getAccessToken();
+        const userData = tokenManager.getUserData();
         
         if (token && userData && !isLoggedIn) {
             try {
-                const parsedUserData = JSON.parse(userData);
-                if (parsedUserData.state && parsedUserData.state.user) {
-                    // Restore user session from localStorage
-                    useUserDataStore.getState().login({
-                        user: parsedUserData.state.user,
-                        tokens: parsedUserData.state.tokens
-                    });
-                }
+                // Restore user session from secure storage
+                useUserDataStore.getState().login({
+                    user: userData,
+                    tokens: {
+                        access: { token, expiresIn: '3600' },
+                        refresh: { token: tokenManager.getRefreshToken() || '', expiresIn: '86400' }
+                    }
+                });
             } catch (error) {
-                console.error('Error parsing user data:', error);
+                console.error('Error restoring user session:', error);
+                // Clear invalid data
+                tokenManager.clearTokens();
             }
         }
         
@@ -60,7 +63,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     }
 
     // If user has temporary Google OAuth token, allow access to companies page
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const token = tokenManager.getAccessToken();
     if (token && token.startsWith('google_oauth_temp_token_') && (pathname === "/companies-page" || pathname === "/companies")) {
       return <>{children}</>;
     }

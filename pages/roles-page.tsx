@@ -1,6 +1,11 @@
 "use client"
 
-import Roles from "@/components/roles"
+import dynamic from 'next/dynamic'
+
+const Roles = dynamic(() => import("@/components/roles"), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+})
 
 export default function RolesPage() {
   return (

@@ -53,15 +53,15 @@ export const useGoogleAuth = () => {
             tokens: {
               access: {
                 token: data.data.tokens.access.token,
-                expiresIn: data.data.tokens.access.expires
+                expiresIn: data.data.tokens.access.expiresIn
               },
               refresh: {
                 token: data.data.tokens.refresh.token,
-                expiresIn: data.data.tokens.refresh.expires
+                expiresIn: data.data.tokens.refresh.expiresIn
               }
             }
           };
-          loginUserData(storeData);
+          loginUserData(storeData as any);
           
           console.log('User data after login:', storeData);
           

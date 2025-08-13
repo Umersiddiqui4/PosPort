@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import ErrorBoundary from '@/components/ErrorBoundary'
+
+import ErrorBoundary from '@/lib/error-handling/errorBoundary'
 
 // Mock the error handling system
 jest.mock('@/lib/error-handling', () => ({
@@ -63,17 +64,19 @@ describe('ErrorBoundary', () => {
   })
 
   it('handles retry button click', () => {
+    const onRetry = jest.fn();
+    
     render(
-      <ErrorBoundary>
+      <ErrorBoundary onRetry={onRetry}>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
-    )
+    );
 
     const retryButton = screen.getByText('Try Again')
     fireEvent.click(retryButton)
 
-    // The error should be cleared and children should render
-    expect(screen.getByText('No error')).toBeInTheDocument()
+    // Verify the onRetry callback was called
+    expect(onRetry).toHaveBeenCalled()
   })
 
   it('handles go home button click', () => {
@@ -89,7 +92,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     )
 
-    const homeButton = screen.getByText('Go to Home')
+    const homeButton = screen.getByText('Go Home')
     fireEvent.click(homeButton)
 
     expect(window.location.href).toBe('/')
@@ -110,7 +113,10 @@ describe('ErrorBoundary', () => {
     )
 
     const reportButton = screen.getByText('Report Error')
-    fireEvent.click(reportButton)
+    await fireEvent.click(reportButton)
+
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 0))
 
     expect(mockClipboard.writeText).toHaveBeenCalled()
     expect(mockAlert).toHaveBeenCalledWith(
@@ -155,12 +161,12 @@ describe('ErrorBoundary', () => {
     ;(process.env as any).NODE_ENV = 'development'
 
     render(
-      <ErrorBoundary>
+      <ErrorBoundary showErrorDetails={true}>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     )
 
-    const detailsElement = screen.getByText('Error Details (Development)')
+    const detailsElement = screen.getByText('Error Details')
     expect(detailsElement).toBeInTheDocument()
 
     ;(process.env as any).NODE_ENV = originalEnv

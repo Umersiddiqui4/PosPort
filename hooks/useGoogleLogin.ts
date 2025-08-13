@@ -25,17 +25,17 @@ export const useGoogleLogin = () => {
         tokens: {
           access: {
             token: data.data.tokens.access.token,
-            expiresIn: data.data.tokens.access.expires
+            expiresIn: data.data.tokens.access.expiresIn
           },
           refresh: {
             token: data.data.tokens.refresh.token,
-            expiresIn: data.data.tokens.refresh.expires
+            expiresIn: data.data.tokens.refresh.expiresIn
           }
         }
       };
       
       // Update store
-      loginUserData(internalData);
+      loginUserData(internalData as any);
       
       toast({
         title: "Google Login Successful",

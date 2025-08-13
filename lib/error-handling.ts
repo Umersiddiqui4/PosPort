@@ -87,9 +87,17 @@ export class ConsoleErrorLogger implements ErrorLogger {
     }
 
     if (this.isApiError(error)) {
+      // Ensure message is a string
+      let message = 'API Error';
+      if (typeof error.message === 'string') {
+        message = error.message;
+      } else if (typeof error.message === 'object') {
+        message = JSON.stringify(error.message);
+      }
+      
       return {
         type: this.getErrorTypeFromStatus(error.status),
-        message: error.message,
+        message,
         status: error.status,
         originalError: error,
         timestamp: new Date(),
@@ -98,9 +106,15 @@ export class ConsoleErrorLogger implements ErrorLogger {
     }
 
     if (error instanceof Error) {
+      // Ensure message is a string
+      let message = error.message;
+      if (typeof message !== 'string') {
+        message = String(message);
+      }
+      
       return {
         type: ErrorType.UNKNOWN,
-        message: error.message,
+        message,
         originalError: error,
         timestamp: new Date(),
         context,
@@ -215,10 +229,41 @@ class ErrorHandler {
   }
 
   private normalizeError(error: unknown, context?: Record<string, unknown>): AppError {
+    // If it's already an AppError, return it
+    if (this.isAppError(error)) {
+      return error as AppError;
+    }
+
+    // If it's an API error (like Axios error), handle it properly
+    if (this.isApiError(error)) {
+      const apiError = error as any;
+      let message = 'API Error';
+      if (typeof apiError.message === 'string') {
+        message = apiError.message;
+      } else if (typeof apiError.message === 'object') {
+        message = JSON.stringify(apiError.message);
+      }
+      
+      return {
+        type: this.getErrorTypeFromStatus(apiError.status),
+        message,
+        status: apiError.status,
+        originalError: error,
+        timestamp: new Date(),
+        context,
+      };
+    }
+
     if (error instanceof Error) {
+      // Ensure message is a string
+      let message = error.message;
+      if (typeof message !== 'string') {
+        message = String(message);
+      }
+      
       return {
         type: ErrorType.UNKNOWN,
-        message: error.message,
+        message,
         originalError: error,
         timestamp: new Date(),
         context,
@@ -233,6 +278,45 @@ class ErrorHandler {
       context,
     };
   }
+
+  private isAppError(error: unknown): error is AppError {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'type' in error &&
+      'message' in error &&
+      'timestamp' in error
+    );
+  }
+
+  private isApiError(error: unknown): error is ApiError {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'message' in error &&
+      'status' in error
+    );
+  }
+
+  private getErrorTypeFromStatus(status: number): ErrorType {
+    switch (status) {
+      case 401:
+        return ErrorType.AUTHENTICATION;
+      case 403:
+        return ErrorType.AUTHORIZATION;
+      case 404:
+        return ErrorType.NOT_FOUND;
+      case 422:
+        return ErrorType.VALIDATION;
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        return ErrorType.SERVER;
+      default:
+        return ErrorType.UNKNOWN;
+    }
+  }
 }
 
 // Global error handler instance
@@ -244,13 +328,18 @@ export const createError = (
   message: string,
   originalError?: unknown,
   context?: Record<string, unknown>
-): AppError => ({
-  type,
-  message,
-  originalError,
-  timestamp: new Date(),
-  context,
-});
+): AppError => {
+  // Ensure message is always a string
+  const stringMessage = typeof message === 'string' ? message : String(message);
+  
+  return {
+    type,
+    message: stringMessage,
+    originalError,
+    timestamp: new Date(),
+    context,
+  };
+};
 
 export const isNetworkError = (error: unknown): boolean => {
   if (error instanceof Error) {

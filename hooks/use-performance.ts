@@ -1,159 +1,175 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 interface PerformanceMetrics {
-  renderTime: number;
-  mountTime: number;
-  updateCount: number;
-  lastUpdate: number;
+  pageLoadTime: number;
+  componentRenderTime: number;
+  memoryUsage?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+  networkRequests: number;
+  errors: Error[];
 }
 
-interface UsePerformanceOptions {
-  componentName?: string;
-  enabled?: boolean;
-  logToConsole?: boolean;
-  onMetrics?: (metrics: PerformanceMetrics) => void;
+interface PerformanceOptions {
+  trackMemory?: boolean;
+  trackNetwork?: boolean;
+  trackErrors?: boolean;
+  sampleRate?: number; // 0-1, percentage of sessions to track
 }
 
-export const usePerformance = (options: UsePerformanceOptions = {}) => {
+export const usePerformance = (
+  componentName: string,
+  options: PerformanceOptions = {}
+) => {
   const {
-    componentName = 'Unknown Component',
-    enabled = process.env.NODE_ENV === 'development',
-    logToConsole = true,
-    onMetrics,
+    trackMemory = true,
+    trackNetwork = true,
+    trackErrors = true,
+    sampleRate = 1.0
   } = options;
 
-  const metricsRef = useRef<PerformanceMetrics>({
-    renderTime: 0,
-    mountTime: 0,
-    updateCount: 0,
-    lastUpdate: 0,
+  const startTime = useRef<number>(performance.now());
+  const metrics = useRef<PerformanceMetrics>({
+    pageLoadTime: 0,
+    componentRenderTime: 0,
+    networkRequests: 0,
+    errors: []
   });
 
-  const startTimeRef = useRef<number>(0);
-  const isFirstRenderRef = useRef<boolean>(true);
+  const shouldTrack = useCallback(() => {
+    return Math.random() < sampleRate;
+  }, [sampleRate]);
 
-  const logMetrics = useCallback((metrics: PerformanceMetrics) => {
-    if (!enabled) return;
+  const trackRenderTime = useCallback(() => {
+    if (!shouldTrack()) return;
 
-    if (logToConsole) {
-      console.group(`📊 Performance: ${componentName}`);
-      console.log('Render Time:', `${metrics.renderTime.toFixed(2)}ms`);
-      console.log('Mount Time:', `${metrics.mountTime.toFixed(2)}ms`);
-      console.log('Update Count:', metrics.updateCount);
-      console.log('Last Update:', new Date(metrics.lastUpdate).toLocaleTimeString());
-      console.groupEnd();
+    const renderTime = performance.now() - startTime.current;
+    metrics.current.componentRenderTime = renderTime;
+
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Performance] ${componentName} render time: ${renderTime.toFixed(2)}ms`);
     }
 
-    onMetrics?.(metrics);
-  }, [componentName, enabled, logToConsole, onMetrics]);
-
-  // Track render start
-  useEffect(() => {
-    if (!enabled) return;
-
-    startTimeRef.current = performance.now();
-  });
-
-  // Track render end and calculate metrics
-  useEffect(() => {
-    if (!enabled) return;
-
-    const endTime = performance.now();
-    const renderTime = endTime - startTimeRef.current;
-
-    if (isFirstRenderRef.current) {
-      metricsRef.current.mountTime = renderTime;
-      isFirstRenderRef.current = false;
-    } else {
-      metricsRef.current.updateCount++;
+    // Send to analytics in production
+    if (process.env.NODE_ENV === 'production') {
+      // TODO: Send to analytics service
+      console.log(`[Performance] ${componentName}: ${renderTime.toFixed(2)}ms`);
     }
+  }, [componentName, shouldTrack]);
 
-    metricsRef.current.renderTime = renderTime;
-    metricsRef.current.lastUpdate = Date.now();
+  const trackMemoryUsage = useCallback(() => {
+    if (!trackMemory || !shouldTrack()) return;
 
-    logMetrics(metricsRef.current);
-  });
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      metrics.current.memoryUsage = {
+        usedJSHeapSize: memory.usedJSHeapSize,
+        totalJSHeapSize: memory.totalJSHeapSize,
+        jsHeapSizeLimit: memory.jsHeapSizeLimit
+      };
+    }
+  }, [trackMemory, shouldTrack]);
 
-  // Track component unmount
+  const trackNetworkRequest = useCallback(() => {
+    if (!trackNetwork || !shouldTrack()) return;
+
+    metrics.current.networkRequests++;
+  }, [trackNetwork, shouldTrack]);
+
+  const trackError = useCallback((error: Error) => {
+    if (!trackErrors || !shouldTrack()) return;
+
+    metrics.current.errors.push(error);
+  }, [trackErrors, shouldTrack]);
+
+  // Track page load time
   useEffect(() => {
-    if (!enabled) return;
+    if (!shouldTrack()) return undefined;
 
-    return () => {
-      if (logToConsole) {
-        console.log(`🔚 Component unmounted: ${componentName}`);
+    const handleLoad = () => {
+      const loadTime = performance.now() - startTime.current;
+      metrics.current.pageLoadTime = loadTime;
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Performance] Page load time: ${loadTime.toFixed(2)}ms`);
       }
     };
-  }, [componentName, enabled, logToConsole]);
+
+    if (document.readyState === 'complete') {
+      handleLoad();
+      return undefined;
+    } else {
+      window.addEventListener('load', handleLoad);
+      return () => window.removeEventListener('load', handleLoad);
+    }
+  }, [shouldTrack]);
+
+  // Track component render time
+  useEffect(() => {
+    trackRenderTime();
+    trackMemoryUsage();
+  }, [trackRenderTime, trackMemoryUsage]);
 
   return {
-    metrics: metricsRef.current,
-    resetMetrics: () => {
-      metricsRef.current = {
-        renderTime: 0,
-        mountTime: 0,
-        updateCount: 0,
-        lastUpdate: 0,
-      };
-    },
+    metrics: metrics.current,
+    trackNetworkRequest,
+    trackError,
+    getMetrics: () => metrics.current
   };
 };
 
 // Hook for tracking specific operations
 export const useOperationTimer = (operationName: string) => {
-  const startTimeRef = useRef<number>(0);
+  const startTime = useRef<number>(0);
+  const isRunning = useRef<boolean>(false);
 
-  const startTimer = useCallback(() => {
-    startTimeRef.current = performance.now();
+  const start = useCallback(() => {
+    startTime.current = performance.now();
+    isRunning.current = true;
   }, []);
 
-  const endTimer = useCallback(() => {
-    const endTime = performance.now();
-    const duration = endTime - startTimeRef.current;
-    
+  const stop = useCallback(() => {
+    if (!isRunning.current) return 0;
+
+    const duration = performance.now() - startTime.current;
+    isRunning.current = false;
+
     if (process.env.NODE_ENV === 'development') {
-      console.log(`⏱️ ${operationName}: ${duration.toFixed(2)}ms`);
+      console.log(`[Performance] ${operationName}: ${duration.toFixed(2)}ms`);
     }
-    
+
     return duration;
   }, [operationName]);
 
-  return { startTimer, endTimer };
+  return { start, stop, isRunning: isRunning.current };
 };
 
-// Hook for tracking memory usage
-export const useMemoryTracker = (componentName?: string) => {
-  useEffect(() => {
-    if (process.env.NODE_ENV !== 'development' || !('memory' in performance)) {
-      return;
+// Hook for tracking API call performance
+export const useApiPerformance = () => {
+  const { trackNetworkRequest } = usePerformance('API', { trackNetwork: true });
+
+  const trackApiCall = useCallback(async <T>(
+    apiCall: () => Promise<T>,
+    endpoint: string
+  ): Promise<T> => {
+    const timer = useOperationTimer(`API: ${endpoint}`);
+    
+    try {
+      timer.start();
+      trackNetworkRequest();
+      
+      const result = await apiCall();
+      
+      timer.stop();
+      return result;
+    } catch (error) {
+      timer.stop();
+      throw error;
     }
+  }, [trackNetworkRequest]);
 
-    const logMemoryUsage = () => {
-      const memory = (performance as any).memory;
-      console.log(`🧠 Memory Usage (${componentName || 'Unknown'}):`, {
-        used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-        total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
-        limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`,
-      });
-    };
-
-    // Log initial memory usage
-    logMemoryUsage();
-
-    // Log memory usage every 30 seconds
-    const interval = setInterval(logMemoryUsage, 30000);
-
-    return () => clearInterval(interval);
-  }, [componentName]);
-};
-
-// Hook for tracking network requests
-export const useNetworkTracker = () => {
-  const trackRequest = useCallback((url: string, method: string, duration: number, status: number) => {
-    if (process.env.NODE_ENV === 'development') {
-      const statusColor = status >= 200 && status < 300 ? '🟢' : '🔴';
-      console.log(`${statusColor} ${method} ${url}: ${duration.toFixed(2)}ms (${status})`);
-    }
-  }, []);
-
-  return { trackRequest };
+  return { trackApiCall };
 };

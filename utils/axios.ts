@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type AxiosResponse } from "axios";
 import { errorHandler, ErrorType, createError } from "@/lib/error-handling";
 import { schemas, type ApiError } from "@/lib/validations";
+import { tokenManager } from "@/lib/auth/tokenManager";
 
 const API_BASE_URL = process.env['NEXT_PUBLIC_API_BASE_URL'] || "https://dev-api.posport.io/api/v1";
 
@@ -23,8 +24,8 @@ api.interceptors.request.use(
       config.headers['X-CSRF-Token'] = csrfToken;
     }
 
-    // Add authorization token
-    const token = localStorage.getItem("token");
+    // Add authorization token using secure token manager
+    const token = tokenManager.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -71,7 +72,7 @@ api.interceptors.response.use(
       (originalRequest as any)._retry = true;
       
       // Check if we have temporary Google OAuth tokens
-      const accessToken = localStorage.getItem("token");
+      const accessToken = tokenManager.getAccessToken();
       const isTemporaryToken = accessToken && accessToken.startsWith('google_oauth_temp_token_');
       
       // For temporary tokens, don't try to refresh - just let the 401 pass through
@@ -80,7 +81,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken = tokenManager.getRefreshToken();
         
         if (!refreshToken) {
           throw new Error("No refresh token available");
@@ -146,9 +147,21 @@ api.interceptors.response.use(
     }
 
     // Handle other errors
+    let errorMessage = 'Request failed';
+    
+    if (error.response?.data?.message) {
+      if (typeof error.response.data.message === 'string') {
+        errorMessage = error.response.data.message;
+      } else if (typeof error.response.data.message === 'object') {
+        errorMessage = JSON.stringify(error.response.data.message);
+      }
+    } else if (error.message && typeof error.message === 'string') {
+      errorMessage = error.message;
+    }
+    
     const appError = createError(
       getErrorTypeFromStatus(error.response?.status),
-      error.response?.data?.message || error.message || 'Request failed',
+      errorMessage,
       error,
       { 
         status: error.response?.status,

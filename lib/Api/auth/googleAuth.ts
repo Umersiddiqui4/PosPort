@@ -1,10 +1,5 @@
 "use client";
 
-import api from "@/utils/axios";
-import type { AxiosResponse } from "axios";
-
-const BASE_URL = "https://dev-api.posport.io/api/v1";
-
 export interface GoogleAuthResponse {
   data: {
     tokens: {

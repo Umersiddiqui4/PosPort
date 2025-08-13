@@ -46,6 +46,20 @@ export const getCompanies = async (
       },
     };
   } catch (error: any) {
-    throw new Error(error?.response?.data?.message || "Failed to fetch companies");
+    // Ensure we have a proper error message string
+    let errorMessage = "Failed to fetch companies";
+    
+    if (error?.response?.data?.message) {
+      // Handle case where message might be an object
+      if (typeof error.response.data.message === 'string') {
+        errorMessage = error.response.data.message;
+      } else if (typeof error.response.data.message === 'object') {
+        errorMessage = JSON.stringify(error.response.data.message);
+      }
+    } else if (error?.message && typeof error.message === 'string') {
+      errorMessage = error.message;
+    }
+    
+    throw new Error(errorMessage);
   }
 };

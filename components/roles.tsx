@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Shield, Users, Building2, MoreVertical, Edit, Trash2 } from "lucide-react"
+import { Plus, Shield, Users, Building2, MoreVertical, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,30 +25,7 @@ import { editRole } from "@/lib/Api/editRole"
 import { deleteRole } from "@/lib/Api/deleteRole"
 import { useUserDataStore } from "@/lib/store";
 
-// Mock data based on the provided API response
-const mockRoles = [
-  {
-    id: "d1873db4-43d4-49e9-93c1-034461d87fda",
-    createdAt: "2025-07-16T11:32:10.008Z",
-    updatedAt: "2025-07-16T11:32:10.008Z",
-    name: "COMPANY_OWNER",
-    description: "Company owner with admin rights on their company",
-  },
-  {
-    id: "60870dc2-d541-4d61-a243-3885b05c3024",
-    createdAt: "2025-07-16T11:32:10.034Z",
-    updatedAt: "2025-07-16T11:32:10.034Z",
-    name: "POSPORT_ADMIN",
-    description: "Posport admin with full access to all resources (super user)",
-  },
-  {
-    id: "f43b7496-79db-472c-bbcd-4a8d1a1ef65c",
-    createdAt: "2025-07-16T11:32:10.034Z",
-    updatedAt: "2025-07-16T11:32:10.034Z",
-    name: "STORE_KEEPER",
-    description: "Store keeper with limited operations access",
-  },
-]
+
 
 interface Role {
   id: string
@@ -62,7 +39,7 @@ export default function Roles() {
   const user = useUserDataStore((state) => state.user);
 
   // Prevent COMPANY_OWNER from accessing roles
-  if (user?.role === "COMPANY_OWNER") {
+  if (typeof window !== 'undefined' && user?.role === "COMPANY_OWNER") {
     return (
       <div className="flex items-center justify-center h-full text-xl font-bold text-red-600 dark:text-red-400">
         Access Denied: Company owners cannot access roles management
@@ -70,17 +47,17 @@ export default function Roles() {
     );
   }
 
-  // const [roles, setRoles] = useState<Role[]>(mockRoles)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newRole, setNewRole] = useState({ name: "", description: "" })
-  const { data: roles, isLoading, error } = useQuery({
+  const [editModal, setEditModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null });
+  
+  const { data: roles } = useQuery({
     queryKey: ['roles'],
     queryFn: getRoles,
   });
 
   const queryClient = useQueryClient();
-  const [editModal, setEditModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null });
 
   // Add Role Mutation
   const addRoleMutation = useMutation({
@@ -89,6 +66,11 @@ export default function Roles() {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       setNewRole({ name: "", description: "" });
       setIsAddModalOpen(false);
+    },
+    onError: (error) => {
+      if (typeof window !== 'undefined') {
+        console.error('Failed to add role:', error);
+      }
     },
   });
 
@@ -99,6 +81,11 @@ export default function Roles() {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       setEditModal({ open: false, role: null });
     },
+    onError: (error) => {
+      if (typeof window !== 'undefined') {
+        console.error('Failed to edit role:', error);
+      }
+    },
   });
 
   // Delete Role Mutation
@@ -107,14 +94,19 @@ export default function Roles() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
     },
+    onError: (error) => {
+      if (typeof window !== 'undefined') {
+        console.error('Failed to delete role:', error);
+      }
+    },
   });
 
   // Filter roles based on search term
-  const filteredRoles = roles ? roles.filter(
+  const filteredRoles = roles?.filter(
     (role:any) =>
       role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       role.description.toLowerCase().includes(searchTerm.toLowerCase()),
-  ) : []
+  ) || []
 
   // Get role type and styling
   const getRoleType = (roleName: string) => {
@@ -161,9 +153,9 @@ export default function Roles() {
   }
 
   // Calculate statistics
-  const totalRoles = roles && roles?.length
-  const adminRoles = roles && roles.filter((role:any) => role.name.includes("ADMIN")).length
-  const userRoles = roles && roles.filter((role:any) => !role.name.includes("ADMIN") && !role.name.includes("OWNER")).length
+  const totalRoles = roles?.length || 0
+  const adminRoles = roles?.filter((role:any) => role.name.includes("ADMIN")).length || 0
+  const userRoles = roles?.filter((role:any) => !role.name.includes("ADMIN") && !role.name.includes("OWNER")).length || 0
 
   return (
     <div className="p-4 sm:p-6 h-screen mt-10 md:mt-0  overflow-x-auto  space-y-6 bg-gray-50 dark:bg-gray-900">
@@ -254,15 +246,7 @@ export default function Roles() {
         </Card>
       </div>
 
-       {error && (
-          <div className="text-center py-12 h-full flex flex-col items-center justify-center">
-            <>
-            <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No roles found</h3>
-            <p className="text-gray-500 dark:text-gray-400">Plz.. cheack your internet connection </p>
-            </>
-          </div>
-        )}
+
       {/* Roles Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 pb-40 lg:grid-cols-3 gap-6">
         {filteredRoles.map((role:any) => {

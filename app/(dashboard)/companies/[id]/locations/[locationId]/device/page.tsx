@@ -68,17 +68,7 @@ interface AssignedDevice {
   location: LocationData;
 }
 
-interface GetDevicesResponse {
-  data: AssignedDevice[];
-  meta: {
-    page: number;
-    take: number;
-    itemCount: number;
-    pageCount: number;
-    hasPreviousPage: boolean;
-    hasNextPage: boolean;
-  };
-}
+
 
 export default function LocationDevicesPage() {
   const params = useParams()
@@ -132,16 +122,7 @@ export default function LocationDevicesPage() {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "online":
-        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
-      case "offline":
-        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
-      default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
-    }
-  }
+
 
   const getTypeColor = (type: string) => {
     switch (type) {

@@ -1,6 +1,7 @@
 import { useUserDataStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { tokenManager } from "@/lib/auth/tokenManager";
 
 export function useLogout() {
   const logout = useUserDataStore((state) => state.logout);
@@ -8,7 +9,7 @@ export function useLogout() {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = tokenManager.getAccessToken();
       await axios.post(
         "https://dev-api.posport.io/api/v1/auth/logout",
         {},
@@ -23,8 +24,8 @@ export function useLogout() {
       // Optionally handle error
     } finally {
       logout();
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
+      // Clear all tokens and user data securely
+      tokenManager.clearTokens();
       router.push("/login");
     }
   };

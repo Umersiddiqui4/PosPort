@@ -123,8 +123,8 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
               <ThemeToggle />
             </div>
 
-            {/* Branch Selector */}
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            {/* Branch Selector - Hidden */}
+            {/* <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 border border-white/10">
               <Select defaultValue="branch1">
                 <SelectTrigger className="bg-transparent border-none text-white hover:bg-white/10 transition-colors">
                   <SelectValue placeholder="Select Branch" />
@@ -141,7 +141,7 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </header>
 
           {/* Navigation Menu */}

@@ -9,7 +9,7 @@ interface LocationsPageProps {
   onSidebarToggle?: (collapsed: boolean) => void
 }
 
-export default function LocationsPage({ onSidebarToggle }: LocationsPageProps) {
+export default function LocationsPage({ onSidebarToggle: _onSidebarToggle }: LocationsPageProps) {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
 
   return selectedLocation ? (

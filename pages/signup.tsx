@@ -86,7 +86,7 @@ export default function Signup() {
           <Label htmlFor="email" className="text-gray-700 font-medium">
             {error && (
               <span className="text-red-500 text-md">
-                {" " + (error as Error)?.message || "Signup failed. Please try again."}
+                {` ${(error as Error)?.message}` || "Signup failed. Please try again."}
               </span>
             )}
           </Label>
@@ -150,7 +150,7 @@ export default function Signup() {
                 <PhoneInput
                   country={'pk'}
                   value={form.phone}
-                  onChange={(phone: string) => setForm((prev) => ({ ...prev, phone: "+" + phone }))}
+                  onChange={(phone: string) => setForm((prev) => ({ ...prev, phone: `+${phone}` }))}
                   inputClass="!w-full !rounded-xl !border-gray-300"
                   inputProps={{
                     name: 'phone',

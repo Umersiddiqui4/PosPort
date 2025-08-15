@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Grid3X3, List, Edit, Trash2, Package, Eye, MoreHorizontal } from 'lucide-react'
+import { Plus, Search, Grid3X3, List, Edit, Trash2, Package, Eye } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
 import { Skeleton } from "@/components/ui/skeleton"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useProductCategories, useCreateProductCategory, useUpdateProductCategory, useDeleteProductCategory, type ProductCategory } from "@/hooks/use-product-categories"
@@ -345,79 +345,81 @@ export default function ProductCategories() {
           {filteredCategories.map((category: any) => (
             <Card key={category.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg"
-                      // fallback color if not present
-                      style={{ backgroundColor: category.color || "#4ECDC4" }}
-                    >
-                      {/* fallback icon if not present */}
-                      {category.icon || "🍽️"}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        {/* Use categoryName if present, fallback to name */}
-                        {category.categoryName || category.name}
-                      </CardTitle>
-                      <Badge variant={getStatusBadgeVariant(category.status)} className="mt-1">
-                        {category.status}
-                      </Badge>
-                    </div>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg"
+                    // fallback color if not present
+                    style={{ backgroundColor: category.color || "#4ECDC4" }}
+                  >
+                    {/* fallback icon if not present */}
+                    {category.icon || "🍽️"}
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => router.push(`/catalogs/${categoryId}/categories/${category.id}/products`)}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Category
-                      </DropdownMenuItem>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete Category
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{category.categoryName || category.name}"? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteCategory(category.id)}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div>
+                    <CardTitle className="text-lg">
+                      {/* Use categoryName if present, fallback to name */}
+                      {category.categoryName || category.name}
+                    </CardTitle>
+                    <Badge variant={getStatusBadgeVariant(category.status)} className="mt-1">
+                      {category.status}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                   {category.description}
                 </p>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-
+                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                   <span>
                     Updated {new Date(category.updatedAt).toLocaleDateString()}
                   </span>
+                </div>
+                <div className="flex gap-2 pt-3 border-t justify-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => router.push(`/catalogs/${categoryId}/categories/${category.id}/products`)}
+                    className="flex-1"
+                  >
+                    <Eye className="w-4 h-4 mr-1" />
+                    View
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => openEditDialog(category)}
+                    className="p-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete "{category.categoryName || category.name}"? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteCategory(category.id)}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardContent>
             </Card>

@@ -72,7 +72,7 @@ const SearchInput = memo(({
   }, [searchTerm])
   
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const {value} = e.target
     setInternalValue(value)
     onSearchChange(e)
   }, [onSearchChange])
@@ -92,7 +92,7 @@ const SearchInput = memo(({
         inputRef.current?.focus()
         // Restore cursor position
         if (inputRef.current) {
-          const length = inputRef.current.value.length
+          const {length} = inputRef.current.value
           inputRef.current.setSelectionRange(length, length)
         }
       }, 50)
@@ -124,7 +124,6 @@ const SearchInput = memo(({
 SearchInput.displayName = 'SearchInput'
 
 export default function Users() {
-  const router = useRouter()
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
@@ -134,6 +133,9 @@ export default function Users() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false)
   const [userToDelete, setUserToDelete] = useState<User | null>(null)
+  
+  // Router for navigation
+  const router = useRouter()
   
   // Refs to maintain input focus
   const usersSearchRef = useRef<HTMLInputElement>(null)
@@ -160,7 +162,7 @@ export default function Users() {
 
   // Memoize the search handler to prevent re-renders
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+    const {value} = e.target
     setSearchTerm(value)
   }, [])
 
@@ -195,7 +197,7 @@ export default function Users() {
         currentRef.current?.focus()
         // Restore cursor position to end of input
         if (currentRef.current) {
-          const length = currentRef.current.value.length
+          const {length} = currentRef.current.value
           currentRef.current.setSelectionRange(length, length)
         }
       }, 100) // Small delay to ensure DOM is updated
@@ -233,7 +235,7 @@ export default function Users() {
   }, [activeTab])
 
   // Fetch companies for dropdown
-  const { data: companiesData, isLoading: isCompaniesLoading } = useQuery({
+  const { data: companiesData } = useQuery({
     queryKey: ["companies", "all-for-user-edit"],
     queryFn: () => getCompanies("", 1, 100),
   })
@@ -478,7 +480,7 @@ console.log(assignedUsers, "assignedUsers");
                       // Always save with leading plus
                       let formatted = value;
                       if (formatted && !formatted.startsWith('+')) {
-                        formatted = '+' + formatted.replace(/^0+/, '');
+                        formatted = `+${formatted.replace(/^0+/, '')}`;
                       }
                       setFormData({ ...formData, phone: formatted });
                     }}

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getAssignedUsers, GetAssignedUsersResponse } from "@/lib/Api/getAssignedUsers"
+import { getAssignedUsers } from "@/lib/Api/getAssignedUsers"
 
 export const useAssignedUsers = (page = 1, take = 10) => {
   return useQuery({

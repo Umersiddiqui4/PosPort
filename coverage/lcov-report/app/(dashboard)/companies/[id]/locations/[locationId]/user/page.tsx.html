@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/130</span>
+                <span class='fraction'>0/128</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/128</span>
+                <span class='fraction'>0/126</span>
             </div>
         
             
@@ -665,11 +665,7 @@
 <a name='L600'></a><a href='#L600'>600</a>
 <a name='L601'></a><a href='#L601'>601</a>
 <a name='L602'></a><a href='#L602'>602</a>
-<a name='L603'></a><a href='#L603'>603</a>
-<a name='L604'></a><a href='#L604'>604</a>
-<a name='L605'></a><a href='#L605'>605</a>
-<a name='L606'></a><a href='#L606'>606</a>
-<a name='L607'></a><a href='#L607'>607</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L603'></a><a href='#L603'>603</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -703,9 +699,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -743,7 +736,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1277,7 +1269,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use client"
 &nbsp;
-import { useState, useEffect } from <span class="cstat-no" title="statement not covered" >"react"</span>
+import { useState } from <span class="cstat-no" title="statement not covered" >"react"</span>
 import { useParams, useRouter } from <span class="cstat-no" title="statement not covered" >"next/navigation"</span>
 import { Users, UserPlus, MoreHorizontal, Edit, Trash2, Eye, Search, Loader2, User } from <span class="cstat-no" title="statement not covered" >"lucide-react"</span>
 import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
@@ -1309,9 +1301,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from <s
 import { useUsers } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-users"</span>
 import { useAssignUserToLocation, useLocationUsers, useUnassignUserFromLocation, useUpdateLocationUser } from <span class="cstat-no" title="statement not covered" >"@/hooks/useLocation";</span>
 import { toast } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-toast"</span>
-import api from "@/utils/axios";
-import { useQuery, useQueryClient } from <span class="cstat-no" title="statement not covered" >"@tanstack/react-query";</span>
-import { getLocationUsers } from "@/lib/Api/getLocationUsers";
 &nbsp;
 // Add a helper function for random background color
 function <span class="fstat-no" title="function not covered" >getRandomBgColor(s</span>tr: string) {
@@ -1353,16 +1342,15 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   const assignUserMutation = <span class="cstat-no" title="statement not covered" >useAssignUserToLocation()</span>
   const unassignUserMutation = <span class="cstat-no" title="statement not covered" >useUnassignUserFromLocation();</span>
   const updateUserMutation = <span class="cstat-no" title="statement not covered" >useUpdateLocationUser();</span>
-  const queryClient = <span class="cstat-no" title="statement not covered" >useQueryClient();</span>
 &nbsp;
-  const { data, isLoading, refetch: refetchLocationUsers } = <span class="cstat-no" title="statement not covered" >useLocationUsers(locationId, 1, 1000);</span>
+  const { data, refetch: refetchLocationUsers } = <span class="cstat-no" title="statement not covered" >useLocationUsers(locationId, 1, 1000);</span>
   const locationUsers = <span class="cstat-no" title="statement not covered" >data?.data || [];</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  console.log("Location Users Data:", locationUsers)</span>
 <span class="cstat-no" title="statement not covered" >  console.log("Location Users Structure:", locationUsers.map(<span class="fstat-no" title="function not covered" >(u</span>ser: any) =&gt; (<span class="cstat-no" title="statement not covered" >{</span></span>
     hasUser: !!user?.user,
     userId: user?.user?.id,
-    userName: user?.user?.firstName + " " + user?.user?.lastName
+    userName: `${user?.user?.firstName} ${user?.user?.lastName}`
   })))
 &nbsp;
   // locationUsers is an array of assignments, each with a nested user object
@@ -1410,8 +1398,8 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   const handleAssignUser = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (u</span>serId: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      await assignUserMutation.mutateAsync({</span>
-        userId: userId,
-        locationId: locationId,
+        userId,
+        locationId,
       })
 <span class="cstat-no" title="statement not covered" >      setIsAssignModalOpen(false)</span>
 <span class="cstat-no" title="statement not covered" >      setSearchTerm("")</span>
@@ -1610,7 +1598,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
                 &lt;div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1"&gt;
                   &lt;Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0"&gt;
                     &lt;AvatarImage src={user.user.avatar} alt={`${user.user.firstName} ${user.user.lastName}`} /&gt;
-                    &lt;AvatarFallback className={getRandomBgColor(user.user.firstName + user.user.lastName) + " text-white"}&gt;
+                    &lt;AvatarFallback className={`${getRandomBgColor(user.user.firstName + user.user.lastName)} text-white`}&gt;
                       {user.user.firstName.charAt(0)}
                       {user.user.lastName.charAt(0)}
                     &lt;/AvatarFallback&gt;
@@ -1888,7 +1876,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T06:41:23.048Z
+                at 2025-08-13T14:37:30.433Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>

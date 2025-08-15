@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/72</span>
+                <span class='fraction'>0/60</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/50</span>
+                <span class='fraction'>0/49</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/29</span>
+                <span class='fraction'>0/24</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/65</span>
+                <span class='fraction'>0/57</span>
             </div>
         
             
@@ -769,18 +769,14 @@
 <a name='L704'></a><a href='#L704'>704</a>
 <a name='L705'></a><a href='#L705'>705</a>
 <a name='L706'></a><a href='#L706'>706</a>
-<a name='L707'></a><a href='#L707'>707</a>
-<a name='L708'></a><a href='#L708'>708</a>
-<a name='L709'></a><a href='#L709'>709</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L707'></a><a href='#L707'>707</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1232,23 +1228,23 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1482,13 +1478,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use client"
 &nbsp;
 import { Plus, Minus, ShoppingCart, X, ChevronDown, Edit, Trash2, Package } from <span class="cstat-no" title="statement not covered" >"lucide-react"</span>
-import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
-import { memo, useCallback, useEffect, useState } from <span class="cstat-no" title="statement not covered" >"react"</span>
-import { motion, AnimatePresence } from <span class="cstat-no" title="statement not covered" >"framer-motion"</span>
-import { useUserDataStore } from <span class="cstat-no" title="statement not covered" >"@/lib/store"</span>
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { memo, useCallback, useState } from <span class="cstat-no" title="statement not covered" >"react"</span>
+import { AnimatePresence } from <span class="cstat-no" title="statement not covered" >"framer-motion"</span>
+import { useCurrentUser } from <span class="cstat-no" title="statement not covered" >"@/hooks/useCurrentUser"</span>
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from <span class="cstat-no" title="statement not covered" >"@/components/ui/alert-dialog"</span>
-import ProductForm from "./product-form"
+import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
 &nbsp;
 interface Product {
   id: string
@@ -1537,7 +1531,7 @@ const ProductCard = <span class="cstat-no" title="statement not covered" >memo(<
     onDeleteProduct?: (productId: string) =&gt; void
     viewMode: "grid" | "list"
   }) =&gt; {
-    const user = <span class="cstat-no" title="statement not covered" >useUserDataStore(<span class="fstat-no" title="function not covered" >(s</span>tate) =&gt; <span class="cstat-no" title="statement not covered" >state.user)</span></span>
+    const { user } = <span class="cstat-no" title="statement not covered" >useCurrentUser()</span>
     const canManageProducts = <span class="cstat-no" title="statement not covered" >user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"</span>
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
     const handleIncrement = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
@@ -1937,27 +1931,27 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   currentFilter,
   isCreatingProduct = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
 }: ProductGridProps) {
+  const { user } = <span class="cstat-no" title="statement not covered" >useCurrentUser()</span>
   const [showMobileCart, setShowMobileCart] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
   const totalAmount = <span class="cstat-no" title="statement not covered" >cartItems.reduce(<span class="fstat-no" title="function not covered" >(t</span>otal, item) =&gt; <span class="cstat-no" title="statement not covered" >total + item.price * item.quantity,</span> 0)</span>
   const totalItems = <span class="cstat-no" title="statement not covered" >cartItems.reduce(<span class="fstat-no" title="function not covered" >(s</span>um, item) =&gt; <span class="cstat-no" title="statement not covered" >sum + item.quantity,</span> 0)</span>
   
-  const [isMobile, setIsMobile] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
-  const user = <span class="cstat-no" title="statement not covered" >useUserDataStore(<span class="fstat-no" title="function not covered" >(s</span>tate) =&gt; <span class="cstat-no" title="statement not covered" >state.user)</span></span>
+  // const [isMobile, setIsMobile] = useState(false) // Unused variable
   const canManageProducts = <span class="cstat-no" title="statement not covered" >user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"</span>
 &nbsp;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof window === 'undefined') <span class="cstat-no" title="statement not covered" >return;</span></span>
+// useEffect(() =&gt; {
+//   if (typeof window === 'undefined') return;
   
-  const handleResize = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    setIsMobile(window.innerWidth &lt; 1024);</span>
-  };
+//   const handleResize = () =&gt; {
+//     setIsMobile(window.innerWidth &lt; 1024);
+//   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  handleResize(); /</span>/ run on mount
-<span class="cstat-no" title="statement not covered" >  window.addEventListener("resize", handleResize);</span>
+//   handleResize(); // run on mount
+//   window.addEventListener("resize", handleResize);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return <span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >w</span>indow.removeEventListener("resize", handleResize);</span></span>
-}, []); 
+//   return () =&gt; window.removeEventListener("resize", handleResize);
+// }, []); // Unused effect 
   
   const getGridColumns = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (viewMode === "list") <span class="cstat-no" title="statement not covered" >return ""</span></span>
@@ -2194,7 +2188,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T06:41:23.048Z
+                at 2025-08-13T14:37:30.433Z
             </div>
         <script src="../prettify.js"></script>
         <script>

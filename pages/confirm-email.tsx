@@ -10,7 +10,7 @@ import { useVerifyEmail } from "@/hooks/useVerifyEmail";
 export default function EmailVerified() {
   const [token, setToken] = useState<string | null>(null);
   const [message, setMessage] = useState<string>("");
-  const { mutate, isPending, isSuccess, isError, data, error } = useVerifyEmail();
+  const { mutate, isPending, isSuccess, isError } = useVerifyEmail();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

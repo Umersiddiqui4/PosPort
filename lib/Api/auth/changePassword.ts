@@ -3,7 +3,7 @@
 import api from "@/utils/axios";
 import type { AxiosResponse } from "axios";
 
-const BASE_URL = "https://dev-api.posport.io/api/v1";
+// const BASE_URL = "https://dev-api.posport.io/api/v1"; // Unused variable
 
 export interface ChangePasswordRequest {
   password: string;

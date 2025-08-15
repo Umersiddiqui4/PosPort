@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/66</span>
+                <span class='fraction'>0/61</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>0/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/61</span>
+                <span class='fraction'>0/56</span>
             </div>
         
             
@@ -593,16 +593,7 @@
 <a name='L528'></a><a href='#L528'>528</a>
 <a name='L529'></a><a href='#L529'>529</a>
 <a name='L530'></a><a href='#L530'>530</a>
-<a name='L531'></a><a href='#L531'>531</a>
-<a name='L532'></a><a href='#L532'>532</a>
-<a name='L533'></a><a href='#L533'>533</a>
-<a name='L534'></a><a href='#L534'>534</a>
-<a name='L535'></a><a href='#L535'>535</a>
-<a name='L536'></a><a href='#L536'>536</a>
-<a name='L537'></a><a href='#L537'>537</a>
-<a name='L538'></a><a href='#L538'>538</a>
-<a name='L539'></a><a href='#L539'>539</a>
-<a name='L540'></a><a href='#L540'>540</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L531'></a><a href='#L531'>531</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -629,15 +620,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1143,13 +1125,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use client"
 &nbsp;
-import { useEffect, useState } from <span class="cstat-no" title="statement not covered" >"react"</span>
+import { useState } from <span class="cstat-no" title="statement not covered" >"react"</span>
 import { useParams, useRouter } from <span class="cstat-no" title="statement not covered" >"next/navigation"</span>
 import { ArrowLeft, Copy, Check, Users, MapPin, Building, Calendar, User } from <span class="cstat-no" title="statement not covered" >"lucide-react"</span>
 import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
 import { Card, CardContent, CardHeader, CardTitle } from <span class="cstat-no" title="statement not covered" >"@/components/ui/card"</span>
 import { Badge } from <span class="cstat-no" title="statement not covered" >"@/components/ui/badge"</span>
-import { Avatar, AvatarFallback, AvatarImage } from <span class="cstat-no" title="statement not covered" >"@/components/ui/avatar"</span>
+import { Avatar, AvatarFallback } from <span class="cstat-no" title="statement not covered" >"@/components/ui/avatar"</span>
 import { useUsers } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-users"</span>
 import { useAssignedUsers } from <span class="cstat-no" title="statement not covered" >"@/hooks/useAssignedUsers"</span>
 import { toast } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-toast"</span>
@@ -1169,16 +1151,7 @@ function <span class="fstat-no" title="function not covered" >getRandomBgColor(s
 <span class="cstat-no" title="statement not covered" >  return colors[idx];</span>
 }
 &nbsp;
-const getStatusColor = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(s</span>tatus: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >  switch (status) {</span>
-    case "active":
-<span class="cstat-no" title="statement not covered" >      return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"</span>
-    case "inactive":
-<span class="cstat-no" title="statement not covered" >      return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"</span>
-    default:
-<span class="cstat-no" title="statement not covered" >      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"</span>
-  }
-}
+// Removed unused getStatusColor function
 &nbsp;
 const getRoleColor = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(r</span>ole: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >  switch (role) {</span>
@@ -1283,7 +1256,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
       {/* User Header */}
       &lt;div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"&gt;
         &lt;Avatar className="w-16 h-16"&gt;
-          &lt;AvatarFallback className={getRandomBgColor(selectedUser.firstName + selectedUser.lastName) + " text-white text-lg"}&gt;
+          &lt;AvatarFallback className={`${getRandomBgColor(selectedUser.firstName + selectedUser.lastName)} text-white text-lg`}&gt;
             {selectedUser.firstName.charAt(0)}
             {selectedUser.lastName.charAt(0)}
           &lt;/AvatarFallback&gt;
@@ -1687,7 +1660,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T06:41:23.048Z
+                at 2025-08-13T14:37:30.433Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

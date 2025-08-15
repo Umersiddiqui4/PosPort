@@ -2,9 +2,12 @@ import api from "@/utils/axios";
 
 export interface Product {
   id: string;
+  name: string; // Added for component compatibility
   productName: string;
   description?: string;
-  price: number;
+  retailPrice: number;
+  price?: number;
+  cost?: number;
   image?: string;
   category?: string;
   stock?: number;
@@ -40,12 +43,14 @@ export const getProducts = async (page: number = 1, take: number = 10): Promise<
     // Use items instead of data
     return (response.data.items || []).map((product: any) => ({
       id: product.id,
+      name: product.productName, // Map productName to name for component compatibility
       productName: product.productName,
       description: product.description || "",
-      price: product.price || 0,
+      retailPrice: product.retailPrice || 0,
       image: product.image || "/placeholder.svg",
       category: product.category || "General",
       stock: product.stock || 0,
+      cost: product.cost || 0,
       status: product.status || "active",
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,

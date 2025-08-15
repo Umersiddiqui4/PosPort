@@ -3,24 +3,19 @@
 import { useCallback } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { useUserDataStore } from "@/lib/store";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Calculator,
-  History,
-  FileText,
   Store,
   User,
   HelpCircle,
   RotateCcw,
   X,
-  Package,
-  Users,
   Building2,
   Shield,
   BookOpen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavbarProps {
@@ -46,6 +41,7 @@ const baseMenuItems = [
 
 export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = false }: NavbarProps) {
   const pathname = usePathname()
+  const { user } = useCurrentUser()
 
   const handleLinkClick = useCallback(() => {
       // Close mobile sidebar when navigating
@@ -54,7 +50,6 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
       }
     }, [isMobileOpen, onMobileToggle])
 
-  const user = useUserDataStore((state) => state.user);
 
   // Build menu items with Location logic
   let menuItems = baseMenuItems.filter((item) => {

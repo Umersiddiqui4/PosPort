@@ -1,5 +1,5 @@
 "use client"
-import { Suspense } from "react"
+// import { Suspense } from "react" // Unused import
 import Companies from "@/components/companies";
 import Locations from "@/components/location";
 import { Button } from "@/components/ui/button";
@@ -7,18 +7,18 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import "/styles/globals.css"
 
-function CompaniesSkeleton() {
-  return (
-    <div className="p-6 animate-pulse">
-      <div className="h-8 bg-gray-200 rounded-lg w-1/2 mb-6" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-48 bg-gray-200 rounded-xl" />
-        ))}
-      </div>
-    </div>
-  )
-}
+// function CompaniesSkeleton() {
+//   return (
+//     <div className="p-6 animate-pulse">
+//       <div className="h-8 bg-gray-200 rounded-lg w-1/2 mb-6" />
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//         {[...Array(6)].map((_, i) => (
+//           <div key={i} className="h-48 bg-gray-200 rounded-xl" />
+//         ))}
+//       </div>
+//     </div>
+//   )
+// } // Unused function
 
 export default function CompaniesPage() {
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);

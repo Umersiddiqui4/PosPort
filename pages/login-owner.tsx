@@ -17,7 +17,7 @@ interface LoginForm {
 
 export default function LoginOwnerPage() {
   const login = useUserDataStore((state) => state.login);
-  const { mutate, data, isSuccess, error, isPending } = useLogin();
+  const { mutate, data, isSuccess } = useLogin();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<LoginForm>({

@@ -107,7 +107,7 @@ export class ConsoleErrorLogger implements ErrorLogger {
 
     if (error instanceof Error) {
       // Ensure message is a string
-      let message = error.message;
+      let {message} = error;
       if (typeof message !== 'string') {
         message = String(message);
       }
@@ -256,7 +256,7 @@ class ErrorHandler {
 
     if (error instanceof Error) {
       // Ensure message is a string
-      let message = error.message;
+      let {message} = error;
       if (typeof message !== 'string') {
         message = String(message);
       }

@@ -98,11 +98,11 @@ export async function POST(request: NextRequest) {
         data: {
           tokens: {
             access: {
-              token: 'google_oauth_temp_token_' + Date.now(),
+              token: `google_oauth_temp_token_${Date.now()}`,
               expiresIn: '3600'
             },
             refresh: {
-              token: 'google_oauth_temp_refresh_' + Date.now(),
+              token: `google_oauth_temp_refresh_${Date.now()}`,
               expiresIn: '86400'
             }
           },

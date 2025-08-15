@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
+import ErrorBoundary from "@/components/ErrorBoundary"
 
 export default function DashboardLayout({
   children,
@@ -19,9 +20,7 @@ export default function DashboardLayout({
     setIsMobileSidebarOpen(!isMobileSidebarOpen)
   }
 
-  const handleSidebarToggle = (collapsed: boolean) => {
-    setIsSidebarCollapsed(collapsed)
-  }
+  // Removed unused handleSidebarToggle function
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a] overflow-hidden">
@@ -58,7 +57,11 @@ export default function DashboardLayout({
           </Button>
         </div>
 
-        <div className="h-full">{children}</div>
+        <div className="h-full">
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </div>
       </main>
     </div>
   )

@@ -61,7 +61,7 @@ export default function QRCodeDisplay({
         canvas.width = size
         canvas.height = size
         ctx?.drawImage(img, 0, 0)
-        const pngFile = canvas.toBlob((blob) => {
+        canvas.toBlob((blob) => {
           if (blob) {
             const url = URL.createObjectURL(blob)
             const link = document.createElement("a")
@@ -73,7 +73,7 @@ export default function QRCodeDisplay({
         })
       }
       
-      img.src = "data:image/svg+xml;base64," + btoa(svgData)
+      img.src = `data:image/svg+xml;base64,${btoa(svgData)}`
     }
   }
 

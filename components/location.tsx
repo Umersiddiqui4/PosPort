@@ -1,8 +1,19 @@
+/**
+ * @fileoverview Locations Component
+ * 
+ * A comprehensive location management component that provides CRUD operations
+ * for restaurant locations. This component handles location listing, creation,
+ * editing, and deletion with proper error handling and user feedback.
+ * 
+ * @author Restaurant Management System
+ * @version 1.0.0
+ */
+
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { MapPin, Plus, Search, MoreVertical, Edit, Trash2, Phone, Mail, QrCode, Loader2 } from "lucide-react"
+import { useState, useMemo } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import { Plus, Search, Filter, MapPin, Edit, Trash2, Eye, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,11 +25,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Label } from "@/components/ui/label"
-import { Menu } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,17 +36,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation, useLocationById }  from "@/hooks/useLocation"
-import { Skeleton } from "@/components/ui/skeleton";
-import { useSearchParams } from "next/navigation";
-import { useUserDataStore } from "@/lib/store";
-import QRCodeDisplay from "@/components/qr-code-display";
+import { useLocations, useCreateLocation, useUpdateLocation, useDeleteLocation } from "@/hooks/useLocation"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
+import ErrorBoundary from "@/components/ErrorBoundary"
 
+/**
+ * Interface for location data structure
+ */
 interface Location {
   id: string
-  createdAt: string
-  updatedAt: string
-  qrCode: string
   locationName: string
   address: string
   city: string
@@ -48,38 +53,66 @@ interface Location {
   postalCode: string
   phone: string
   email: string
-  companyId?: string;
-  userId?: string;
+  qrCode: string
+  companyId?: string
+  createdAt: string
+  updatedAt: string
 }
 
+/**
+ * Interface for form data structure
+ */
+interface FormData {
+  locationName: string
+  address: string
+  city: string
+  state: string
+  country: string
+  postalCode: string
+  phone: string
+  email: string
+  qrCode: string
+}
+
+/**
+ * Props interface for the Locations component
+ */
 interface LocationsProps {
-  companyId?: string;
+  /** The company ID to filter locations by */
+  companyId?: string
 }
 
+/**
+ * Locations Component
+ * 
+ * A comprehensive location management component that provides:
+ * - Location listing with search and filtering
+ * - Location creation with form validation
+ * - Location editing with pre-populated forms
+ * - Location deletion with confirmation dialogs
+ * - Role-based access control
+ * - Error handling and loading states
+ * 
+ * @param props - Component props containing companyId
+ * @returns JSX.Element - The rendered locations management interface
+ * 
+ * @example
+ * ```tsx
+ * <Locations companyId="company-123" />
+ * ```
+ */
 export default function Locations({ companyId }: LocationsProps) {
-  const router = useRouter();
-  const user = useUserDataStore((state) => state.user);
-  const searchParams = useSearchParams();
-  const companyIdFromQuery = searchParams!.get("companyId");
-  let effectiveCompanyId = companyId || companyIdFromQuery || undefined;
-  let userId: string | undefined = undefined;
-  // If not admin and no companyId is provided, restrict by user/company
-  if (!effectiveCompanyId && user) {
-    if (user?.role === "COMPANY_OWNER" && user?.companyId) {
-      effectiveCompanyId = user.companyId;
-    } else if (user?.role === "LOCATION_MANAGER" && user?.id) {
-      userId = user.id;
-    }
-  }
+  const router = useRouter()
+  const pathname = usePathname()
+  const { user } = useCurrentUser()
   
+  // State management for UI interactions
   const [searchTerm, setSearchTerm] = useState("")
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingLocation, setEditingLocation] = useState<Location | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [locationToDelete, setLocationToDelete] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [formData, setFormData] = useState({
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null)
+  const [formData, setFormData] = useState<FormData>({
     locationName: "",
     address: "",
     city: "",
@@ -91,94 +124,40 @@ export default function Locations({ companyId }: LocationsProps) {
     qrCode: "",
   })
 
-  const generateQRCode = () => {
-    const timestamp = Date.now()
-    const random = Math.random().toString(36).substring(2, 8)
-    const qrValue = `LOC-${timestamp}-${random}`
-    setFormData(prev => ({ ...prev, qrCode: qrValue }))
-  }
-
-  console.log(effectiveCompanyId ,"effectiveCompanyId");
-  
-  // Check for locationId in query string for COMPANY_OWNER
-  const locationIdFromQuery = searchParams!.get("locationId");
-  const shouldShowSingleLocation = user?.role === "COMPANY_OWNER" && !!locationIdFromQuery;
-
-  // Always call the hook, but only use the data when needed
-  const { data: singleLocationData } = useLocationById(locationIdFromQuery || "");
-  const singleLocation = shouldShowSingleLocation ? singleLocationData : null;
-
-  // React Query hooks
-  const { data: locationsData, isLoading, error } = useLocations(currentPage, 10, searchTerm, effectiveCompanyId, userId)
+  // API hooks for data operations
+  const { data: locationsData, isLoading, error } = useLocations(1, 100, searchTerm, companyId || "", "")
   const createLocationMutation = useCreateLocation()
   const updateLocationMutation = useUpdateLocation()
   const deleteLocationMutation = useDeleteLocation()
 
-  console.log(locationsData, "locationsData");
-  
+  // Memoized filtered locations
+  const filteredLocations = useMemo(() => {
+    if (!locationsData?.items) return []
+    return locationsData.items.filter((location: Location) =>
+      location.locationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.city.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  }, [locationsData?.items, searchTerm])
 
-  const locations = locationsData?.items || []
-
-  // Frontend filter if backend doesn't filter
-  let filteredLocations = locations;
-  if (effectiveCompanyId) {
-    filteredLocations = filteredLocations.filter(loc => (loc as Location).companyId === effectiveCompanyId);
-  } else if (userId) {
-    filteredLocations = filteredLocations.filter(loc => (loc as Location).userId === userId);
-  }
-  
-  console.log(filteredLocations ,"filteredLocations");
-  
-  const pagination = locationsData?.meta || {
-    page: 1,
-    take: user?.role === "POSPORT_ADMIN" ? 10 : locations.length,
-    itemCount: 0,
-    pageCount: 0,
-    hasPreviousPage: false,
-    hasNextPage: false,
+  /**
+   * Determines brand information based on location name
+   * @param name - The location name to analyze
+   * @returns Object containing brand name and color classes
+   */
+  const getBrandFromName = (name: string) => {
+    if (name.includes("Pizza Palace")) return { name: "Pizza Palace", color: "bg-red-100 text-red-800" }
+    if (name.includes("Burger Bistro")) return { name: "Burger Bistro", color: "bg-orange-100 text-orange-800" }
+    if (name.includes("Sushi Central")) return { name: "Sushi Central", color: "bg-green-100 text-green-800" }
+    return { name: "Other", color: "bg-gray-100 text-gray-800" }
   }
 
-  const handleAddLocation = async () => {
-    if (formData.locationName && formData.address && formData.email) {
-      const dataToSend = { ...formData };
-      console.log(dataToSend, "dataToSend");
-      
-      if (effectiveCompanyId) {
-        (dataToSend as Location).companyId = effectiveCompanyId;
-      }
-      await createLocationMutation.mutateAsync(dataToSend);
-      setIsAddModalOpen(false);
-      resetForm();
-    }
-  }
-
-  const handleEditLocation = async () => {
-    if (editingLocation && formData.locationName && formData.address && formData.email) {
-      await updateLocationMutation.mutateAsync({
-        id: editingLocation.id,
-        ...formData,
-      })
-      setIsEditModalOpen(false)
-      setEditingLocation(null)
-      resetForm()
-    }
-  }
-
-  const confirmDeleteLocation = (id: string) => {
-    setLocationToDelete(id)
-    setIsDeleteDialogOpen(true)
-  }
-
-  const handleDeleteLocation = async () => {
-    if (locationToDelete) {
-      await deleteLocationMutation.mutateAsync(locationToDelete)
-      setIsDeleteDialogOpen(false)
-      setLocationToDelete(null)
-    }
-  }
-
+  /**
+   * Opens the edit modal and populates form with location data
+   * @param location - The location to edit
+   */
   const openEditModal = (location: Location) => {
-    setEditingLocation(location)
+    setSelectedLocation(location)
     setFormData({
       locationName: location.locationName,
       address: location.address,
@@ -193,6 +172,60 @@ export default function Locations({ companyId }: LocationsProps) {
     setIsEditModalOpen(true)
   }
 
+  /**
+   * Handles location creation
+   */
+  const handleCreateLocation = async () => {
+    if (formData.locationName && formData.address && formData.email) {
+      try {
+        await createLocationMutation.mutateAsync({
+          ...formData,
+          companyId: companyId || "",
+        })
+        setIsCreateModalOpen(false)
+        resetForm()
+      } catch (error) {
+        console.error("Failed to create location:", error)
+      }
+    }
+  }
+
+  /**
+   * Handles location editing
+   */
+  const handleEditLocation = async () => {
+    if (selectedLocation && formData.locationName && formData.address && formData.email) {
+      try {
+        await updateLocationMutation.mutateAsync({
+          id: selectedLocation.id,
+          ...formData,
+        })
+        setIsEditModalOpen(false)
+        setSelectedLocation(null)
+      } catch (error) {
+        console.error("Failed to update location:", error)
+      }
+    }
+  }
+
+  /**
+   * Handles location deletion
+   */
+  const handleDeleteLocation = async () => {
+    if (selectedLocation) {
+      try {
+        await deleteLocationMutation.mutateAsync(selectedLocation.id)
+        setIsDeleteDialogOpen(false)
+        setSelectedLocation(null)
+      } catch (error) {
+        console.error("Failed to delete location:", error)
+      }
+    }
+  }
+
+  /**
+   * Resets the form data to initial state
+   */
   const resetForm = () => {
     setFormData({
       locationName: "",
@@ -207,190 +240,78 @@ export default function Locations({ companyId }: LocationsProps) {
     })
   }
 
-  const handlePreviousPage = () => {
-    if (pagination.hasPreviousPage) {
-      setCurrentPage((prev) => prev - 1)
+  /**
+   * Navigates to location detail page
+   * @param locationId - The ID of the location to view
+   */
+  const handleViewLocation = (locationId: string) => {
+    // Check if we're in a company context
+    const isCompanyContext = pathname?.includes('/companies/') && companyId
+    if (isCompanyContext) {
+      // Navigate to company-specific location detail page
+      router.push(`/companies/${companyId}/locations/${locationId}/locationDetail`)
+    } else {
+      // Navigate to generic location detail page
+      router.push(`/locations/${locationId}`)
     }
   }
 
-  const handleNextPage = () => {
-    if (pagination.hasNextPage) {
-      setCurrentPage((prev) => prev + 1)
-    }
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
+        <span className="ml-2 text-gray-600">Loading locations...</span>
+      </div>
+    )
   }
 
-  const getBrandFromName = (name: string) => {
-    if (name.includes("Pizza Palace")) return { name: "Pizza Palace", color: "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400" }
-    if (name.includes("Burger Bistro")) return { name: "Burger Bistro", color: "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-400" }
-    if (name.includes("Sushi Central")) return { name: "Sushi Central", color: "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400" }
-    return { name: "Other", color: "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300" }
-  }
-
-  const handleLocationClick = (locationId: string) => {
-    if (effectiveCompanyId) {
-      router.push(`/companies/${effectiveCompanyId}/locations/${locationId}/locationDetail`);
-    }
-  }
-
-  const isSubmitting =
-    createLocationMutation.isPending || updateLocationMutation.isPending || deleteLocationMutation.isPending
-
+  // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Error loading locations</h3>
-          <p className="text-gray-600 dark:text-gray-300">Please try refreshing the page.</p>
+          <div className="text-red-600 mb-4">Error loading locations</div>
+          <Button onClick={() => window.location.reload()} variant="outline">
+            Retry
+          </Button>
         </div>
       </div>
     )
   }
 
+  // Check user permissions
+  const canManageLocations = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
+
   return (
-    <div className="bg-background transition-colors duration-300 p-4 sm:p-6 overflow-auto h-screen">
-      <div className="p-4 md:p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <ErrorBoundary>
+      <div className="bg-background transition-colors duration-300 p-4 sm:p-6 overflow-auto h-screen">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 hidden md:block">Location Management</h1>
-            <p className="text-gray-600 dark:text-gray-300 hidden md:block">Manage all your restaurant locations</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              Locations
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Manage your restaurant locations
+            </p>
           </div>
-          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#1a72dd] hover:bg-[#1557b8] text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Location
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Location</DialogTitle>
-                <DialogDescription>Create a new restaurant location with all the necessary details.</DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="locationName">Location Name *</Label>
-                    <Input
-                      id="locationName"
-                      value={formData.locationName}
-                      onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
-                      placeholder="e.g., Pizza Palace - Downtown"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="qrCode">QR Code</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="qrCode"
-                        value={formData.qrCode}
-                        onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-                        placeholder="Auto-generated if empty"
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={generateQRCode}
-                        className="whitespace-nowrap"
-                      >
-                        Generate
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address *</Label>
-                  <Input
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Street address"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="City"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      placeholder="State"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode">Postal Code</Label>
-                    <Input
-                      id="postalCode"
-                      value={formData.postalCode}
-                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                      placeholder="ZIP/Postal"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      placeholder="Country"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+1234567890"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="location@restaurant.com"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddModalOpen(false)} disabled={isSubmitting}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAddLocation} className="bg-[#1a72dd] hover:bg-[#1557b8]" disabled={isSubmitting}>
-                  {createLocationMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Adding...
-                    </>
-                  ) : (
-                    "Add Location"
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          
+          {canManageLocations && (
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Location
+            </Button>
+          )}
         </div>
 
-        {/* Search and Stats */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1 flex  items-center">
-            <Search className="absolute left-2 transform-translate-y-1/2 text-gray-400 w-4 h-4" />
+        {/* Search and Filter Section */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search locations..."
               value={searchTerm}
@@ -398,307 +319,302 @@ export default function Locations({ companyId }: LocationsProps) {
               className="pl-10"
             />
           </div>
-          <div className="flex gap-4">
-            <Card className="px-4 py-2 dark:bg-gray-800 dark:border-gray-700">
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Locations</div>
-              <div className="text-2xl font-bold text-[#1a72dd] dark:text-blue-400">{pagination.itemCount}</div>
-            </Card>
-            <Card className="px-4 py-2 dark:bg-gray-800 dark:border-gray-700">
-              <div className="text-sm text-gray-600 dark:text-gray-300">Current Page</div>
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {pagination.page} of {pagination.pageCount}
-              </div>
-            </Card>
-          </div>
+          <Button variant="outline" className="w-full sm:w-auto">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
         </div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-56 w-full rounded-2xl" />
-            ))}
-          </div>
-        )}
-
         {/* Locations Grid */}
-        {!isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredLocations.map((location: any) => {
-              const brand = getBrandFromName(location.locationName)
-              return (
-                <Card 
-                  key={location.id} 
-                  className="hover:shadow-lg overflow-hidden transition-shadow cursor-pointer dark:bg-gray-800 dark:border-gray-700"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLocations.map((location: Location) => (
+            <Card key={location.id} className="hover:shadow-lg transition-shadow duration-200">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {location.locationName}
+                    </CardTitle>
+                    <div className="flex items-center mt-2">
+                      <MapPin className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {location.city}, {location.state}
+                      </span>
+                    </div>
+                  </div>
+                  {(() => {
+                    const brand = getBrandFromName(location.locationName)
+                    return <Badge className={brand.color}>{brand.name}</Badge>
+                  })()}
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p>{location.address}</p>
+                  <p>{location.phone}</p>
+                  <p>{location.email}</p>
+                </div>
+                
+                <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewLocation(location.id)}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
                   
-                >
-                  <CardHeader className="pb-3" onClick={() => handleLocationClick(location.id)}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                          {location.locationName}
-                        </CardTitle>
-                        <Badge className={brand.color}>{brand.name}</Badge>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            openEditModal(location);
-                          }}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={(e) => {
-                            e.stopPropagation();
-                            confirmDeleteLocation(location.id);
-                          }} className="text-red-600">
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                  {canManageLocations && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditModal(location)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedLocation(location)
+                          setIsDeleteDialogOpen(true)
+                        }}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                      
+                      </Button>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-gray-600 dark:text-gray-300">
-                        <div>{location.address}</div>
-                        <div>
-                          {location.city}, {location.state} {location.postalCode}
-                        </div>
-                        <div>{location.country}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">{location.phone}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-300">{location.email}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <QrCode className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                        <span className="text-sm text-gray-600 dark:text-gray-300 font-mono">{location.qrCode}</span>
-                      </div>
-                      {location.qrCode && (
-                        <QRCodeDisplay 
-                          value={location.qrCode} 
-                          locationName={location.locationName}
-                          size={80}
-                        />
-                      )}
-                    </div>
-
-                    <div className="pt-2 border-t">
-                      <div className="text-xs text-gray-400">
-                        Created: {new Date(location.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-        )}
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Empty State */}
-        {!isLoading && filteredLocations.length === 0 && (
+        {filteredLocations.length === 0 && (
           <div className="text-center py-12">
-            <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No locations found</h3>
-            <p className="text-gray-600">Try adjusting your search or add a new location.</p>
+            <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              No locations found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              {searchTerm ? "Try adjusting your search terms." : "Get started by adding your first location."}
+            </p>
+            {canManageLocations && !searchTerm && (
+              <Button onClick={() => setIsCreateModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Location
+              </Button>
+            )}
           </div>
         )}
 
-        {/* Pagination */}
-        {!isLoading && filteredLocations.length > 0 && (
-          <div className="flex items-center justify-between pt-4">
-            <div className="text-sm text-gray-600">
-              Showing {filteredLocations.length} of {pagination.itemCount} locations
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePreviousPage} disabled={!pagination.hasPreviousPage}>
-                Previous
-              </Button>
-              <Button variant="outline" onClick={handleNextPage} disabled={!pagination.hasNextPage}>
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Location</DialogTitle>
-            <DialogDescription>Update the location details below.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-locationName">Location Name *</Label>
+        {/* Create Location Modal */}
+        <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add New Location</DialogTitle>
+              <DialogDescription>
+                Enter the details for your new restaurant location.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Location Name</label>
                 <Input
-                  id="edit-locationName"
                   value={formData.locationName}
                   onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
-                  placeholder="e.g., Pizza Palace - Downtown"
+                  placeholder="Enter location name"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-qrCode">QR Code</Label>
-                <div className="flex gap-2">
+              <div>
+                <label className="text-sm font-medium">Address</label>
+                <Input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Enter address"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">City</label>
                   <Input
-                    id="edit-qrCode"
-                    value={formData.qrCode}
-                    onChange={(e) => setFormData({ ...formData, qrCode: e.target.value })}
-                    placeholder="QR Code"
-                    className="flex-1"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="Enter city"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={generateQRCode}
-                    className="whitespace-nowrap"
-                  >
-                    Generate
-                  </Button>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">State</label>
+                  <Input
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    placeholder="Enter state"
+                  />
                 </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-address">Address *</Label>
-              <Input
-                id="edit-address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Street address"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-city">City</Label>
+              <div>
+                <label className="text-sm font-medium">Email</label>
                 <Input
-                  id="edit-city"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="City"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Enter email"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-state">State</Label>
+              <div>
+                <label className="text-sm font-medium">Phone</label>
                 <Input
-                  id="edit-state"
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  placeholder="State"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-postalCode">Postal Code</Label>
-                <Input
-                  id="edit-postalCode"
-                  value={formData.postalCode}
-                  onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                  placeholder="ZIP/Postal"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-country">Country</Label>
-                <Input
-                  id="edit-country"
-                  value={formData.country}
-                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  placeholder="Country"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-phone">Phone</Label>
-                <Input
-                  id="edit-phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+1234567890"
+                  placeholder="Enter phone number"
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-email">Email *</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="location@restaurant.com"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditLocation} className="bg-[#1a72dd] hover:bg-[#1557b8]" disabled={isSubmitting}>
-              {updateLocationMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Location"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateLocation}
+                disabled={createLocationMutation.isPending}
+              >
+                {createLocationMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Location"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the location and all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteLocation}
-              className="bg-red-600 hover:bg-red-700 text-white"
-              disabled={isSubmitting}
-            >
-              {deleteLocationMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                "Delete"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Edit Location Modal */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Location</DialogTitle>
+              <DialogDescription>
+                Update the details for this location.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Location Name</label>
+                <Input
+                  value={formData.locationName}
+                  onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
+                  placeholder="Enter location name"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Address</label>
+                <Input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Enter address"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">City</label>
+                  <Input
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="Enter city"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">State</label>
+                  <Input
+                    value={formData.state}
+                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    placeholder="Enter state"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Enter email"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Enter phone number"
+                />
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleEditLocation}
+                disabled={updateLocationMutation.isPending}
+              >
+                {updateLocationMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Location"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the location
+                "{selectedLocation?.locationName}" and remove all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteLocation}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteLocationMutation.isPending}
+              >
+                {deleteLocationMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </ErrorBoundary>
   )
 }

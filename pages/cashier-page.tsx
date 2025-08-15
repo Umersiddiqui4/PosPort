@@ -1,25 +1,25 @@
 "use client"
 
 import { useState, useCallback, useMemo, useTransition, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, Menu, Sidebar, X, Plus, Minus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useParams } from "next/navigation"
+import { ArrowLeft, Search, LayoutGrid, List, ShoppingCart, X, Plus, Minus } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import ProductGrid from "../components/product-grid"
 import NumericKeypad from "../components/numeric-keypad"
 import PaymentMethod from "../components/payment-method"
 import SuccessScreen from "../components/success-screen"
-import CartSummary from "../components/cart-summary"
+// import CartSummary from "../components/cart-summary" // Unused import
 import OrderSummary from "../components/order-summary"
 import React from "react"
-import { useUserDataStore } from "@/lib/store"
+// import { useUserDataStore } from "@/lib/store" // Unused import
 import { useProducts, Product as APIProduct } from "@/hooks/use-products"
 import { useCatalogs } from "@/hooks/use-catalogs"
 import { useProductCategories } from "@/hooks/use-product-categories"
 import { useCatalogById } from "@/hooks/use-cataogById"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import ProductForm from "@/components/product-form"
+import { Button } from "@/components/ui/button"
 
 // UI Product interface for the cashier page
 interface Product {
@@ -33,6 +33,7 @@ interface Product {
   description?: string
   status?: "active" | "inactive" | "draft"
   categoryId?: string
+  cost?: number
 }
 
 interface CartItem {
@@ -54,7 +55,6 @@ type ViewMode = "grid" | "list"
 
 export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const params = useParams()
-  const router = useRouter()
   
   // Get catalog and category from URL params
   const catalogIdFromUrl = params?.userId as string
@@ -69,14 +69,12 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [showOrderSummary, setShowOrderSummary] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isLoadingCatalogForProduct, setIsLoadingCatalogForProduct] = useState(false)
-  const isLoggedIn = useUserDataStore((state) => state.isLoggedIn);
-  const user = useUserDataStore((state) => state.user);
   
   // Use the products API with category filtering
-  const { products: apiProducts, isLoading: productsLoading, error: productsError, createProduct, updateProduct, deleteProduct } = useProducts(1, 1000) // Get more products for filtering
+  const { products: apiProducts, isLoading: productsLoading, deleteProduct } = useProducts(1, 1000) // Get more products for filtering
   
   // Use the catalogs API
   const { catalogs, isLoading: catalogsLoading } = useCatalogs()
@@ -116,7 +114,7 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
     console.log("Getting updated params from path:", currentPath)
     console.log("Path parts:", pathParts)
     
-    let updatedParams = {
+    const updatedParams = {
       catalogId: "",
       categoryId: "",
       isProductCreation: false
@@ -141,14 +139,16 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
     console.log("Updated params:", updatedParams)
     return updatedParams
   }, [])
+  console.log(apiProducts, "apiProducts");
   
   // Transform API products to match the expected format
   const productList = useMemo(() => {
     return apiProducts.map((apiProduct: APIProduct): Product => ({
       id: apiProduct.id,
       name: apiProduct.productName || "Unknown Product",
-      price: apiProduct.price || 0,
+      price: apiProduct.retailPrice || 0,
       image: apiProduct.image || "/placeholder.svg",
+      cost: apiProduct.cost || 0,
       quantity: 0,
       productName: apiProduct.productName,
       category: apiProduct.category || "General",
@@ -182,16 +182,13 @@ useEffect(() => {
     onSidebarToggle?.(isSidebarCollapsed)
   }, [isSidebarCollapsed, onSidebarToggle])
 
-  const handleSidebarToggle = useCallback(() => {
-    setIsSidebarCollapsed((prev) => !prev)
-  }, [])
+
   
   useEffect(() => {
-
     if(cart.length > 0) {
-      setIsSidebarCollapsed(true)}
-
-    }, [cart.length])
+      setIsSidebarCollapsed(true)
+    }
+  }, [cart.length])
 
   // Memoized filtered products with category filtering
   const filteredProducts = useMemo(() => {
@@ -270,16 +267,14 @@ useEffect(() => {
     })
   }, [])
 
-  const handleCheckout = useCallback(() => {
-    setShowOrderSummary(true)
-  }, [])
+
 
   const handleProceedToPayment = useCallback(() => {
     setShowOrderSummary(false)
     setCurrentView("payment")
   }, [])
 
-  const handlePaymentSelect = useCallback((method: "cash" | "card") => {
+  const handlePaymentSelect = useCallback((_method: "cash" | "card") => {
     // Simulate payment processing
     setTimeout(() => {
       setCurrentView("success")
@@ -529,7 +524,7 @@ useEffect(() => {
     const actualCategoryId = categoryId === "all" ? "" : categoryId
     console.log("Category selection changed:", {
       originalCategoryId: categoryId,
-      actualCategoryId: actualCategoryId,
+      actualCategoryId,
       previousSelectedCategoryId: selectedCategoryId
     })
     
@@ -899,6 +894,7 @@ useEffect(() => {
                 productName: selectedProduct.productName || selectedProduct.name,
                 price: selectedProduct.price,
                 image: selectedProduct.image,
+                cost: selectedProduct.cost,
                 description: selectedProduct.description,
                 category: selectedProduct.category,
                 status: selectedProduct.status,

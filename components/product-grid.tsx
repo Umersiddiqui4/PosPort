@@ -1,13 +1,11 @@
 "use client"
 
 import { Plus, Minus, ShoppingCart, X, ChevronDown, Edit, Trash2, Package } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { memo, useCallback, useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useUserDataStore } from "@/lib/store"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { memo, useCallback, useState } from "react"
+import { AnimatePresence } from "framer-motion"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import ProductForm from "./product-form"
+import { Button } from "@/components/ui/button"
 
 interface Product {
   id: string
@@ -56,7 +54,7 @@ const ProductCard = memo(
     onDeleteProduct?: (productId: string) => void
     viewMode: "grid" | "list"
   }) => {
-    const user = useUserDataStore((state) => state.user)
+    const { user } = useCurrentUser()
     const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const handleIncrement = useCallback(() => {
@@ -456,27 +454,27 @@ export default function ProductGrid({
   currentFilter,
   isCreatingProduct = false,
 }: ProductGridProps) {
+  const { user } = useCurrentUser()
   const [showMobileCart, setShowMobileCart] = useState(false)
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   
-  const [isMobile, setIsMobile] = useState(false)
-  const user = useUserDataStore((state) => state.user)
+  // const [isMobile, setIsMobile] = useState(false) // Unused variable
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
 
 
-useEffect(() => {
-  if (typeof window === 'undefined') return;
+// useEffect(() => {
+//   if (typeof window === 'undefined') return;
   
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 1024);
-  };
+//   const handleResize = () => {
+//     setIsMobile(window.innerWidth < 1024);
+//   };
 
-  handleResize(); // run on mount
-  window.addEventListener("resize", handleResize);
+//   handleResize(); // run on mount
+//   window.addEventListener("resize", handleResize);
 
-  return () => window.removeEventListener("resize", handleResize);
-}, []); 
+//   return () => window.removeEventListener("resize", handleResize);
+// }, []); // Unused effect 
   
   const getGridColumns = () => {
     if (viewMode === "list") return ""

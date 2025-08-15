@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User, Mail, Phone, MapPin, Shield, Settings, LogOut, Eye, EyeOff } from "lucide-react"
+import { User, Shield, Settings, LogOut, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -27,7 +27,7 @@ export default function AccountPage() {
   })
   const { toast } = useToast()
   const handleLogout = useLogout()
-  const { user, isLoggedIn } = useCurrentUser()
+  const { user } = useCurrentUser()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({

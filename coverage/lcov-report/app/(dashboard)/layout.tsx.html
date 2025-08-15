@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -128,7 +128,10 @@
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -136,18 +139,15 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -181,7 +181,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -201,6 +207,7 @@ import { useState } from <span class="cstat-no" title="statement not covered" >"
 import { Menu } from <span class="cstat-no" title="statement not covered" >"lucide-react"</span>
 import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
 import Navbar from <span class="cstat-no" title="statement not covered" >"@/components/navbar"</span>
+import ErrorBoundary from <span class="cstat-no" title="statement not covered" >"@/components/ErrorBoundary"</span>
 &nbsp;
 export default function <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >DashboardLayout({</span></span>
   children,
@@ -214,9 +221,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
 <span class="cstat-no" title="statement not covered" >    setIsMobileSidebarOpen(!isMobileSidebarOpen)</span>
   }
 &nbsp;
-  const handleSidebarToggle = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(c</span>ollapsed: boolean) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    setIsSidebarCollapsed(collapsed)</span>
-  }
+  // Removed unused handleSidebarToggle function
 &nbsp;
   return (
     &lt;div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a] overflow-hidden"&gt;
@@ -253,7 +258,11 @@ export default function <span class="cstat-no" title="statement not covered" ><s
           &lt;/Button&gt;
         &lt;/div&gt;
 &nbsp;
-        &lt;div className="h-full"&gt;{children}&lt;/div&gt;
+        &lt;div className="h-full"&gt;
+          &lt;ErrorBoundary&gt;
+            {children}
+          &lt;/ErrorBoundary&gt;
+        &lt;/div&gt;
       &lt;/main&gt;
     &lt;/div&gt;
   )
@@ -265,7 +274,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T06:41:23.048Z
+                at 2025-08-13T14:37:30.433Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

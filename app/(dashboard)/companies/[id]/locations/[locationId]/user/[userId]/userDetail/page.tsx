@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -128,7 +128,7 @@ export default function UserDetailPage() {
       <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <Avatar className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
           <AvatarImage src={selectedUserDetails.user.avatar} alt={`${selectedUserDetails.user.firstName} ${selectedUserDetails.user.lastName}`} />
-          <AvatarFallback className={getRandomBgColor(selectedUserDetails.user.firstName + selectedUserDetails.user.lastName) + " text-white text-sm sm:text-lg"}>
+          <AvatarFallback className={`${getRandomBgColor(selectedUserDetails.user.firstName + selectedUserDetails.user.lastName)} text-white text-sm sm:text-lg`}>
             {selectedUserDetails.user.firstName.charAt(0)}
             {selectedUserDetails.user.lastName.charAt(0)}
           </AvatarFallback>

@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Copy, Check, Users, MapPin, Building, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useUsers } from "@/hooks/use-users"
 import { useAssignedUsers } from "@/hooks/useAssignedUsers"
 import { toast } from "@/hooks/use-toast"
@@ -26,16 +26,7 @@ function getRandomBgColor(str: string) {
   return colors[idx];
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "active":
-      return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400"
-    case "inactive":
-      return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400"
-    default:
-      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
-  }
-}
+// Removed unused getStatusColor function
 
 const getRoleColor = (role: string) => {
   switch (role) {
@@ -140,7 +131,7 @@ export default function UserDetailPage() {
       {/* User Header */}
       <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
         <Avatar className="w-16 h-16">
-          <AvatarFallback className={getRandomBgColor(selectedUser.firstName + selectedUser.lastName) + " text-white text-lg"}>
+          <AvatarFallback className={`${getRandomBgColor(selectedUser.firstName + selectedUser.lastName)} text-white text-lg`}>
             {selectedUser.firstName.charAt(0)}
             {selectedUser.lastName.charAt(0)}
           </AvatarFallback>

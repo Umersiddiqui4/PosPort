@@ -1179,7 +1179,9 @@
 <a name='L1114'></a><a href='#L1114'>1114</a>
 <a name='L1115'></a><a href='#L1115'>1115</a>
 <a name='L1116'></a><a href='#L1116'>1116</a>
-<a name='L1117'></a><a href='#L1117'>1117</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L1117'></a><a href='#L1117'>1117</a>
+<a name='L1118'></a><a href='#L1118'>1118</a>
+<a name='L1119'></a><a href='#L1119'>1119</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1314,6 +1316,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2369,7 +2373,7 @@ const SearchInput = <span class="cstat-no" title="statement not covered" >memo(<
   }, [searchTerm])
   
   const handleChange = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(e</span>: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; {</span>
-    const value = <span class="cstat-no" title="statement not covered" >e.target.value</span>
+    const {value} = <span class="cstat-no" title="statement not covered" >e.target</span>
 <span class="cstat-no" title="statement not covered" >    setInternalValue(value)</span>
 <span class="cstat-no" title="statement not covered" >    onSearchChange(e)</span>
   }, [onSearchChange])
@@ -2389,7 +2393,7 @@ const SearchInput = <span class="cstat-no" title="statement not covered" >memo(<
 <span class="cstat-no" title="statement not covered" >        inputRef.current?.focus()</span>
         // Restore cursor position
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (inputRef.current) {</span>
-          const length = <span class="cstat-no" title="statement not covered" >inputRef.current.value.length</span>
+          const {length} = <span class="cstat-no" title="statement not covered" >inputRef.current.value</span>
 <span class="cstat-no" title="statement not covered" >          inputRef.current.setSelectionRange(length, length)</span>
         }
       }, 50)
@@ -2421,7 +2425,6 @@ const SearchInput = <span class="cstat-no" title="statement not covered" >memo(<
 <span class="cstat-no" title="statement not covered" >SearchInput.displayName = 'SearchInput'</span>
 &nbsp;
 export default function <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >Users() {</span></span>
-  const router = <span class="cstat-no" title="statement not covered" >useRouter()</span>
   const [currentPage, setCurrentPage] = <span class="cstat-no" title="statement not covered" >useState&lt;number&gt;(1)</span>
   const [searchTerm, setSearchTerm] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;("")</span>
   const [debouncedSearchTerm, setDebouncedSearchTerm] = <span class="cstat-no" title="statement not covered" >useState&lt;string&gt;("")</span>
@@ -2431,6 +2434,9 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   const [editingUser, setEditingUser] = <span class="cstat-no" title="statement not covered" >useState&lt;User | null&gt;(null)</span>
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = <span class="cstat-no" title="statement not covered" >useState&lt;boolean&gt;(false)</span>
   const [userToDelete, setUserToDelete] = <span class="cstat-no" title="statement not covered" >useState&lt;User | null&gt;(null)</span>
+  
+  // Router for navigation
+  const router = <span class="cstat-no" title="statement not covered" >useRouter()</span>
   
   // Refs to maintain input focus
   const usersSearchRef = <span class="cstat-no" title="statement not covered" >useRef&lt;HTMLInputElement&gt;(null)</span>
@@ -2457,7 +2463,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
 &nbsp;
   // Memoize the search handler to prevent re-renders
   const handleSearchChange = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(e</span>: React.ChangeEvent&lt;HTMLInputElement&gt;) =&gt; {</span>
-    const value = <span class="cstat-no" title="statement not covered" >e.target.value</span>
+    const {value} = <span class="cstat-no" title="statement not covered" >e.target</span>
 <span class="cstat-no" title="statement not covered" >    setSearchTerm(value)</span>
   }, [])
 &nbsp;
@@ -2492,7 +2498,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
 <span class="cstat-no" title="statement not covered" >        currentRef.current?.focus()</span>
         // Restore cursor position to end of input
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (currentRef.current) {</span>
-          const length = <span class="cstat-no" title="statement not covered" >currentRef.current.value.length</span>
+          const {length} = <span class="cstat-no" title="statement not covered" >currentRef.current.value</span>
 <span class="cstat-no" title="statement not covered" >          currentRef.current.setSelectionRange(length, length)</span>
         }
       }, 100) // Small delay to ensure DOM is updated
@@ -2530,7 +2536,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   }, [activeTab])
 &nbsp;
   // Fetch companies for dropdown
-  const { data: companiesData, isLoading: isCompaniesLoading } = <span class="cstat-no" title="statement not covered" >useQuery({</span>
+  const { data: companiesData } = <span class="cstat-no" title="statement not covered" >useQuery({</span>
     queryKey: ["companies", "all-for-user-edit"],
     queryFn: <span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >g</span>etCompanies("", 1, 100),</span>
   })
@@ -2775,7 +2781,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
                       // Always save with leading plus
                       let formatted = <span class="cstat-no" title="statement not covered" >value;</span>
 <span class="cstat-no" title="statement not covered" >                      <span class="missing-if-branch" title="if path not taken" >I</span>if (formatted &amp;&amp; !formatted.startsWith('+')) {</span>
-<span class="cstat-no" title="statement not covered" >                        formatted = '+' + formatted.replace(/^0+/, '');</span>
+<span class="cstat-no" title="statement not covered" >                        formatted = `+${formatted.replace(/^0+/, '')}`;</span>
                       }
 <span class="cstat-no" title="statement not covered" >                      setFormData({ ...formData, phone: formatted });</span>
                     }}
@@ -3418,7 +3424,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-13T06:41:23.048Z
+                at 2025-08-13T14:37:30.433Z
             </div>
         <script src="../prettify.js"></script>
         <script>

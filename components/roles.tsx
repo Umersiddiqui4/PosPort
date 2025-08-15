@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Plus, Shield, Users, Building2, MoreVertical, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -23,7 +22,9 @@ import { getRoles } from "@/lib/Api/getRoles"
 import { createRole } from "@/lib/Api/createRole"
 import { editRole } from "@/lib/Api/editRole"
 import { deleteRole } from "@/lib/Api/deleteRole"
-import { useUserDataStore } from "@/lib/store";
+// import { useUserDataStore } from "@/lib/store"; // Unused import
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -36,17 +37,7 @@ interface Role {
 }
 
 export default function Roles() {
-  const user = useUserDataStore((state) => state.user);
-
-  // Prevent COMPANY_OWNER from accessing roles
-  if (typeof window !== 'undefined' && user?.role === "COMPANY_OWNER") {
-    return (
-      <div className="flex items-center justify-center h-full text-xl font-bold text-red-600 dark:text-red-400">
-        Access Denied: Company owners cannot access roles management
-      </div>
-    );
-  }
-
+  const { user } = useCurrentUser();
   const [searchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newRole, setNewRole] = useState({ name: "", description: "" })
@@ -58,6 +49,15 @@ export default function Roles() {
   });
 
   const queryClient = useQueryClient();
+
+  // Prevent COMPANY_OWNER from accessing roles
+  if (typeof window !== 'undefined' && user?.role === "COMPANY_OWNER") {
+    return (
+      <div className="flex items-center justify-center h-full text-xl font-bold text-red-600 dark:text-red-400">
+        Access Denied: Company owners cannot access roles management
+      </div>
+    );
+  }
 
   // Add Role Mutation
   const addRoleMutation = useMutation({

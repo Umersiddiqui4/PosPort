@@ -14,7 +14,7 @@ const customJestConfig = {
       tsconfig: 'tsconfig.test.json',
     },
   },
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/e2e/'],
   collectCoverageFrom: [
     'components/**/*.{js,jsx,ts,tsx}',
     'hooks/**/*.{js,jsx,ts,tsx}',
@@ -39,6 +39,8 @@ const customJestConfig = {
   testMatch: [
     '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/**/*.(test|spec).{js,jsx,ts,tsx}',
+    '!<rootDir>/e2e/**/*',
+    '!**/*playwright*',
   ],
 }
 

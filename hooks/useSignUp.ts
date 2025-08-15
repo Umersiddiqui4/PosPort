@@ -1,8 +1,8 @@
 'use client';
 
 import { useMutation } from "@tanstack/react-query";
-import { useSelector, useDispatch } from 'react-redux';
-import { login, logout } from '@/lib/slices/authSlice';
+// import { useSelector, useDispatch } from 'react-redux'; // Unused imports
+// import { login, logout } from '@/lib/slices/authSlice'; // Unused imports
 import { signupUser } from "@/lib/Api/auth/signUpUser";
 import { useToast } from "@/components/ui/use-toast";
 

@@ -103,7 +103,7 @@ export default function LoginEmployeePage() {
                 Email
                 {error && (
                   <span className="text-red-500 text-sm">
-                    {" " + (error as any)?.response?.data?.message || "Login failed. Please try again."}
+                    {` ${(error as any)?.response?.data?.message}` || "Login failed. Please try again."}
                   </span>
                 )}
               </Label>

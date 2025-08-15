@@ -145,7 +145,7 @@ export default function LocationDevicesPage() {
     try {
       await assignDeviceMutation.mutateAsync({
         deviceId: selectedDeviceId,
-        locationId: locationId,
+        locationId,
       })
       toast({
         title: "Success",

@@ -53,18 +53,16 @@ interface UpdateLocationData extends CreateLocationData {
   id: string
 }
 
-const API_BASE_URL = "https://dev-api.posport.io/api/v1"
+// const API_BASE_URL = "https://dev-api.posport.io/api/v1" // Unused variable
 
+// const getToken = () => {
+//   if (typeof window !== "undefined") {
+//     return localStorage.getItem("token");
+//   }
+//   return null;
+// };
 
-
-const getToken = () => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
-};
-
-const token = getToken();
+// const token = getToken(); // Unused variable
 
 // Fetch locations
 export const useLocations = (page = 1, take = 10, searchTerm?: string, companyId?: string, userId?: string) => {

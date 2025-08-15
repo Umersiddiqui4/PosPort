@@ -4,7 +4,6 @@ import type React from "react"
 
 import { useState } from "react"
 import { Search, Plus, Edit, Trash2, Eye, Package, Grid, List } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -21,11 +20,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useCatalogs } from "@/hooks/use-catalogs"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
-import { useParams } from "next/navigation"
 import { getCompanies, GetCompaniesResponse } from "@/lib/Api/getCompanies"
 import { useQuery } from "@tanstack/react-query"
 import { useLocations } from "@/hooks/useLocation"
 import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 
 interface Catalog {
@@ -46,11 +45,11 @@ export default function Catalogs() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const router = useRouter();
   console.log('Selected Catalog:', selectedCatalog)
   const { catalogs, isLoading, createCatalog, updateCatalog, deleteCatalog } = useCatalogs()
-  const { user } = useCurrentUser();
-  const params = useParams()
+  // const { user } = useCurrentUser(); // Unused variable
+  // const params = useParams() // Unused variable
+  const router = useRouter()
   console.log('Catalogs from API:', catalogs)
 
   const filteredCatalogs = catalogs.filter(
@@ -303,8 +302,8 @@ interface CatalogFormProps {
 }
 
 function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [page, setPage] = useState(1)
+  const [searchTerm] = useState("")
+  const [page] = useState(1)
   const take = 100
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
@@ -323,7 +322,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   // Only fetch companies if user.role === "POSPORT_ADMIN", else use user.companyId
   const { user } = useCurrentUser();
   const shouldFetchCompanies = user?.role === "POSPORT_ADMIN";
-  const { data, isLoading, error, isFetching } = useQuery<GetCompaniesResponse, Error>({
+  const { data } = useQuery<GetCompaniesResponse, Error>({
     queryKey: shouldFetchCompanies
       ? ["companies", searchTerm, page, take]
       : ["company", user?.companyId],
@@ -351,7 +350,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   const companies = data?.data || []
   console.log('Companies from API:', companies)
 
-  const { data: locationsData, isLoading:locationsLoading, error:locationsError } = useLocations(page, take, searchTerm)
+  const { data: locationsData } = useLocations(page, take, searchTerm)
   const locations = locationsData?.items || []
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

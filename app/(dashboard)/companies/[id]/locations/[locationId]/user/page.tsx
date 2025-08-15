@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Users, UserPlus, MoreHorizontal, Edit, Trash2, Eye, Search, Loader2, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -32,9 +32,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useUsers } from "@/hooks/use-users"
 import { useAssignUserToLocation, useLocationUsers, useUnassignUserFromLocation, useUpdateLocationUser } from "@/hooks/useLocation";
 import { toast } from "@/hooks/use-toast"
-import api from "@/utils/axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getLocationUsers } from "@/lib/Api/getLocationUsers";
 
 // Add a helper function for random background color
 function getRandomBgColor(str: string) {
@@ -76,16 +73,15 @@ export default function LocationUsersPage() {
   const assignUserMutation = useAssignUserToLocation()
   const unassignUserMutation = useUnassignUserFromLocation();
   const updateUserMutation = useUpdateLocationUser();
-  const queryClient = useQueryClient();
 
-  const { data, isLoading, refetch: refetchLocationUsers } = useLocationUsers(locationId, 1, 1000);
+  const { data, refetch: refetchLocationUsers } = useLocationUsers(locationId, 1, 1000);
   const locationUsers = data?.data || [];
 
   console.log("Location Users Data:", locationUsers)
   console.log("Location Users Structure:", locationUsers.map((user: any) => ({
     hasUser: !!user?.user,
     userId: user?.user?.id,
-    userName: user?.user?.firstName + " " + user?.user?.lastName
+    userName: `${user?.user?.firstName} ${user?.user?.lastName}`
   })))
 
   // locationUsers is an array of assignments, each with a nested user object
@@ -133,8 +129,8 @@ export default function LocationUsersPage() {
   const handleAssignUser = async (userId: string) => {
     try {
       await assignUserMutation.mutateAsync({
-        userId: userId,
-        locationId: locationId,
+        userId,
+        locationId,
       })
       setIsAssignModalOpen(false)
       setSearchTerm("")
@@ -333,7 +329,7 @@ export default function LocationUsersPage() {
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
                     <AvatarImage src={user.user.avatar} alt={`${user.user.firstName} ${user.user.lastName}`} />
-                    <AvatarFallback className={getRandomBgColor(user.user.firstName + user.user.lastName) + " text-white"}>
+                    <AvatarFallback className={`${getRandomBgColor(user.user.firstName + user.user.lastName)} text-white`}>
                       {user.user.firstName.charAt(0)}
                       {user.user.lastName.charAt(0)}
                     </AvatarFallback>

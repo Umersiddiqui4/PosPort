@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+// import { useGoogleAuth } from '@/hooks/useGoogleAuth'; // Unused import
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
 export default function GoogleCallbackPage() {
-  const { handleGoogleLogin } = useGoogleAuth();
+  // const { handleGoogleLogin } = useGoogleAuth(); // Unused variable
 
   useEffect(() => {
     // The useGoogleAuth hook will automatically handle the callback

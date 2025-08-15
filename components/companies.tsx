@@ -82,8 +82,8 @@ export default function Companies({ onCompanySelect }: CompaniesProps) {
   const companies = data?.data || []
   // Pagination meta from API (fallbacks for safety)
   const meta = data?.meta || {
-    page: page,
-    take: take,
+    page,
+    take,
     itemCount: companies.length,
     pageCount: 1,
     hasPreviousPage: page > 1,

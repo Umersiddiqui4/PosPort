@@ -45,7 +45,7 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
     productName: product?.productName || "",
     description: product?.description || "",
     retailPrice: product?.price || 0,
-    cost: 0, // API Product doesn't have cost field
+    cost: product?.cost || 0, // API Product doesn't have cost field
     uom: "Piece", // API Product doesn't have uom field
     image: product?.image || "",
     status: product?.status || "active",
@@ -81,9 +81,9 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
       // Prepare the data with required fields
       const productData = {
         ...formData,
-        categoryId: categoryId,
+        categoryId,
         companyId: user?.companyId,
-        locationId: locationId,
+        locationId,
       }
       
       if (isEditing) {

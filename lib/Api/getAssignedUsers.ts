@@ -60,7 +60,7 @@ export interface GetAssignedUsersResponse {
 
 export const getAssignedUsers = async (page = 1, take = 10): Promise<GetAssignedUsersResponse> => {
   const response = await api.get("/location-users", {
-    params: { page, take },
+    params: { page, take, active: true },
   })
   return response.data
 } 

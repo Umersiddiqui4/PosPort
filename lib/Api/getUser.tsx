@@ -39,7 +39,8 @@ export const getUser = async (userId?: string): Promise<User> => {
 export const getUserByCompanyId = async (companyId: string) => {
   const response = await api.get(`/users`, {
     params: { 
-      companyId
+      companyId,
+      active: false,
     },
   });
   return response.data;

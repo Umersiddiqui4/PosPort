@@ -61,11 +61,11 @@ export default function Catalogs() {
 
   const handleAddCatalog = (catalogData: Omit<Catalog, "id" | "createdAt" | "updatedAt">) => {
     createCatalog.mutate({
-      ...catalogData,
-      companyId: catalogData.companyId || "",
-      locationId: catalogData.locationId || ""
-    })
-    setIsAddDialogOpen(false)
+        ...catalogData,
+        companyId: catalogData.companyId || "",
+        locationId: catalogData.locationId || ""
+      })
+      setIsAddDialogOpen(false)
   }
 
   const handleEditCatalog = (catalogData: Partial<Catalog>) => {
@@ -305,6 +305,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   const [searchTerm] = useState("")
   const [page] = useState(1)
   const take = 100
+  const { user } = useCurrentUser();
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     description: initialData?.description || "",
@@ -415,16 +416,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="image">Catalog Banner Image</Label>
-        <FileUpload
-          onFileSelect={handleImageSelect}
-          onFileRemove={handleImageRemove}
-          selectedFile={selectedImage}
-          maxSize={5}
-        />
-      </div>
-
+      
 
      
 

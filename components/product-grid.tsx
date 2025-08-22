@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "@/components/ui/button"
 
 interface Product {
+  attachments: any;
   id: string
   name: string
   price: number
@@ -68,7 +69,7 @@ const ProductCard = memo(
     const handleAddToCart = useCallback(() => {
       onAddToCart(product.id)
     }, [product.id, onAddToCart])
-
+    console.log(product)
     if (viewMode === "list") {
       return (
         <article className="bg-white dark:bg-gray-800 rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-[#1a72dd]/20 dark:hover:border-blue-500/20 transition-all duration-300 group">
@@ -190,7 +191,7 @@ const ProductCard = memo(
       <article className="bg-white dark:bg-gray-800 rounded-2xl p-2 sm:p-3 lg:p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-[#1a72dd]/20 dark:hover:border-blue-500/20 transition-all duration-300 group hover:-translate-y-1">
         <div className="relative overflow-hidden rounded-xl mb-2 sm:mb-3">
           <img
-            src={product.image || "/placeholder.svg"}
+            src={product.attachments?.[0]?.url || "/placeholder.svg"}
             alt={product.name}
             className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
@@ -458,6 +459,7 @@ export default function ProductGrid({
   const [showMobileCart, setShowMobileCart] = useState(false)
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  console.log(products,"products");
   
   // const [isMobile, setIsMobile] = useState(false) // Unused variable
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"

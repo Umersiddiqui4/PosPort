@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 
 // UI Product interface for the cashier page
 interface Product {
+  attachments: any;
   id: string
   name: string
   price: number
@@ -144,6 +145,7 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   // Transform API products to match the expected format
   const productList = useMemo(() => {
     return apiProducts.map((apiProduct: APIProduct): Product => ({
+      attachments:apiProduct.attachments,
       id: apiProduct.id,
       name: apiProduct.productName || "Unknown Product",
       price: apiProduct.retailPrice || 0,
@@ -162,6 +164,7 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const [isCreateProductDialogOpen, setIsCreateProductDialogOpen] = useState(false)
   const [isEditProductDialogOpen, setIsEditProductDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+console.log("selectedProduct", selectedProduct);
 
   const [isMobile, setIsMobile] = useState(false);
   
@@ -206,7 +209,7 @@ useEffect(() => {
     
     return filtered
   }, [productList, selectedCategoryId, selectedCategory, searchQuery])
-
+console.log(filteredProducts,"filteredProducts");
   // Debug logging (only in development)
   if (process.env.NODE_ENV === 'development') {
     console.log("Debug Info:", {

@@ -18,6 +18,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser"
 // import { useParams } from "next/navigation"
 import { useCatalogById } from "@/hooks/use-cataogById"
 import { useParams, useRouter } from "next/navigation"
+import { SuccessUploadPopup } from "@/components/ui/success-upload-popup"
 
 const colorOptions = [
   { value: "#FF6B6B", label: "Red" },
@@ -59,6 +60,9 @@ export default function ProductCategories() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<ProductCategory | null>(null)
+  const [showUploadPopup, setShowUploadPopup] = useState(false)
+  const [createdCategoryId, setCreatedCategoryId] = useState<string>("")
+  const [createdCategoryName, setCreatedCategoryName] = useState<string>("")
   const [formData, setFormData] = useState<ProductCategoryFormData>({
     categoryName: "",
     description: "",
@@ -70,7 +74,7 @@ export default function ProductCategories() {
   })
 
   const params = useParams()
-  const { mutate: createCategory} = useCreateProductCategory()
+  // const { mutate: createCategory} = useCreateProductCategory()
   const { data: categories = [], isLoading, error } = useProductCategories()
   const createMutation = useCreateProductCategory()
   const updateMutation = useUpdateProductCategory()
@@ -86,6 +90,25 @@ export default function ProductCategories() {
     deleteCategory(id)
   }
 
+  const handleUploadSuccess = (_fileUrl: string) => {
+    // Update the category with the uploaded image URL if needed
+    if (createdCategoryId) {
+      updateMutation.mutate({
+        id: createdCategoryId,
+        data: {
+          // Add image field if your category API supports it
+          // image: fileUrl,
+        }
+      })
+    }
+  }
+
+  const handleUploadClose = () => {
+    setShowUploadPopup(false)
+    setCreatedCategoryId("")
+    setCreatedCategoryName("")
+  }
+
   const filteredCategories = Array.isArray(categories) && categories.length > 0
     ? categories.filter((category: any) => {
       return category.menuId === `${params?.userId}`;
@@ -93,16 +116,23 @@ export default function ProductCategories() {
     : [];
 
   const handleCreateCategory = async () => {
-    createCategory({
-      categoryName: formData.categoryName,
-      description: formData.description,
-      status: formData.status,
-      companyId: !userRole && data ? data.companyId : "",
-      locationId: !userRole && data ? data.locationId : "",
-      menuId: `${params?.userId}` || ""
-    })
-    resetForm()
-    setIsCreateDialogOpen(false)
+    try {
+      const response = await createMutation.mutateAsync({
+        categoryName: formData.categoryName,
+        description: formData.description,
+        status: formData.status,
+        companyId: !userRole && data ? data.companyId : "",
+        locationId: !userRole && data ? data.locationId : "",
+        menuId: `${params?.userId}` || ""
+      })
+      setCreatedCategoryId(response.id)
+      setCreatedCategoryName(response.categoryName)
+      setShowUploadPopup(true)
+      resetForm()
+      setIsCreateDialogOpen(false)
+    } catch (error) {
+      console.error("Failed to create category:", error)
+    }
   }
 
   const handleUpdateCategory = async () => {
@@ -525,6 +555,16 @@ export default function ProductCategories() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Attachment Upload Popup */}
+      <SuccessUploadPopup
+        isOpen={showUploadPopup}
+        onClose={handleUploadClose}
+        entityId={createdCategoryId}
+        entityType="product_category"
+        itemName={createdCategoryName}
+        onUploadSuccess={handleUploadSuccess}
+      />
     </div>
   )
 }

@@ -40,6 +40,8 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
     selectedCategoryId,
     urlParamsId: params?.Id
   })
+  console.log("ProductForm Debug - user:", product);
+  
   
   const [formData, setFormData] = useState({
     productName: product?.productName || "",
@@ -109,82 +111,83 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {catalogLoading && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-          <p className="text-blue-800 text-sm">Loading catalog information...</p>
-        </div>
-      )}
-      <div>
-        <Label htmlFor="productName">Product Name *</Label>
-        <Input
-          id="productName"
-          value={formData.productName}
-          onChange={(e) => handleInputChange("productName", e.target.value)}
-          placeholder="Enter product name"
-          required
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => handleInputChange("description", e.target.value)}
-          placeholder="Enter product description"
-          rows={3}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {catalogLoading && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-blue-800 text-sm">Loading catalog information...</p>
+          </div>
+        )}
         <div>
-          <Label htmlFor="retailPrice">Retail Price (PKR) *</Label>
+          <Label htmlFor="productName">Product Name *</Label>
           <Input
-            id="retailPrice"
-            type="number"
-            value={formData.retailPrice}
-            onChange={(e) => handleInputChange("retailPrice", Number(e.target.value))}
-            placeholder="0"
-            min="0"
-            step="0.01"
+            id="productName"
+            value={formData.productName}
+            onChange={(e) => handleInputChange("productName", e.target.value)}
+            placeholder="Enter product name"
             required
           />
         </div>
 
         <div>
-          <Label htmlFor="cost">Cost (PKR)</Label>
-          <Input
-            id="cost"
-            type="number"
-            value={formData.cost}
-            onChange={(e) => handleInputChange("cost", Number(e.target.value))}
-            placeholder="0"
-            min="0"
-            step="0.01"
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleInputChange("description", e.target.value)}
+            placeholder="Enter product description"
+            rows={3}
           />
         </div>
-      </div>
 
-      <div>
-        <Label htmlFor="uom">Unit of Measure</Label>
-        <Select
-          value={formData.uom}
-          onValueChange={(value) => handleInputChange("uom", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select UOM" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Piece">Piece</SelectItem>
-            <SelectItem value="Bottle">Bottle</SelectItem>
-            <SelectItem value="Pack">Pack</SelectItem>
-            <SelectItem value="Kg">Kilogram</SelectItem>
-            <SelectItem value="Liter">Liter</SelectItem>
-            <SelectItem value="Box">Box</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="retailPrice">Retail Price (PKR) *</Label>
+            <Input
+              id="retailPrice"
+              type="number"
+              value={formData.retailPrice}
+              onChange={(e) => handleInputChange("retailPrice", Number(e.target.value))}
+              placeholder="0"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cost">Cost (PKR)</Label>
+            <Input
+              id="cost"
+              type="number"
+              value={formData.cost}
+              onChange={(e) => handleInputChange("cost", Number(e.target.value))}
+              placeholder="0"
+              min="0"
+              step="0.01"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="uom">Unit of Measure</Label>
+          <Select
+            value={formData.uom}
+            onValueChange={(value) => handleInputChange("uom", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select UOM" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Piece">Piece</SelectItem>
+              <SelectItem value="Bottle">Bottle</SelectItem>
+              <SelectItem value="Pack">Pack</SelectItem>
+              <SelectItem value="Kg">Kilogram</SelectItem>
+              <SelectItem value="Liter">Liter</SelectItem>
+              <SelectItem value="Box">Box</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
       <div>
         <Label htmlFor="image">Image URL</Label>
@@ -196,39 +199,40 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
         />
       </div>
 
-      <div>
-        <Label htmlFor="status">Status</Label>
-        <Select
-          value={formData.status}
-          onValueChange={(value) => handleInputChange("status", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <div>
+          <Label htmlFor="status">Status</Label>
+          <Select
+            value={formData.status}
+            onValueChange={(value) => handleInputChange("status", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <div className="flex gap-2 pt-4">
-        <Button
-          type="submit"
-          disabled={createProduct.isPending || updateProduct.isPending || catalogLoading}
-          className="flex-1"
-        >
-          {createProduct.isPending || updateProduct.isPending ? "Saving..." : 
-           catalogLoading ? "Loading catalog..." : 
-           isEditing ? "Update Product" : "Create Product"}
-        </Button>
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
+        <div className="flex gap-2 pt-4">
+          <Button
+            type="submit"
+            disabled={createProduct.isPending || updateProduct.isPending || catalogLoading}
+            className="flex-1"
+          >
+            {createProduct.isPending || updateProduct.isPending ? "Saving..." : 
+             catalogLoading ? "Loading catalog..." : 
+             isEditing ? "Update Product" : "Create Product"}
           </Button>
-        )}
-      </div>
-    </form>
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+        </div>
+      </form>
+    </>
   )
 } 

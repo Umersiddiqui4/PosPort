@@ -320,7 +320,6 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   }
 
   // Only fetch companies if user.role === "POSPORT_ADMIN", else use user.companyId
-  const { user } = useCurrentUser();
   const shouldFetchCompanies = user?.role === "POSPORT_ADMIN";
   const { data } = useQuery<GetCompaniesResponse, Error>({
     queryKey: shouldFetchCompanies
@@ -414,6 +413,16 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
               ))}
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="image">Catalog Banner Image</Label>
+        <FileUpload
+          onFileSelect={handleImageSelect}
+          onFileRemove={handleImageRemove}
+          selectedFile={selectedImage}
+          maxSize={5}
+        />
       </div>
 
 

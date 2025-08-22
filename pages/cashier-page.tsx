@@ -364,11 +364,15 @@ console.log(filteredProducts,"filteredProducts");
 
   const handleDeleteProduct = useCallback(async (productId: string) => {
     try {
-      await deleteProduct.mutateAsync(productId)
+      // Find the product to get its attachments
+      const product = apiProducts.find(p => p.id === productId)
+      const attachments = product?.attachments && Array.isArray(product.attachments) ? product.attachments : undefined
+      
+      await deleteProduct.mutateAsync({ id: productId, attachments })
     } catch (error) {
       console.error("Failed to delete product:", error)
     }
-  }, [deleteProduct])
+  }, [deleteProduct, apiProducts])
 
   const handleCreateProductSuccess = useCallback(() => {
     console.log("Product creation successful, restoring original URL")

@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 
+
 interface Catalog {
   id: string
   name: string
@@ -59,13 +60,17 @@ export default function Catalogs() {
       (catalog.category?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   )
 
-  const handleAddCatalog = (catalogData: Omit<Catalog, "id" | "createdAt" | "updatedAt">) => {
-    createCatalog.mutate({
+  const handleAddCatalog = async (catalogData: Omit<Catalog, "id" | "createdAt" | "updatedAt">) => {
+    try {
+      await createCatalog.mutateAsync({
         ...catalogData,
         companyId: catalogData.companyId || "",
         locationId: catalogData.locationId || ""
       })
       setIsAddDialogOpen(false)
+    } catch (error) {
+      console.error("Failed to create catalog:", error)
+    }
   }
 
   const handleEditCatalog = (catalogData: Partial<Catalog>) => {
@@ -81,6 +86,8 @@ export default function Catalogs() {
       deleteCatalog.mutate(catalogId)
     }
   }
+
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -291,6 +298,8 @@ export default function Catalogs() {
           {selectedCatalog && <CatalogForm initialData={selectedCatalog} onSubmit={handleEditCatalog} isEditing />}
         </DialogContent>
       </Dialog>
+
+
     </div>
   )
 }
@@ -305,7 +314,7 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   const [searchTerm] = useState("")
   const [page] = useState(1)
   const take = 100
-  const { user } = useCurrentUser();
+
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     description: initialData?.description || "",
@@ -315,12 +324,23 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
   })
   console.log('Form Data:', formData)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit(formData)
+    
+    try {
+      // Submit the form data first
+      await onSubmit(formData)
+      
+
+    } catch (error) {
+      console.error("Failed to submit catalog:", error)
+    }
   }
 
+
+
   // Only fetch companies if user.role === "POSPORT_ADMIN", else use user.companyId
+  const { user } = useCurrentUser();
   const shouldFetchCompanies = user?.role === "POSPORT_ADMIN";
   const { data } = useQuery<GetCompaniesResponse, Error>({
     queryKey: shouldFetchCompanies
@@ -416,7 +436,8 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
         </Select>
       </div>
 
-      
+
+
 
      
 
@@ -438,7 +459,10 @@ function CatalogForm({ initialData, onSubmit, isEditing = false }: CatalogFormPr
         <Button type="button" variant="outline" onClick={() => {}}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-[#1a72dd] hover:bg-[#1557b8]">
+        <Button 
+          type="submit" 
+          className="bg-[#1a72dd] hover:bg-[#1557b8]"
+        >
           {isEditing ? "Update Catalog" : "Create Catalog"}
         </Button>
       </div>

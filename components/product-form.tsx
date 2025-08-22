@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useProducts } from "@/hooks/use-products"
 import { useUserDataStore } from "@/lib/store"
 import { useCatalogById } from "@/hooks/use-cataogById"
+import { useProductById } from "@/hooks/use-product-by-id"
+import { FileUpload } from "@/components/ui/file-upload"
+import { useAttachments } from "@/hooks/use-attachments"
+import { getValidCategory } from "@/lib/Api/uploadAttachment"
 import type { Product } from "@/hooks/use-products"
 
 interface ProductFormProps {
@@ -21,14 +26,50 @@ interface ProductFormProps {
 
 export default function ProductForm({ product, onSuccess, onCancel, selectedCategoryId }: ProductFormProps) {
   const { createProduct, updateProduct } = useProducts()
+  const { uploadAttachment, deleteAttachment } = useAttachments()
   const user = useUserDataStore((state) => state.user)
   const params = useParams()
+  const queryClient = useQueryClient()
   
   // Get catalogId from URL params
   const catalogId = params?.userId as string
   
   // Fetch catalog data to get locationId
   const { data: catalogData, isLoading: catalogLoading } = useCatalogById(catalogId)
+  
+  // Fetch detailed product data when editing
+  const { data: detailedProduct, isLoading: productLoading } = useProductById(
+    product?.id || "", 
+    !!product?.id
+  )
+  
+  // Use detailed product data when available, otherwise use the passed product
+  const currentProduct = detailedProduct || product
+  
+  // State for image upload
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [existingImageId, setExistingImageId] = useState<string | null>(null)
+  
+  console.log('Current product:', currentProduct)
+
+  // Set existing image ID when editing
+  useEffect(() => {
+    console.log('Product attachments:', currentProduct?.attachments)
+    if (currentProduct?.attachments && Array.isArray(currentProduct.attachments) && currentProduct.attachments.length > 0) {
+      // Assuming the first attachment is the main image
+      setExistingImageId(currentProduct.attachments[0].id)
+      console.log('Set existing image ID:', currentProduct.attachments[0].id)
+    } else if (currentProduct?.attachments && typeof currentProduct.attachments === 'string' && currentProduct.attachments !== '/placeholder.svg') {
+      // If attachments is a string (image URL) and not placeholder, we might need to handle differently
+      console.log('Product has image URL:', currentProduct.attachments)
+      // For now, we'll treat this as no existing attachment to delete
+      setExistingImageId(null)
+    } else {
+      // No existing attachment to delete
+      setExistingImageId(null)
+    }
+  }, [currentProduct])
   
   // Debug logging
   console.log("ProductForm Debug:", {
@@ -40,20 +81,18 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
     selectedCategoryId,
     urlParamsId: params?.Id
   })
-  console.log("ProductForm Debug - user:", product);
-  
   
   const [formData, setFormData] = useState({
-    productName: product?.productName || "",
-    description: product?.description || "",
-    retailPrice: product?.price || 0,
-    cost: product?.cost || 0, // API Product doesn't have cost field
+    productName: currentProduct?.productName || "",
+    description: currentProduct?.description || "",
+    retailPrice: currentProduct?.price || 0,
+    cost: currentProduct?.cost || 0, // API Product doesn't have cost field
     uom: "Piece", // API Product doesn't have uom field
-    image: product?.image || "",
-    status: product?.status || "active",
+    image: currentProduct?.image || "",
+    status: currentProduct?.status || "active",
   })
 
-  const isEditing = !!product
+  const isEditing = !!currentProduct
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,13 +127,52 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
         locationId,
       }
       
+      let createdProductId: string | undefined
+      
       if (isEditing) {
         await updateProduct.mutateAsync({
-          id: product.id,
+          id: currentProduct!.id,
           ...productData,
         })
+        createdProductId = currentProduct!.id
       } else {
-        await createProduct.mutateAsync(productData)
+        const response = await createProduct.mutateAsync(productData)
+        createdProductId = response.data.id
+      }
+      
+      // Upload image if selected
+      if (selectedImage && createdProductId && user?.companyId) {
+        setIsUploading(true)
+        try {
+          // If editing and there's an existing image, delete it first
+          if ( existingImageId) {
+            console.log('Deleting existing image:', existingImageId)
+            await deleteAttachment.mutateAsync(existingImageId)
+          }
+          
+          const category = getValidCategory("product")
+          const response = await uploadAttachment.mutateAsync({
+            tenantId: user.companyId,
+            entityId: createdProductId,
+            entityType: "product",
+            category,
+            file: selectedImage,
+          })
+          
+          console.log('Image upload response:', response)
+          
+          // Refetch product data to get updated information including new attachment
+          if (createdProductId) {
+            // For both creating and editing, invalidate queries to refetch updated data
+            queryClient.invalidateQueries({ queryKey: ["product", createdProductId] })
+            queryClient.invalidateQueries({ queryKey: ["products"] })
+            console.log('Product data refetched after image upload')
+          }
+        } catch (error) {
+          console.error("Failed to upload image:", error)
+        } finally {
+          setIsUploading(false)
+        }
       }
       
       onSuccess?.()
@@ -108,6 +186,14 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
       ...prev,
       [field]: value
     }))
+  }
+
+  const handleImageSelect = (file: File) => {
+    setSelectedImage(file)
+  }
+
+  const handleImageRemove = () => {
+    setSelectedImage(null)
   }
 
   return (
@@ -189,13 +275,13 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
           </Select>
         </div>
 
-      <div>
-        <Label htmlFor="image">Image URL</Label>
-        <Input
-          id="image"
-          value={formData.image}
-          onChange={(e) => handleInputChange("image", e.target.value)}
-          placeholder="https://example.com/image.jpg"
+              <div>
+        <Label htmlFor="image">Product Image</Label>
+        <FileUpload
+          onFileSelect={handleImageSelect}
+          onFileRemove={handleImageRemove}
+          selectedFile={selectedImage}
+          maxSize={5}
         />
       </div>
 
@@ -217,15 +303,16 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
         </div>
 
         <div className="flex gap-2 pt-4">
-          <Button
-            type="submit"
-            disabled={createProduct.isPending || updateProduct.isPending || catalogLoading}
-            className="flex-1"
-          >
-            {createProduct.isPending || updateProduct.isPending ? "Saving..." : 
-             catalogLoading ? "Loading catalog..." : 
-             isEditing ? "Update Product" : "Create Product"}
-          </Button>
+                                  <Button
+                  type="submit"
+                  disabled={createProduct.isPending || updateProduct.isPending || catalogLoading || productLoading || isUploading}
+                  className="flex-1"
+                >
+                  {isUploading ? "Uploading image..." :
+                   createProduct.isPending || updateProduct.isPending ? "Saving..." :
+                   catalogLoading || productLoading ? "Loading..." :
+                   isEditing ? "Update Product" : "Create Product"}
+                </Button>
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel

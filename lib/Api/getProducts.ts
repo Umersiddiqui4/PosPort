@@ -43,13 +43,13 @@ export const getProducts = async (page: number = 1, take: number = 10): Promise<
     );
     // Use items instead of data
     return (response.data.items || []).map((product: any) => ({
-      attachments: product?.attachments || [],
+      attachments: product?.attachments || "/placeholder.svg",
       id: product.id,
       name: product.productName, // Map productName to name for component compatibility
       productName: product.productName,
       description: product.description || "",
       retailPrice: product.retailPrice || 0,
-      image: product.attachments?.[0]?.url || product.image || "/placeholder.svg",
+      image: product.image || "/placeholder.svg",
       category: product.category || "General",
       stock: product.stock || 0,
       cost: product.cost || 0,

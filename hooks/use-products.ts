@@ -66,12 +66,13 @@ export function useProducts(page: number = 1, take: number = 10) {
 
   // Delete product
   const deleteProductMutation = useMutation({
-    mutationFn: (id: string) => deleteProduct(id),
+    mutationFn: ({ id, attachments }: { id: string; attachments?: Array<{ id: string }> }) => 
+      deleteProduct(id, attachments),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
       toast({
         title: "Success",
-        description: "Product deleted successfully",
+        description: "Product and attachments deleted successfully",
       })
     },
     onError: (error: any) => {

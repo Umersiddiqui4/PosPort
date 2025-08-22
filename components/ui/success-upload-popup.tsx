@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { FileUpload } from "@/components/ui/file-upload"
 import { CheckCircle, Upload } from "lucide-react"
+import { useAttachments } from "@/hooks/use-attachments"
 import { useUserDataStore } from "@/lib/store"
 import { getValidCategory } from "@/lib/Api/uploadAttachment"
 
@@ -27,6 +28,7 @@ export function SuccessUploadPopup({
 }: SuccessUploadPopupProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const { uploadAttachment } = useAttachments()
   const user = useUserDataStore((state) => state.user)
 
   const handleFileSelect = (file: File) => {

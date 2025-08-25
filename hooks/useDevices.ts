@@ -3,6 +3,7 @@ import { getDevices } from "@/lib/Api/getDevices";
 import { assignDeviceToLocation } from "@/lib/Api/assignDeviceToLocation";
 import { unassignDeviceFromLocation } from "@/lib/Api/unassignDeviceFromLocation";
 import { getAllDevices } from "@/lib/Api/getAllDevices";
+import { createDevice } from "@/lib/Api/createDevice";
 
 export const useDevices = (locationId: string, page = 1, take = 10, active = true) => {
   return useQuery({
@@ -30,6 +31,10 @@ export const useAssignDeviceToLocation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["devices"] });
     },
+    onError: (error: any) => {
+      // Surface detailed error to UI
+      throw new Error(error?.message || "Failed to assign device to location");
+    },
   });
 };
 
@@ -39,6 +44,24 @@ export const useUnassignDeviceFromLocation = () => {
     mutationFn: unassignDeviceFromLocation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["devices"] });
+    },
+    onError: (error: any) => {
+      // Surface detailed error to UI
+      throw new Error(error?.message || "Failed to unassign device from location");
+    },
+  });
+};
+
+export const useCreateDevice = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createDevice,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-devices"] });
+    },
+    onError: (error: any) => {
+      // Surface detailed error to UI
+      throw new Error(error?.message || "Failed to create device");
     },
   });
 }; 

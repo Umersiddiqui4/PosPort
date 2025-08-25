@@ -28,8 +28,8 @@ import {
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useDevices, useAllDevices, useAssignDeviceToLocation, useUnassignDeviceFromLocation } from "@/hooks/useDevices"
-import { toast } from "@/components/ui/use-toast"
+import { useDevices, useAllDevices, useAssignDeviceToLocation, useUnassignDeviceFromLocation, useCreateDevice } from "@/hooks/useDevices"
+import { useToast } from "@/hooks/use-toast"
 import { useUserDataStore } from "@/lib/store"
 
 // Define proper types for device data
@@ -71,6 +71,7 @@ interface AssignedDevice {
 
 
 export default function LocationDevicesPage() {
+  const { toast } = useToast()
   const params = useParams()
   const locationId = params?.locationId as string
 
@@ -84,12 +85,18 @@ export default function LocationDevicesPage() {
   console.log(data, "devices" );
   
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<AssignedDevice | null>(null)
   const [selectedDeviceId, setSelectedDeviceId] = useState("")
   const [formData, setFormData] = useState({
     deviceName: "",
     deviceType: "",
+  })
+  const [createFormData, setCreateFormData] = useState({
+    deviceCode: "",
+    deviceName: "",
+    deviceType: "POS_TERMINAL",
   })
 
   // Fetch all available devices for assignment - only when modal is open
@@ -102,6 +109,7 @@ export default function LocationDevicesPage() {
   // Assign device mutation
   const assignDeviceMutation = useAssignDeviceToLocation()
   const unassignDeviceMutation = useUnassignDeviceFromLocation()
+  const createDeviceMutation = useCreateDevice()
 
   // Filter out devices that are already assigned to this location
   const assignedDeviceIds = devices.map((device: AssignedDevice) => device.device?.id || device.id)
@@ -153,10 +161,15 @@ export default function LocationDevicesPage() {
       })
       setIsAssignModalOpen(false)
       setSelectedDeviceId("")
-    } catch (error) {
+    } catch (error: any) {
+      const msg = String(error?.message || "")
+      const isAlreadyAssigned = msg.toLowerCase().includes("already") || msg.includes("409")
       toast({
-        title: "Error",
-        description: "Failed to assign device to location",
+        title: isAlreadyAssigned ? "Device already assigned" : "Error",
+        description:
+          isAlreadyAssigned
+            ? "This device is already assigned to a location. Please choose another device."
+            : (msg || "Failed to assign device to location"),
         variant: "destructive",
       })
     }
@@ -169,10 +182,10 @@ export default function LocationDevicesPage() {
         title: "Success",
         description: "Device unassigned from location successfully",
       })
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to unassign device from location",
+        description: error?.message || "Failed to unassign device from location",
         variant: "destructive",
       })
     }
@@ -202,6 +215,45 @@ export default function LocationDevicesPage() {
     })
   }
 
+  const resetCreateForm = () => {
+    setCreateFormData({
+      deviceCode: "",
+      deviceName: "",
+      deviceType: "POS_TERMINAL",
+    })
+  }
+
+  const handleCreateDevice = async () => {
+    if (!createFormData.deviceCode || !createFormData.deviceName || !createFormData.deviceType) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      await createDeviceMutation.mutateAsync({
+        deviceCode: createFormData.deviceCode,
+        deviceName: createFormData.deviceName,
+        deviceType: createFormData.deviceType,
+      })
+      toast({
+        title: "Success",
+        description: "Device created successfully.",
+      })
+      setIsCreateModalOpen(false)
+      resetCreateForm()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to create device.",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Remove all references to mockLocationDevices and duplicate onlineDevices/offlineDevices
   // (No mockLocationDevices, only use devices from API)
 
@@ -214,13 +266,22 @@ export default function LocationDevicesPage() {
           <p className="text-gray-600 dark:text-gray-300">Manage devices connected to this location</p>
         </div>
         {isAdmin && (
-          <Button
-            onClick={() => setIsAssignModalOpen(true)}
-            className="bg-[#1a72dd] hover:bg-[#1557b8]"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Assign Device
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsAssignModalOpen(true)}
+              className="bg-[#1a72dd] hover:bg-[#1557b8]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Assign Device
+            </Button>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-[#1a72dd] hover:bg-[#1557b8]"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Device
+            </Button>
+          </div>
         )}
       </div>
 
@@ -343,14 +404,24 @@ export default function LocationDevicesPage() {
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No devices connected</h3>
           <p className="text-gray-600 dark:text-gray-300 mb-4">Add devices to this location to monitor their status.</p>
           {isAdmin && (
-            <Button
-              onClick={() => setIsAssignModalOpen(true)}
-              variant="outline"
-              className="text-[#1a72dd] dark:text-blue-400 border-[#1a72dd] dark:border-blue-400 bg-transparent"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Assign Device
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setIsAssignModalOpen(true)}
+                variant="outline"
+                className="text-[#1a72dd] dark:text-blue-400 border-[#1a72dd] dark:border-blue-400 bg-transparent"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Assign Device
+              </Button>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                variant="outline"
+                className="text-[#1a72dd] dark:text-blue-400 border-[#1a72dd] dark:border-blue-400 bg-transparent"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Device
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -389,6 +460,68 @@ export default function LocationDevicesPage() {
               disabled={!selectedDeviceId}
             >
               Assign Device
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Device Modal */}
+      <Dialog open={isCreateModalOpen} onOpenChange={(open) => {
+        setIsCreateModalOpen(open)
+        if (!open) resetCreateForm()
+      }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create New Device</DialogTitle>
+            <DialogDescription>Enter details for a new device.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="create-device-code">Device Code *</Label>
+              <Input
+                id="create-device-code"
+                value={createFormData.deviceCode}
+                onChange={(e) => setCreateFormData({ ...createFormData, deviceCode: e.target.value })}
+                placeholder="e.g., DEV-001"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-device-name">Device Name *</Label>
+              <Input
+                id="create-device-name"
+                value={createFormData.deviceName}
+                onChange={(e) => setCreateFormData({ ...createFormData, deviceName: e.target.value })}
+                placeholder="e.g., New POS Terminal"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-device-type">Device Type *</Label>
+              <Select value={createFormData.deviceType} onValueChange={(value) => setCreateFormData({ ...createFormData, deviceType: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select device type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="POS_TERMINAL">POS Terminal</SelectItem>
+                  <SelectItem value="MOBILE_DEVICE">Mobile Device</SelectItem>
+                  <SelectItem value="TABLET">Tablet</SelectItem>
+                  <SelectItem value="DISPLAY_SCREEN">Display Screen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setIsCreateModalOpen(false)
+              resetCreateForm()
+            }}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateDevice}
+              className="bg-[#1a72dd] hover:bg-[#1557b8]"
+              disabled={!createFormData.deviceCode || !createFormData.deviceName || !createFormData.deviceType}
+            >
+              Create Device
             </Button>
           </DialogFooter>
         </DialogContent>

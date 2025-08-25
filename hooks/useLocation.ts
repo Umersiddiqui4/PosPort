@@ -89,6 +89,9 @@ export const useLocations = (page = 1, take = 10, searchTerm?: string, companyId
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+    placeholderData: (prev) => prev,
   });
 };
 

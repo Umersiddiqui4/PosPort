@@ -11,7 +11,8 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
+import PhoneInput from "react-phone-input-2"
 import { useRouter, usePathname } from "next/navigation"
 import { Plus, Search, Filter, MapPin, Edit, Trash2, Eye, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -108,6 +109,7 @@ export default function Locations({ companyId }: LocationsProps) {
   
   // State management for UI interactions
   const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -125,20 +127,19 @@ export default function Locations({ companyId }: LocationsProps) {
   })
 
   // API hooks for data operations
-  const { data: locationsData, isLoading, error } = useLocations(1, 100, searchTerm, companyId || "", "")
+  const { data: locationsData, isLoading, error } = useLocations(1, 100, debouncedSearchTerm, companyId || "", "")
+  const locationItems = (locationsData as any)?.items || []
   const createLocationMutation = useCreateLocation()
   const updateLocationMutation = useUpdateLocation()
   const deleteLocationMutation = useDeleteLocation()
 
-  // Memoized filtered locations
-  const filteredLocations = useMemo(() => {
-    if (!locationsData?.items) return []
-    return locationsData.items.filter((location: Location) =>
-      location.locationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.city.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [locationsData?.items, searchTerm])
+  // Debounce search to call API, not filter client-side
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300)
+    return () => clearTimeout(id)
+  }, [searchTerm])
+
+  const serverLocations = locationItems
 
   /**
    * Determines brand information based on location name
@@ -165,7 +166,7 @@ export default function Locations({ companyId }: LocationsProps) {
       state: location.state,
       country: location.country,
       postalCode: location.postalCode,
-      phone: location.phone,
+      phone: location.phone || "",
       email: location.email,
       qrCode: location.qrCode,
     })
@@ -180,6 +181,7 @@ export default function Locations({ companyId }: LocationsProps) {
       try {
         await createLocationMutation.mutateAsync({
           ...formData,
+          phone: formData.phone?.startsWith("+") ? formData.phone : `+${(formData.phone || "").replace(/^0+/, "")}`,
           companyId: companyId || "",
         })
         setIsCreateModalOpen(false)
@@ -199,6 +201,7 @@ export default function Locations({ companyId }: LocationsProps) {
         await updateLocationMutation.mutateAsync({
           id: selectedLocation.id,
           ...formData,
+          phone: formData.phone?.startsWith("+") ? formData.phone : `+${(formData.phone || "").replace(/^0+/, "")}`,
         })
         setIsEditModalOpen(false)
         setSelectedLocation(null)
@@ -256,8 +259,8 @@ export default function Locations({ companyId }: LocationsProps) {
     }
   }
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (only initial)
+  if (isLoading && locationItems.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-[#1a72dd]" />
@@ -327,7 +330,7 @@ export default function Locations({ companyId }: LocationsProps) {
 
         {/* Locations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLocations.map((location: Location) => (
+          {serverLocations.map((location: Location) => (
             <Card key={location.id} className="hover:shadow-lg transition-shadow duration-200">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
@@ -397,7 +400,7 @@ export default function Locations({ companyId }: LocationsProps) {
         </div>
 
         {/* Empty State */}
-        {filteredLocations.length === 0 && (
+        {serverLocations.length === 0 && (
           <div className="text-center py-12">
             <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -463,6 +466,24 @@ export default function Locations({ companyId }: LocationsProps) {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Country</label>
+                  <Input
+                    value={formData.country}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    placeholder="Enter country"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Postal Code</label>
+                  <Input
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    placeholder="Enter postal code"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="text-sm font-medium">Email</label>
                 <Input
@@ -474,11 +495,25 @@ export default function Locations({ companyId }: LocationsProps) {
               </div>
               <div>
                 <label className="text-sm font-medium">Phone</label>
-                <Input
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Enter phone number"
-                />
+                <div className="w-full h-fit">
+                  <PhoneInput
+                    country={'pk'}
+                    value={formData.phone}
+                    onChange={(value: string) => {
+                      let formatted = value
+                      if (formatted && !formatted.startsWith('+')) {
+                        formatted = `+${formatted.replace(/^0+/, '')}`
+                      }
+                      setFormData({ ...formData, phone: formatted })
+                    }}
+                    inputProps={{ name: 'phone', required: true, id: 'location-phone' }}
+                    inputClass="!w-full !h-10 !text-base !border !border-gray-300 dark:!border-gray-600 rounded-md p-2 dark:!bg-gray-700 dark:!text-gray-200"
+                    buttonClass="!h-3"
+                    containerClass="!w-full"
+                    placeholder="Enter phone number"
+                    enableSearch
+                  />
+                </div>
               </div>
             </div>
             
@@ -545,6 +580,24 @@ export default function Locations({ companyId }: LocationsProps) {
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     placeholder="Enter state"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Country</label>
+                  <Input
+                    value={formData.country}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    placeholder="Enter country"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Postal Code</label>
+                  <Input
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    placeholder="Enter postal code"
                   />
                 </div>
               </div>

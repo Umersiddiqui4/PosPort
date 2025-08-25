@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Search, Plus, Edit, Trash2, Eye, Package, Grid, List } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,6 +25,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useLocations } from "@/hooks/useLocation"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 
 
 
@@ -42,23 +43,42 @@ interface Catalog {
 
 export default function Catalogs() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const pageSize = 9
   console.log('Selected Catalog:', selectedCatalog)
-  const { catalogs, isLoading, createCatalog, updateCatalog, deleteCatalog } = useCatalogs()
+  const { catalogs, isLoading, isFetching, meta, createCatalog, updateCatalog, deleteCatalog } = useCatalogs(page, pageSize, debouncedSearchTerm)
   // const { user } = useCurrentUser(); // Unused variable
   // const params = useParams() // Unused variable
   const router = useRouter()
   console.log('Catalogs from API:', catalogs)
 
-  const filteredCatalogs = catalogs.filter(
-    (catalog) =>
-      (catalog.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (catalog.description?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (catalog.category?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  )
+  // Debounce search to avoid spamming API
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+      // reset to first page when search changes
+      setPage(1)
+    }, 300)
+    return () => clearTimeout(id)
+  }, [searchTerm])
+
+  const paginatedCatalogs = catalogs
+  const totalPages = meta?.pageCount || 1
+  const currentPage = meta?.page || page
+
+  const goToPage = (p: number) => {
+    if (p < 1 || p > totalPages) return
+    setPage(p)
+    // Scroll to top of the list when page changes
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
 
   const handleAddCatalog = async (catalogData: Omit<Catalog, "id" | "createdAt" | "updatedAt">) => {
     try {
@@ -102,7 +122,7 @@ export default function Catalogs() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading && !isFetching) {
     return (
       <div className="p-6 space-y-6">
         <div className="h-8 bg-gray-200 rounded-lg w-1/3 animate-pulse"></div>
@@ -150,6 +170,9 @@ export default function Catalogs() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
           />
+          {isFetching && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Loading…</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button variant={viewMode === "grid" ? "default" : "outline"} size="sm" onClick={() => setViewMode("grid")}>
@@ -164,7 +187,7 @@ export default function Catalogs() {
       {/* Catalogs Grid/List */}
       {viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCatalogs.map((catalog) => (
+          {paginatedCatalogs.map((catalog) => (
             <Card key={catalog.id} className="hover:shadow-lg transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
@@ -221,7 +244,7 @@ export default function Catalogs() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredCatalogs.map((catalog) => (
+          {paginatedCatalogs.map((catalog) => (
             <Card key={catalog.id} className="hover:shadow-md transition-shadow duration-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -271,8 +294,32 @@ export default function Catalogs() {
         </div>
       )}
 
+      {/* Pagination */}
+      {paginatedCatalogs.length > 0 && (
+        <Pagination className="mt-6">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); goToPage(currentPage - 1) }} />
+            </PaginationItem>
+            {Array.from({ length: totalPages }).slice(0, 5).map((_, idx) => {
+              const p = idx + 1
+              return (
+                <PaginationItem key={p}>
+                  <PaginationLink href="#" isActive={p === currentPage} onClick={(e) => { e.preventDefault(); goToPage(p) }}>
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            })}
+            <PaginationItem>
+              <PaginationNext href="#" onClick={(e) => { e.preventDefault(); goToPage(currentPage + 1) }} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+
       {/* Empty State */}
-      {filteredCatalogs.length === 0 && (
+      {paginatedCatalogs.length === 0 && (
         <div className="text-center py-12">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No catalogs found</h3>

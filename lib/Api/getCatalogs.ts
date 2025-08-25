@@ -27,16 +27,16 @@ export interface GetCatalogsResponse {
   };
 }
 
-export const getCatalogs = async (page: number = 1, take: number = 10): Promise<Catalog[]> => {
+export const getCatalogs = async (
+  page: number = 1,
+  take: number = 10,
+  search: string = ""
+): Promise<GetCatalogsResponse> => {
   try {
-    const response = await api.get<GetCatalogsResponse>(
-      "/catalogs",
-      {
-        params: { page, take },
-      }
-    );
-    // Use items instead of data
-    return (response.data.items || []).map((catalog: any) => ({
+    const response = await api.get<GetCatalogsResponse>("/catalogs", {
+      params: { page, take, q: search || undefined },
+    });
+    const items = (response.data.items || []).map((catalog: any) => ({
       id: catalog.id,
       name: catalog.name,
       description: catalog.description || "",
@@ -48,6 +48,15 @@ export const getCatalogs = async (page: number = 1, take: number = 10): Promise<
       itemCount: catalog.itemCount || 0,
       category: catalog.category || "General",
     }));
+    const meta = response.data.meta || {
+      page,
+      take,
+      itemCount: items.length,
+      pageCount: Math.max(1, Math.ceil(items.length / take)),
+      hasPreviousPage: page > 1,
+      hasNextPage: false,
+    };
+    return { items, meta };
   } catch (error: any) {
     throw new Error(error?.response?.data?.message || "Failed to fetch catalogs");
   }

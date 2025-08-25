@@ -300,7 +300,7 @@ export default function Locations({ companyId }: LocationsProps) {
           {canManageLocations && (
             <Button
               onClick={() => setIsCreateModalOpen(true)}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-[#1a72dd] text-white hover:bg-[#1557b8] dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Location
@@ -407,7 +407,10 @@ export default function Locations({ companyId }: LocationsProps) {
               {searchTerm ? "Try adjusting your search terms." : "Get started by adding your first location."}
             </p>
             {canManageLocations && !searchTerm && (
-              <Button onClick={() => setIsCreateModalOpen(true)}>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-[#1a72dd] text-white hover:bg-[#1557b8] dark:bg-blue-600 dark:hover:bg-blue-700"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Location
               </Button>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -14,14 +14,17 @@ import {
   Building2,
   Shield,
   BookOpen,
+  Menu,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { getCompanyById } from "@/lib/Api/getCompanyById"
 
 interface NavbarProps {
   isMobileOpen: boolean
   onMobileToggle: () => void
   isCollapsed?: boolean
+  onCollapseToggle?: () => void
 }
 
 const baseMenuItems = [
@@ -39,9 +42,32 @@ const baseMenuItems = [
   { id: "location", label: "Location", icon: HelpCircle, href: "/companies/1/locations" },
 ];
 
-export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = false }: NavbarProps) {
+export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = false, onCollapseToggle }: NavbarProps) {
   const pathname = usePathname()
   const { user } = useCurrentUser()
+  const [companyName, setCompanyName] = useState<string>("")
+
+  useEffect(() => {
+    let isActive = true
+    const run = async () => {
+      try {
+        if (user?.role === "POSPORT_ADMIN") {
+          if (isActive) setCompanyName("POSport Admin")
+          return
+        }
+        if (user?.companyId) {
+          const data = await getCompanyById(user.companyId)
+          if (isActive) setCompanyName(data?.name || "")
+        }
+      } catch {
+        if (isActive) setCompanyName("")
+      }
+    }
+    run()
+    return () => {
+      isActive = false
+    }
+  }, [user?.role, user?.companyId])
 
   const handleLinkClick = useCallback(() => {
       // Close mobile sidebar when navigating
@@ -112,10 +138,26 @@ export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = fal
           {/* Header */}
           <header className="mb-8">
             <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                {/* Desktop collapse toggle appears only when sidebar expanded */}
+                {!isCollapsed && (
+                  <div className="hidden md:block">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={onCollapseToggle}
+                      className="text-white hover:bg-white/20 rounded-full"
+                      aria-label="Collapse sidebar"
+                    >
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </div>
+                )}
               <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                Zaib Ka Dhaba
+                {companyName || (user?.role === "POSPORT_ADMIN" ? "POSport Admin" : "")}
               </h1>
-              <ThemeToggle />
+                {/* <ThemeToggle /> */}
+              </div>
             </div>
 
             {/* Branch Selector - Hidden */}

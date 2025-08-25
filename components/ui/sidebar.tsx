@@ -264,9 +264,20 @@ Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
-  React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  React.ComponentProps<typeof Button> & {
+    floatWhenCollapsed?: boolean
+    side?: "left" | "right"
+  }
+>(({ className, onClick, floatWhenCollapsed = false, side = "left", ...props }, ref) => {
+  const { toggleSidebar, state } = useSidebar()
+
+  const floatingClasses =
+    floatWhenCollapsed && state === "collapsed"
+      ? cn(
+          "fixed z-50 top-4",
+          side === "left" ? "left-4" : "right-4"
+        )
+      : undefined
 
   return (
     <Button
@@ -274,7 +285,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("h-7 w-7", floatingClasses, className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

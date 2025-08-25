@@ -24,7 +24,7 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a] overflow-hidden">
-      <Navbar isMobileOpen={isMobileSidebarOpen} onMobileToggle={handleMobileToggle} isCollapsed={isSidebarCollapsed} />
+      <Navbar isMobileOpen={isMobileSidebarOpen} onMobileToggle={handleMobileToggle} isCollapsed={isSidebarCollapsed} onCollapseToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
 
       {/* Main Content */}
       <main
@@ -45,17 +45,19 @@ export default function DashboardLayout({
           </Button>
         </div>
 
-        {/* Desktop Hamburger Button */}
-        <div className="hidden md:block fixed top-4 left-4 z-50">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-        </div>
+        {/* Desktop Hamburger Button (only when sidebar is collapsed) */}
+        {isSidebarCollapsed && (
+          <div className="hidden md:block fixed top-4 left-4 z-50">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
 
         <div className="h-full">
           <ErrorBoundary>

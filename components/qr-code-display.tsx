@@ -20,24 +20,31 @@ interface QRCodeDisplayProps {
   locationName: string
   size?: number
   showDialog?: boolean
+  locationId?: string
 }
 
 export default function QRCodeDisplay({ 
   value, 
   locationName, 
   size = 128,
-  showDialog = true 
+  showDialog = true,
+  locationId
 }: QRCodeDisplayProps) {
   const [isCopied, setIsCopied] = useState(false)
   const { toast } = useToast()
 
+  // Generate the cashier URL if locationId is provided
+  const qrValue = locationId 
+    ? `${window.location.origin}/cashier`
+    : value
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard.writeText(qrValue)
       setIsCopied(true)
       toast({
         title: "QR Code copied!",
-        description: "The QR code value has been copied to your clipboard.",
+        description: "The QR code URL has been copied to your clipboard.",
       })
       setTimeout(() => setIsCopied(false), 2000)
     } catch (error) {
@@ -87,14 +94,14 @@ export default function QRCodeDisplay({
       <div className="bg-white p-8 rounded-lg border">
         <QRCode
           id={`qr-${value.replace(/[^a-zA-Z0-9]/g, '')}`}
-          value={value}
+          value={qrValue}
           size={size}
           level="M"
         />
       </div>
       
       <div className="text-xs text-gray-500 font-mono break-all max-w-xs text-center">
-        {value}
+        {qrValue}
       </div>
       
       <div className="flex gap-2">

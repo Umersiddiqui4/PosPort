@@ -232,6 +232,7 @@ export default function LocationDetailPage() {
                     locationName={location.locationName}
                     size={200}
                     showDialog={false}
+                    locationId={location.id}
                   />
                 </div>
               )}

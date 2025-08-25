@@ -347,10 +347,6 @@ export default function LocationDevicesPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="dark:bg-gray-800 dark:border-gray-700">
-                          <DropdownMenuItem className="dark:text-gray-200 dark:hover:bg-gray-700">
-                            <Eye className="w-4 h-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openEditModal(device)} className="dark:text-gray-200 dark:hover:bg-gray-700">
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Device

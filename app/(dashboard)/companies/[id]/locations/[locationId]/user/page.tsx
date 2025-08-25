@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useUsers } from "@/hooks/use-users"
 import { useAssignUserToLocation, useLocationUsers, useUnassignUserFromLocation, useUpdateLocationUser } from "@/hooks/useLocation";
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 // Add a helper function for random background color
 function getRandomBgColor(str: string) {
@@ -49,6 +49,7 @@ function getRandomBgColor(str: string) {
 }
 
 export default function LocationUsersPage() {
+  const { toast } = useToast()
   const params = useParams()
   const router = useRouter()
   const companyId = params?.id as string
@@ -145,11 +146,29 @@ export default function LocationUsersPage() {
         title: "Success",
         description: "User assigned to location successfully",
       })
-    } catch (error) {
-      console.error("Error assigning user:", error)
+    } catch (error: any) {
+      // Try to get the error message from different possible sources
+      let errorMessage = ""
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error?.message) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      } else {
+        errorMessage = "Failed to assign user to location"
+      }
+      
+      const isAlreadyAssigned = errorMessage.toLowerCase().includes("already") || 
+                               errorMessage.toLowerCase().includes("400") ||
+                               errorMessage.toLowerCase().includes("bad request")
+      
       toast({
-        title: "Error",
-        description: (error as any)?.response?.data?.message || "Failed to assign user to location",
+        title: isAlreadyAssigned ? "User already assigned" : "Error",
+        description:
+          isAlreadyAssigned
+            ? "This user is already assigned to a location. Please choose another user."
+            : errorMessage,
         variant: "destructive",
       })
     }

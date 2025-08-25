@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import api from "@/utils/axios"
 import { useUserDataStore } from "@/lib/store"
 import { assignUserToLocation } from "@/lib/Api/assignUserToLocation";

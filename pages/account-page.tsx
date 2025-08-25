@@ -126,36 +126,35 @@ export default function AccountPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
-                    <input 
-                      type="text" 
-                      defaultValue={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : ''}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
-                    />
+                    <div className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                      <span className="text-gray-900 dark:text-gray-200">
+                        {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : 'Not provided'}
+                      </span>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                    <input 
-                      type="email" 
-                      defaultValue={user?.email || ''}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
-                    />
+                    <div className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                      <span className="text-gray-900 dark:text-gray-200">
+                        {user?.email || 'Not provided'}
+                      </span>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
-                    <input 
-                      type="tel" 
-                      defaultValue={user?.phone || ''}
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:border-[#1a72dd] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#1a72dd] dark:focus:ring-blue-400 dark:bg-gray-700 dark:text-gray-200"
-                    />
+                    <div className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                      <span className="text-gray-900 dark:text-gray-200">
+                        {user?.phone || 'Not provided'}
+                      </span>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
-                    <input 
-                      type="text" 
-                      defaultValue={user?.role || ''}
-                      disabled
-                      className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 dark:text-gray-300"
-                    />
+                    <div className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+                      <span className="text-gray-900 dark:text-gray-200">
+                        {user?.role || 'Not provided'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </CardContent>

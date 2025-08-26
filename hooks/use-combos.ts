@@ -54,12 +54,12 @@ export interface ComboResponse {
   statusCode: number
 }
 
-const fetchCombos = async (page: number = 1, take: number = 10): Promise<ComboResponse> => {
-  const response = await api.get<ComboResponse>(`/combos?page=${page}&take=${take}`)
+const fetchCombos = async (page: number = 1, take: number = 1000): Promise<ComboResponse> => {
+  const response = await api.get<ComboResponse>(`/combos?page=${page}&take=${1000}`)
   return response.data
 }
 
-export const useCombos = (page: number = 1, take: number = 10) => {
+export const useCombos = (page: number = 1, take: number = 1000) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['combos', page, take],
     queryFn: () => fetchCombos(page, take),

@@ -1,9 +1,11 @@
-import React from 'react'
-import { ChevronLeft, ChevronRight, Package } from 'lucide-react'
+import React, { useState } from 'react'
+import { ChevronLeft, ChevronRight, Package, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useCombos, Combo } from '@/hooks/use-combos'
 import { useComboOperations } from '@/hooks/use-combo-operations'
 import ComboCard from './combo-card'
+import ComboForm from './combo-form'
 
 interface ComboSectionProps {
   onAddComboToCart: (combo: Combo) => void
@@ -16,6 +18,7 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
   const { combos, isLoading, error } = useCombos(1, 10)
   const { deleteCombo, isDeleting } = useComboOperations()
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -58,7 +61,8 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 mt-2 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700 overflow-hidden mx-4 sm:mx-6">
+    <>
+      <div className="bg-white dark:bg-gray-800 mt-2 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-200 dark:border-gray-700 overflow-hidden mx-4 sm:mx-6">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3">
@@ -71,7 +75,7 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
           </span>
         </div>
         
-        {/* Scroll Controls - Hidden on mobile, shown on larger screens */}
+        {/* Scroll Controls and Create Button */}
         <div className="hidden sm:flex gap-2">
           <Button
             variant="outline"
@@ -88,6 +92,13 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
             className="w-8 h-8 border-gray-300 hover:border-[#1a72dd] hover:text-[#1a72dd]"
           >
             <ChevronRight className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="bg-[#1a72dd] hover:bg-[#1557b8] text-white px-3 py-1 text-sm"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Create Combo
           </Button>
         </div>
       </div>
@@ -119,7 +130,23 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
         <div className="hidden sm:block absolute left-0 top-0 bottom-2 sm:bottom-4 w-8 bg-gradient-to-r from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
         <div className="hidden sm:block absolute right-0 top-0 bottom-2 sm:bottom-4 w-8 bg-gradient-to-l from-white dark:from-gray-800 to-transparent pointer-events-none z-10" />
       </div>
-    </div>
+      </div>
+
+    {/* Create Combo Dialog */}
+    <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Create New Combo</DialogTitle>
+        </DialogHeader>
+        <ComboForm
+          onSuccess={() => {
+            setIsCreateDialogOpen(false)
+          }}
+          onCancel={() => setIsCreateDialogOpen(false)}
+        />
+      </DialogContent>
+    </Dialog>
+  </>
   )
 }
 

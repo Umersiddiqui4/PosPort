@@ -11,7 +11,7 @@ import type { UpdateProductRequest } from "@/lib/Api/updateProduct"
 // Product interface matching API
 export interface Product extends APIProduct {}
 
-export function useProducts(page: number = 1, take: number = 10) {
+export function useProducts(page: number = 1, take: number = 1000, locationId?: string) {
   const queryClient = useQueryClient()
 
   // Fetch products
@@ -21,9 +21,10 @@ export function useProducts(page: number = 1, take: number = 10) {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["products", page, take],
-    queryFn: () => getProducts(page, take),
+    queryKey: ["products", page, take, locationId],
+    queryFn: () => getProducts(page, take, locationId),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !locationId || !!locationId, // Only fetch if locationId is provided or not required
   })
 
   // Create product

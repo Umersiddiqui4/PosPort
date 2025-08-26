@@ -33,12 +33,17 @@ export interface GetProductsResponse {
   };
 }
 
-export const getProducts = async (page: number = 1, take: number = 10): Promise<Product[]> => {
+export const getProducts = async (page: number = 1, take: number = 10, locationId?: string): Promise<Product[]> => {
   try {
+    const params: any = { page, take: 1000 };
+    if (locationId) {
+      params.locationId = locationId;
+    }
+    
     const response = await api.get<GetProductsResponse>(
       "/products",
       {
-        params: { page, take },
+        params,
       }
     );
     // Use items instead of data

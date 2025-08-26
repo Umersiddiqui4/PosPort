@@ -42,7 +42,7 @@ export default function OrderSummary({ items, total, onClose, onProceedToPayment
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#1a72dd]">{item.quantity * item.price} PKR</p>
+                    <p className="font-bold text-[#1a72dd]">{(item.quantity * item.price).toFixed(2)} PKR</p>
                   </div>
                 </div>
               ))}

@@ -11,6 +11,7 @@ import PaymentMethod from "../components/payment-method"
 import SuccessScreen from "../components/success-screen"
 // import CartSummary from "../components/cart-summary" // Unused import
 import OrderSummary from "../components/order-summary"
+import ComboSection from "../components/combo-section"
 import React from "react"
 // import { useUserDataStore } from "@/lib/store" // Unused import
 import { useProducts, Product as APIProduct } from "@/hooks/use-products"
@@ -20,6 +21,7 @@ import { useCatalogById } from "@/hooks/use-cataogById"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import ProductForm from "@/components/product-form"
 import { Button } from "@/components/ui/button"
+import { Combo } from "@/hooks/use-combos"
 
 // UI Product interface for the cashier page
 interface Product {
@@ -42,6 +44,8 @@ interface CartItem {
   name: string
   price: number
   quantity: number
+  isCombo?: boolean
+  comboId?: string
 }
 
 interface CashierPageProps {
@@ -70,6 +74,7 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [showOrderSummary, setShowOrderSummary] = useState(false)
+  const [combosInCart, setCombosInCart] = useState<string[]>([])
   const [, startTransition] = useTransition()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isLoadingCatalogForProduct, setIsLoadingCatalogForProduct] = useState(false)
@@ -227,7 +232,8 @@ console.log(filteredProducts,"filteredProducts");
 
   // Memoized total calculation
   const totalAmount = useMemo(() => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0)
+    const total = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+    return Number(total.toFixed(2))
   }, [cart])
   
   const handleQuantityChange = useCallback((productId: string, quantity: number) => {
@@ -237,6 +243,10 @@ console.log(filteredProducts,"filteredProducts");
         const product = productList.find((p) => p.id === productId)!
 
         if (quantity === 0) {
+          const itemToRemove = prev.find((item) => item.id === productId)
+          if (itemToRemove?.isCombo && itemToRemove.comboId) {
+            setCombosInCart((prevCombos) => prevCombos.filter(id => id !== itemToRemove.comboId))
+          }
           return prev.filter((item) => item.id !== productId)
         }
 
@@ -266,7 +276,40 @@ console.log(filteredProducts,"filteredProducts");
 
   const handleRemoveFromCart = useCallback((productId: string) => {
     startTransition(() => {
-      setCart((prev) => prev.filter((item) => item.id !== productId))
+      setCart((prev) => {
+        const itemToRemove = prev.find((item) => item.id === productId)
+        if (itemToRemove?.isCombo && itemToRemove.comboId) {
+          setCombosInCart((prevCombos) => prevCombos.filter(id => id !== itemToRemove.comboId))
+        }
+        return prev.filter((item) => item.id !== productId)
+      })
+    })
+  }, [])
+
+  const handleAddComboToCart = useCallback((combo: Combo) => {
+    startTransition(() => {
+      const comboItem: CartItem = {
+        id: `combo-${combo.id}`,
+        name: combo.name,
+        price: combo.bundlePrice,
+        quantity: 1,
+        isCombo: true,
+        comboId: combo.id
+      }
+      
+      setCart((prev) => {
+        const existingItem = prev.find((item) => item.id === comboItem.id)
+        if (existingItem) {
+          return prev.map((item) => 
+            item.id === comboItem.id 
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        } else {
+          setCombosInCart((prevCombos) => [...prevCombos, combo.id])
+          return [...prev, comboItem]
+        }
+      })
     })
   }, [])
 
@@ -738,13 +781,25 @@ console.log(filteredProducts,"filteredProducts");
    <div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a]">
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${cart.length > 0 && !isMobile ? "mr-80" : ""}`}
+        className={`flex-1 flex flex-col transition-all duration-300 overflow-hidden ${cart.length > 0 && !isMobile ? "mr-80" : ""}`}
       >
       {renderHeader()}
 
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full">
         {currentView === "products" && (
           <>
+            {/* Combo Section */}
+            <div className="w-full">
+              <ComboSection 
+                onAddComboToCart={handleAddComboToCart}
+                combosInCart={combosInCart}
+                onEditCombo={(combo) => {
+                  console.log('Edit combo:', combo)
+                  // TODO: Implement combo editing
+                }}
+              />
+            </div>
+            
             {productsLoading && apiProducts.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
@@ -803,12 +858,15 @@ console.log(filteredProducts,"filteredProducts");
               {cart.map((item) => (
                 <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 bg-[#1a72dd] dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className={`w-10 h-10 ${item.isCombo ? 'bg-green-600' : 'bg-[#1a72dd]'} dark:bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0`}>
                       <ShoppingCart className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-800 dark:text-gray-200 truncate">{item.name}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{item.price} PKR each</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {item.price} PKR each
+                        {item.isCombo && <span className="ml-2 text-green-600 font-medium">(Combo)</span>}
+                      </p>
                     </div>
                   </div>
 
@@ -832,7 +890,7 @@ console.log(filteredProducts,"filteredProducts");
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#1a72dd]">{item.price * item.quantity} PKR</span>
+                      <span className="font-bold text-[#1a72dd]">{(item.price * item.quantity).toFixed(2)} PKR</span>
                       <Button
                         size="sm"
                         variant="outline"

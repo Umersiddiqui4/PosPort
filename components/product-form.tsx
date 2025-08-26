@@ -50,6 +50,7 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [existingImageId, setExistingImageId] = useState<string | null>(null)
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
   
   console.log('Current product:', currentProduct)
 
@@ -59,15 +60,19 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
     if (currentProduct?.attachments && Array.isArray(currentProduct.attachments) && currentProduct.attachments.length > 0) {
       // Assuming the first attachment is the main image
       setExistingImageId(currentProduct.attachments[0].id)
+      setExistingImageUrl(currentProduct.attachments[0].url)
       console.log('Set existing image ID:', currentProduct.attachments[0].id)
+      console.log('Set existing image URL:', currentProduct.attachments[0].url)
     } else if (currentProduct?.attachments && typeof currentProduct.attachments === 'string' && currentProduct.attachments !== '/placeholder.svg') {
       // If attachments is a string (image URL) and not placeholder, we might need to handle differently
       console.log('Product has image URL:', currentProduct.attachments)
+      setExistingImageUrl(currentProduct.attachments)
       // For now, we'll treat this as no existing attachment to delete
       setExistingImageId(null)
     } else {
       // No existing attachment to delete
       setExistingImageId(null)
+      setExistingImageUrl(null)
     }
   }, [currentProduct])
   
@@ -85,7 +90,7 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
   const [formData, setFormData] = useState({
     productName: currentProduct?.productName || "",
     description: currentProduct?.description || "",
-    retailPrice: currentProduct?.price || 0,
+    retailPrice: currentProduct?.retailPrice || currentProduct?.price || 0,
     cost: currentProduct?.cost || 0, // API Product doesn't have cost field
     uom: "Piece", // API Product doesn't have uom field
     image: currentProduct?.image || "",
@@ -275,15 +280,52 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
           </Select>
         </div>
 
-              <div>
-        <Label htmlFor="image">Product Image</Label>
-        <FileUpload
-          onFileSelect={handleImageSelect}
-          onFileRemove={handleImageRemove}
-          selectedFile={selectedImage}
-          maxSize={5}
-        />
-      </div>
+        <div>
+          <Label htmlFor="image">Product Image</Label>
+          <div className="mt-2">
+            {existingImageUrl && !selectedImage ? (
+              <div className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+                <div className="relative">
+                  <img
+                    src={existingImageUrl}
+                    alt="Current product image"
+                    className="h-16 w-16 object-cover rounded-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.src = '/placeholder.svg'
+                    }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    Current Image
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Click "Choose File" to replace
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setExistingImageUrl(null)
+                    setExistingImageId(null)
+                  }}
+                >
+                  Remove
+                </Button>
+              </div>
+            ) : null}
+            
+            <FileUpload
+              onFileSelect={handleImageSelect}
+              onFileRemove={handleImageRemove}
+              selectedFile={selectedImage}
+              maxSize={5}
+            />
+          </div>
+        </div>
 
         <div>
           <Label htmlFor="status">Status</Label>

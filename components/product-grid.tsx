@@ -338,7 +338,7 @@ const CartItemCard = memo(
                 <span className="text-xs text-[#545454] dark:text-gray-400">
                   {item.price} PKR × {item.quantity}
                 </span>
-                <span className="text-xs font-semibold text-[#1a72dd] dark:text-blue-400">{item.price * item.quantity} PKR</span>
+                <span className="text-xs font-semibold text-[#1a72dd] dark:text-blue-400">{(item.price * item.quantity).toFixed(2)} PKR</span>
               </div>
             </div>
 
@@ -457,7 +457,7 @@ export default function ProductGrid({
 }: ProductGridProps) {
   const { user } = useCurrentUser()
   const [showMobileCart, setShowMobileCart] = useState(false)
-  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  const totalAmount = Number(cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2))
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   console.log(products,"products");
   
@@ -499,7 +499,7 @@ export default function ProductGrid({
 
   return (
     <div className="pb-20 sm:pb-24 lg:pb-6">
-      <div className={`flex  gap-4 lg:gap-6 p-3 sm:p-4 lg:p-6 pt-4 sm:pt-6`}>
+      <div className={`flex gap-4 lg:gap-6 px-4 sm:px-6`}>
         {/* Products Section */}
         <section
           className={`${viewMode === "list"

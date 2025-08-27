@@ -17,6 +17,7 @@ import { Product } from '@/hooks/use-products'
 import ProductSelectionPopup from './product-selection-popup'
 import { useQuery } from '@tanstack/react-query'
 import { getCompanies } from '@/lib/Api/getCompanies'
+import { useCatalogContext } from '@/lib/contexts/CatalogContext'
 
 interface EditComboFormProps {
   combo: Combo
@@ -56,10 +57,14 @@ export const EditComboForm: React.FC<EditComboFormProps> = ({ combo, onSuccess, 
     isUpdatingItem, 
     isDeletingItem 
   } = useComboOperations()
-  // Remove catalog fetch since we don't need it for editing combos
+  
+  // Use catalog context for current location
+  const { locationId: currentLocationId } = useCatalogContext()
+  
+  // Use current location for products, fallback to combo location
   const { data: locationsData } = useLocations(1, 100, undefined, combo.companyId)
   const locations = locationsData?.items || []
-  const { products } = useProducts(1, 100, combo.locationId)
+  const { products } = useProducts(1, 100, currentLocationId || combo.locationId)
 
   // Fetch companies for POSPORT_ADMIN users
   const shouldFetchCompanies = user?.role === "POSPORT_ADMIN"
@@ -431,7 +436,7 @@ export const EditComboForm: React.FC<EditComboFormProps> = ({ combo, onSuccess, 
         onProductToggle={handleProductToggle}
         selectedProductQuantities={formData.products.reduce((acc, p) => ({ ...acc, [p.productId]: p.quantity }), {})}
         onQuantityChange={handleQuantityChange}
-        locationId={formData.locationId}
+        locationId={currentLocationId || formData.locationId}
       />
     </form>
   )

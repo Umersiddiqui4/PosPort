@@ -10,11 +10,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useProducts } from "@/hooks/use-products"
 import { useUserDataStore } from "@/lib/store"
-import { useCatalogById } from "@/hooks/use-cataogById"
+import { useCatalogContext } from "@/lib/contexts/CatalogContext"
 import { useProductById } from "@/hooks/use-product-by-id"
 import { FileUpload } from "@/components/ui/file-upload"
 import { useAttachments } from "@/hooks/use-attachments"
 import { getValidCategory } from "@/lib/Api/uploadAttachment"
+import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/hooks/use-products"
 
 interface ProductFormProps {
@@ -30,12 +31,10 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
   const user = useUserDataStore((state) => state.user)
   const params = useParams()
   const queryClient = useQueryClient()
+  const { toast } = useToast()
   
-  // Get catalogId from URL params
-  const catalogId = params?.userId as string
-  
-  // Fetch catalog data to get locationId
-  const { data: catalogData, isLoading: catalogLoading } = useCatalogById(catalogId)
+  // Use catalog context for current catalog and location data
+  const { selectedCatalog, catalogData, locationId, isLoading: catalogLoading } = useCatalogContext()
   
   // Fetch detailed product data when editing
   const { data: detailedProduct, isLoading: productLoading } = useProductById(
@@ -78,11 +77,11 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
   
   // Debug logging
   console.log("ProductForm Debug:", {
-    catalogId,
+    selectedCatalog,
     catalogData,
     catalogLoading,
+    locationId,
     userLocationId: user?.locationId,
-    catalogLocationId: catalogData?.locationId,
     selectedCategoryId,
     urlParamsId: params?.Id
   })
@@ -99,6 +98,17 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
 
   const isEditing = !!currentProduct
 
+  // Show warning if no category is selected
+  useEffect(() => {
+    if (!selectedCategoryId || selectedCategoryId === "all") {
+      toast({
+        title: "Category Selection Required",
+        description: "Please select a specific category before creating or editing products.",
+        variant: "destructive",
+      })
+    }
+  }, [selectedCategoryId, toast])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -110,17 +120,27 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
       console.log("ProductForm Debug - selectedCategoryId prop:", selectedCategoryId)
       console.log("ProductForm Debug - URL params Id:", params?.Id)
       
-      // Get locationId from catalog data instead of user
-      const locationId = catalogData?.locationId || user?.locationId
+      // Use locationId from catalog context
+      const finalLocationId = locationId || user?.locationId
       
       // Validate that we have required data
-      if (!locationId) {
+      if (!finalLocationId) {
         console.error("No locationId available from catalog or user")
+        toast({
+          title: "Location Required",
+          description: "Please select a catalog first to determine the location.",
+          variant: "destructive",
+        })
         throw new Error("Location information not available")
       }
       
       if (!categoryId) {
         console.error("No categoryId available")
+        toast({
+          title: "Category Required",
+          description: "Please select a category first before creating or editing products.",
+          variant: "destructive",
+        })
         throw new Error("Category information not available")
       }
       
@@ -129,7 +149,7 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
         ...formData,
         categoryId,
         companyId: user?.companyId,
-        locationId,
+        locationId: finalLocationId,
       }
       
       let createdProductId: string | undefined
@@ -150,9 +170,19 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
         setIsUploading(true)
         try {
           // If editing and there's an existing image, delete it first
-          if ( existingImageId) {
+          if (existingImageId) {
             console.log('Deleting existing image:', existingImageId)
-            await deleteAttachment.mutateAsync(existingImageId)
+            try {
+              await deleteAttachment.mutateAsync(existingImageId)
+              console.log('Existing image deleted successfully')
+            } catch (deleteError: any) {
+              console.error("Failed to delete existing image:", deleteError)
+              toast({
+                title: "Image Cleanup Warning",
+                description: "Failed to remove old image, but continuing with upload.",
+                variant: "destructive",
+              })
+            }
           }
           
           const category = getValidCategory("product")
@@ -166,6 +196,12 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
           
           console.log('Image upload response:', response)
           
+          // Show success message for image upload
+          toast({
+            title: "Image Uploaded",
+            description: "Product image has been uploaded successfully.",
+          })
+          
           // Refetch product data to get updated information including new attachment
           if (createdProductId) {
             // For both creating and editing, invalidate queries to refetch updated data
@@ -173,16 +209,61 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
             queryClient.invalidateQueries({ queryKey: ["products"] })
             console.log('Product data refetched after image upload')
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Failed to upload image:", error)
+          
+          // Show specific error message for image upload failure
+          let errorMessage = "Failed to upload image. Please try again."
+          
+          if (error.response?.status === 413) {
+            errorMessage = "Image file is too large. Please select an image smaller than 2MB."
+          } else if (error.response?.status === 415) {
+            errorMessage = "Unsupported image format. Please use PNG, JPG, or JPEG only."
+          } else if (error.response?.status === 400) {
+            errorMessage = "Invalid image file. Please check the file and try again."
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+          
+          toast({
+            title: "Image Upload Failed",
+            description: errorMessage,
+            variant: "destructive",
+          })
         } finally {
           setIsUploading(false)
         }
+      } else if (selectedImage && (!createdProductId || !user?.companyId)) {
+        // Show warning if image is selected but product creation failed
+        toast({
+          title: "Image Upload Skipped",
+          description: "Image upload was skipped because product creation failed.",
+          variant: "destructive",
+        })
       }
       
+      // Show success message
+      toast({
+        title: isEditing ? "Product Updated" : "Product Created",
+        description: isEditing 
+          ? "Product has been updated successfully." 
+          : "Product has been created successfully.",
+      })
+      
       onSuccess?.()
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save product:", error)
+      
+      // Show error message if not already shown by validation
+      if (!error.message?.includes("information not available")) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to save product. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -195,10 +276,26 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
 
   const handleImageSelect = (file: File) => {
     setSelectedImage(file)
+    toast({
+      title: "Image Selected",
+      description: `${file.name} has been selected for upload.`,
+    })
   }
 
   const handleImageRemove = () => {
     setSelectedImage(null)
+    toast({
+      title: "Image Removed",
+      description: "Selected image has been removed.",
+    })
+  }
+
+  const handleImageValidationError = (message: string) => {
+    toast({
+      title: "Invalid Image",
+      description: message,
+      variant: "destructive",
+    })
   }
 
   return (
@@ -311,6 +408,10 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
                   onClick={() => {
                     setExistingImageUrl(null)
                     setExistingImageId(null)
+                    toast({
+                      title: "Image Removed",
+                      description: "Current image has been removed. Upload a new image to replace it.",
+                    })
                   }}
                 >
                   Remove
@@ -322,7 +423,8 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
               onFileSelect={handleImageSelect}
               onFileRemove={handleImageRemove}
               selectedFile={selectedImage}
-              maxSize={5}
+              maxSize={2}
+              onValidationError={handleImageValidationError}
             />
           </div>
         </div>

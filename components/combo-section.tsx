@@ -133,15 +133,18 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
           }}
         >
           {combos.map((combo) => (
-            <ComboCard
-              key={combo.id}
-              combo={combo}
-              onAddToCart={onAddComboToCart}
-              isInCart={combosInCart.includes(combo.id)}
-              onEdit={handleEditCombo}
-              onDelete={deleteCombo}
-              isDeleting={isDeleting}
-            />
+            <React.Fragment key={combo.id}>
+              {combo && (
+                <ComboCard
+                  combo={combo}
+                  onAddToCart={onAddComboToCart}
+                  isInCart={combosInCart.includes(combo.id)}
+                  onEdit={handleEditCombo}
+                  onDelete={deleteCombo}
+                  isDeleting={isDeleting}
+                />
+              )}
+            </React.Fragment>
           ))}
         </div>
         

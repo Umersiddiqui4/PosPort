@@ -322,16 +322,13 @@ export default function Locations({ companyId }: LocationsProps) {
               className="pl-10"
             />
           </div>
-          <Button variant="outline" className="w-full sm:w-auto">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+         
         </div>
 
         {/* Locations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {serverLocations.map((location: Location) => (
-            <Card key={location.id} className="hover:shadow-lg transition-shadow duration-200">
+            <Card key={location.id} className="hover:shadow-lg overflow-hidden transition-shadow duration-200">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -365,8 +362,8 @@ export default function Locations({ companyId }: LocationsProps) {
                     size="sm"
                     onClick={() => handleViewLocation(location.id)}
                   >
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
+                    <Eye className="h-4 w-4 " />
+                  
                   </Button>
                   
                   {canManageLocations && (
@@ -376,7 +373,7 @@ export default function Locations({ companyId }: LocationsProps) {
                         size="sm"
                         onClick={() => openEditModal(location)}
                       >
-                        <Edit className="h-4 w-4 mr-1" />
+                        <Edit className="h-4 w-4 " />
                         
                       </Button>
                       <Button
@@ -388,7 +385,7 @@ export default function Locations({ companyId }: LocationsProps) {
                         }}
                         className="text-red-600 hover:text-red-700"
                       >
-                        <Trash2 className="h-4 w-4 mr-1" />
+                        <Trash2 className="h-4 w-4 " />
                       
                       </Button>
                     </div>

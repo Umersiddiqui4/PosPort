@@ -17,7 +17,8 @@ import React from "react"
 import { useProducts, Product as APIProduct } from "@/hooks/use-products"
 import { useCatalogs } from "@/hooks/use-catalogs"
 import { useProductCategories } from "@/hooks/use-product-categories"
-import { useCatalogById } from "@/hooks/use-cataogById"
+import { useCatalogContext } from "@/lib/contexts/CatalogContext"
+import { useCatalogChangeListener } from "@/hooks/use-catalog-change-listener"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import ProductForm from "@/components/product-form"
 import { Button } from "@/components/ui/button"
@@ -66,9 +67,6 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const categoryIdFromUrl = params?.Id as string
   
   const [currentView, setCurrentView] = useState<ViewType>("products")
-  const [selectedCategory, setSelectedCategory] = useState("All Product")
-  const [selectedCatalog, setSelectedCatalog] = useState<string>("all")
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all")
   const [cart, setCart] = useState<CartItem[]>([])
   const [manualPrice, setManualPrice] = useState("")
   const [viewMode, setViewMode] = useState<ViewMode>("grid")
@@ -79,6 +77,18 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isLoadingCatalogForProduct, setIsLoadingCatalogForProduct] = useState(false)
   
+  // Use catalog context for global state management
+  const {
+    selectedCatalog,
+    selectedCategory,
+    selectedCategoryId,
+    catalogData,
+    isLoading: catalogLoading,
+    locationId,
+    updateCatalog,
+    updateCategory
+  } = useCatalogContext()
+  
   // Use the products API with category filtering
   const { products: apiProducts, isLoading: productsLoading, deleteProduct } = useProducts(1, 1000) // Get more products for filtering
   
@@ -88,8 +98,8 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
   // Use the categories API
   const { data: categories = [], isLoading: categoriesLoading } = useProductCategories()
   
-  // Fetch catalog data when needed for product creation
-  const { data: catalogData, isLoading: catalogLoading, refetch: refetchCatalog } = useCatalogById(selectedCatalog !== "all" ? selectedCatalog : "")
+  // Listen for catalog changes and invalidate queries
+  useCatalogChangeListener()
   
   // Debug logging for catalog data
   console.log("CashierPage Catalog Debug:", {
@@ -387,9 +397,8 @@ console.log(filteredProducts,"filteredProducts");
     if (selectedCatalog && selectedCatalog !== "all") {
       console.log("Loading catalog data for product creation:", selectedCatalog)
       setIsLoadingCatalogForProduct(true)
-      refetchCatalog().finally(() => {
-        setIsLoadingCatalogForProduct(false)
-      })
+      // Catalog data is now managed by context, no need to refetch
+      setIsLoadingCatalogForProduct(false)
     }
     
     console.log("Opening create product dialog with category:", {
@@ -398,7 +407,7 @@ console.log(filteredProducts,"filteredProducts");
       catalogId: selectedCatalog
     })
     setIsCreateProductDialogOpen(true)
-  }, [selectedCatalog, selectedCategoryId, selectedCategory, refetchCatalog])
+  }, [selectedCatalog, selectedCategoryId, selectedCategory])
 
   const handleEditProduct = useCallback((product: Product) => {
     setSelectedProduct(product)
@@ -490,44 +499,6 @@ console.log(filteredProducts,"filteredProducts");
     setViewMode((prev) => (prev === "grid" ? "list" : "grid"))
   }, [])
 
-  // Sync URL params with state on mount
-  useEffect(() => {
-    if (catalogIdFromUrl) {
-      setSelectedCatalog(catalogIdFromUrl)
-      if (categoryIdFromUrl) {
-        setSelectedCategoryId(categoryIdFromUrl)
-        // Find category name for display
-        const category = categories.find(cat => cat.id === categoryIdFromUrl)
-        setSelectedCategory(category?.categoryName || "All Product")
-      } else {
-        setSelectedCategoryId("all")
-        setSelectedCategory("All Product")
-      }
-    }
-  }, [catalogIdFromUrl, categoryIdFromUrl, categories])
-  
-  // Listen for URL changes and update params when create product dialog is opened
-  useEffect(() => {
-    if (isCreateProductDialogOpen) {
-      const updatedParams = getUpdatedParams()
-      console.log("Product creation dialog opened with params:", updatedParams)
-      
-      // Update state based on new params if needed
-      if (updatedParams.catalogId && updatedParams.catalogId !== selectedCatalog) {
-        console.log("Updating selected catalog from URL params:", updatedParams.catalogId)
-        setSelectedCatalog(updatedParams.catalogId)
-      }
-      
-      if (updatedParams.categoryId && updatedParams.categoryId !== selectedCategoryId) {
-        console.log("Updating selected category from URL params:", updatedParams.categoryId)
-        setSelectedCategoryId(updatedParams.categoryId)
-        // Find category name for display
-        const category = categories.find(cat => cat.id === updatedParams.categoryId)
-        setSelectedCategory(category?.categoryName || "All Product")
-      }
-    }
-  }, [isCreateProductDialogOpen, getUpdatedParams, selectedCatalog, selectedCategoryId, categories])
-  
   // Track selectedCategoryId changes
   useEffect(() => {
     console.log("selectedCategoryId changed:", selectedCategoryId)
@@ -535,80 +506,19 @@ console.log(filteredProducts,"filteredProducts");
 
   // Catalog and category selection handlers
   const handleCatalogSelect = useCallback((catalogId: string) => {
-    const actualCatalogId = catalogId === "all" ? "" : catalogId
-    console.log("Catalog selection:", { catalogId, actualCatalogId })
-    
-    setSelectedCatalog(actualCatalogId)
-    setSelectedCategoryId("all") // Reset category when catalog changes
-    setSelectedCategory("All Product")
-    
-    // Update URL
-    if (actualCatalogId) {
-      const newUrl = `/catalogs/${actualCatalogId}/categories`
-      console.log("Navigating to:", newUrl)
-      console.log("Current pathname:", typeof window !== 'undefined' ? window.location.pathname : 'server-side')
-      
-      // Update URL using window.history
-      if (typeof window !== 'undefined') {
-        window.history.pushState({}, '', newUrl)
-        
-        // Dispatch a custom event to notify parent components
-        window.dispatchEvent(new CustomEvent('catalogChanged', { 
-          detail: { catalogId: actualCatalogId } 
-        }))
-      }
-    } else {
-      console.log("Navigating to home")
-      if (typeof window !== 'undefined') {
-        window.history.pushState({}, '', "/")
-        
-        // Dispatch a custom event to notify parent components
-        window.dispatchEvent(new CustomEvent('catalogChanged', { 
-          detail: { catalogId: null } 
-        }))
-      }
-    }
-  }, [])
+    console.log("CashierPage: Catalog selection", { catalogId })
+    updateCatalog(catalogId)
+  }, [updateCatalog])
 
   const handleCategorySelect = useCallback((categoryId: string) => {
-    const actualCategoryId = categoryId === "all" ? "" : categoryId
-    console.log("Category selection changed:", {
-      originalCategoryId: categoryId,
-      actualCategoryId,
-      previousSelectedCategoryId: selectedCategoryId
-    })
-    
-    setSelectedCategoryId(actualCategoryId)
+    console.log("CashierPage: Category selection", { categoryId })
     
     // Find category name for display
     const category = categories.find(cat => cat.id === categoryId)
-    setSelectedCategory(category?.categoryName || "All Product")
+    const categoryName = category?.categoryName || "All Product"
     
-    // Update URL
-    if (selectedCatalog && selectedCatalog !== "all") {
-      if (actualCategoryId) {
-        const newUrl = `/catalogs/${selectedCatalog}/categories/${actualCategoryId}/products`
-        if (typeof window !== 'undefined') {
-          window.history.pushState({}, '', newUrl)
-          
-          // Dispatch a custom event to notify parent components
-          window.dispatchEvent(new CustomEvent('categoryChanged', { 
-            detail: { categoryId: actualCategoryId, catalogId: selectedCatalog } 
-          }))
-        }
-      } else {
-        const newUrl = `/catalogs/${selectedCatalog}/categories`
-        if (typeof window !== 'undefined') {
-          window.history.pushState({}, '', newUrl)
-          
-          // Dispatch a custom event to notify parent components
-          window.dispatchEvent(new CustomEvent('categoryChanged', { 
-            detail: { categoryId: null, catalogId: selectedCatalog } 
-          }))
-        }
-      }
-    }
-  }, [categories, selectedCatalog])
+    updateCategory(categoryId, categoryName)
+  }, [categories, updateCategory])
 
   // Filter categories for selected catalog
   const filteredCategories = useMemo(() => {
@@ -797,7 +707,7 @@ console.log(filteredProducts,"filteredProducts");
                   console.log('Edit combo:', combo)
                   // TODO: Implement combo editing
                 }}
-                locationId={catalogData?.locationId}
+                locationId={locationId}
               />
             </div>
             
@@ -940,9 +850,9 @@ console.log(filteredProducts,"filteredProducts");
             <DialogTitle>Create New Product</DialogTitle>
           </DialogHeader>
                           <ProductForm 
+                            selectedCategoryId={selectedCategoryId !== "all" ? selectedCategoryId : ""}
                             onSuccess={handleCreateProductSuccess} 
                             onCancel={handleCreateProductCancel}
-                            selectedCategoryId={selectedCategoryId !== "all" ? selectedCategoryId : ""}
                           />
         </DialogContent>
       </Dialog>
@@ -954,26 +864,27 @@ console.log(filteredProducts,"filteredProducts");
             <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
           {selectedProduct && (
-            <ProductForm
-              product={{
-                id: selectedProduct.id,
-                productName: selectedProduct.productName || selectedProduct.name,
-                price: selectedProduct.price,
-                image: selectedProduct.image,
-                cost: selectedProduct.cost,
-                description: selectedProduct.description,
-                category: selectedProduct.category,
-                status: selectedProduct.status,
-                stock: 0,
-                createdAt: "",
-                updatedAt: "",
-                companyId: "",
-                locationId: "",
-                catalogId: ""
-              } as any}
-              onSuccess={handleEditProductSuccess}
-              onCancel={() => setIsEditProductDialogOpen(false)}
-            />
+                          <ProductForm
+                product={{
+                  id: selectedProduct.id,
+                  productName: selectedProduct.productName || selectedProduct.name,
+                  price: selectedProduct.price,
+                  image: selectedProduct.image,
+                  cost: selectedProduct.cost,
+                  description: selectedProduct.description,
+                  category: selectedProduct.category,
+                  status: selectedProduct.status,
+                  stock: 0,
+                  createdAt: "",
+                  updatedAt: "",
+                  companyId: "",
+                  locationId: "",
+                  catalogId: ""
+                } as any}
+                selectedCategoryId={selectedCategoryId !== "all" ? selectedCategoryId : ""}
+                onSuccess={handleEditProductSuccess}
+                onCancel={() => setIsEditProductDialogOpen(false)}
+              />
           )}
         </DialogContent>
       </Dialog>

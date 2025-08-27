@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Plus, X } from "lucide-react"
 import { useProducts } from "@/hooks/use-products"
 import { useUserDataStore } from "@/lib/store"
-import { useCatalogById } from "@/hooks/use-cataogById"
+import { useCatalogContext } from "@/lib/contexts/CatalogContext"
 import { useLocations } from "@/hooks/useLocation"
 import { CreateComboRequest } from "@/lib/Api/createCombo"
 import { Combo } from "@/hooks/use-combos"
@@ -18,6 +18,7 @@ import { useComboOperations } from "@/hooks/use-combo-operations"
 import ProductSelectionPopup from "./product-selection-popup"
 import { useQuery } from "@tanstack/react-query"
 import { getCompanies } from "@/lib/Api/getCompanies"
+import { useToast } from "@/hooks/use-toast"
 
 interface ComboFormProps {
   combo?: Combo
@@ -30,8 +31,9 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
   const { products } = useProducts()
   const { createCombo, isCreating } = useComboOperations()
   const [isProductPopupOpen, setIsProductPopupOpen] = useState(false)
+  const { toast } = useToast()
   
-  // Fetch companies for POSPORT_ADMIN
+  // Fetch companies for POSPORT_ADMIN only (skip for COMPANY_OWNER)
   const shouldFetchCompanies = user?.role === "POSPORT_ADMIN"
   const { data: companiesData } = useQuery({
     queryKey: shouldFetchCompanies ? ["companies", "all-for-combo"] : ["company", user?.companyId],
@@ -39,7 +41,7 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       if (shouldFetchCompanies) {
         return getCompanies("", 1, 100)
       }
-      // Fallback for non-admin users
+      // Fallback for non-admin users (including COMPANY_OWNER)
       return {
         data: user?.companyId ? [{ id: user.companyId, name: "My Company" }] : [],
         meta: {
@@ -56,11 +58,8 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
   })
   const companies = companiesData?.data || []
   
-  // Get catalogId from URL params
-  const catalogId = typeof window !== 'undefined' ? window.location.pathname.split('/')[2] : ''
-  
-  // Fetch catalog data to get locationId
-  const { data: catalogData } = useCatalogById(catalogId)
+  // Use catalog context for current catalog and location data
+  const { selectedCatalog, catalogData, locationId } = useCatalogContext()
   
   const [formData, setFormData] = useState<CreateComboRequest>({
     name: combo?.name || "New Combo",
@@ -69,7 +68,7 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
     shouldShowSeparatePrice: combo?.shouldShowSeparatePrice || false,
     status: combo?.status || "active",
     companyId: user?.companyId || "",
-    locationId: catalogData?.locationId || user?.locationId || "",
+    locationId: locationId || user?.locationId || "",
     products: combo?.comboItems?.map(item => ({
       productId: item.productId,
       quantity: item.quantity || 1
@@ -80,18 +79,29 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
 
   const isEditing = !!combo
 
+  // Show warning if no catalog is selected
+  useEffect(() => {
+    if (!selectedCatalog || selectedCatalog === "all") {
+      toast({
+        title: "Catalog Selection Required",
+        description: "Please select a catalog first before creating combos.",
+        variant: "destructive",
+      })
+    }
+  }, [selectedCatalog, toast])
+
   // Fetch locations for dropdown - filter by selected company for POSPORT_ADMIN
   const { data: locationsData } = useLocations(1, 100, "", formData.companyId || undefined)
   const locations = locationsData?.items || []
 
   useEffect(() => {
-    if (catalogData?.locationId) {
+    if (locationId) {
       setFormData(prev => ({
         ...prev,
-        locationId: catalogData.locationId
+        locationId: locationId
       }))
     }
-  }, [catalogData])
+  }, [locationId])
 
   // Update locations when company changes for POSPORT_ADMIN
   useEffect(() => {
@@ -112,18 +122,38 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       
       // Validate required fields
       if (!formData.name.trim()) {
+        toast({
+          title: "Combo Name Required",
+          description: "Please enter a name for the combo.",
+          variant: "destructive",
+        })
         throw new Error("Combo name is required")
       }
       if (!formData.bundlePrice || formData.bundlePrice <= 0) {
+        toast({
+          title: "Bundle Price Required",
+          description: "Please enter a valid bundle price greater than 0.",
+          variant: "destructive",
+        })
         throw new Error("Bundle price must be greater than 0")
       }
       
       // Ensure bundlePrice is a number
       const bundlePrice = Number(formData.bundlePrice)
       if (isNaN(bundlePrice)) {
+        toast({
+          title: "Invalid Bundle Price",
+          description: "Bundle price must be a valid number.",
+          variant: "destructive",
+        })
         throw new Error("Bundle price must be a valid number")
       }
       if (formData.products.length === 0) {
+        toast({
+          title: "Products Required",
+          description: "Please select at least one product for the combo.",
+          variant: "destructive",
+        })
         throw new Error("Please select at least one product")
       }
       
@@ -131,21 +161,46 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       console.log('Selected products:', formData.products)
       for (const product of formData.products) {
         if (!product.productId || typeof product.productId !== 'string') {
+          toast({
+            title: "Invalid Product",
+            description: "One or more products have invalid data.",
+            variant: "destructive",
+          })
           throw new Error("Invalid product ID format")
         }
         if (!product.quantity || product.quantity <= 0) {
+          toast({
+            title: "Invalid Quantity",
+            description: "Product quantity must be greater than 0.",
+            variant: "destructive",
+          })
           throw new Error("Product quantity must be greater than 0")
         }
       }
       if (!formData.companyId) {
+        toast({
+          title: "Company Required",
+          description: "Company information is required.",
+          variant: "destructive",
+        })
         throw new Error("Company ID is required")
       }
       
       // Additional validation for POSPORT_ADMIN
       if (shouldFetchCompanies && !formData.companyId) {
+        toast({
+          title: "Company Selection Required",
+          description: "Please select a company.",
+          variant: "destructive",
+        })
         throw new Error("Please select a company")
       }
       if (!formData.locationId) {
+        toast({
+          title: "Location Required",
+          description: "Please select a catalog first to determine the location.",
+          variant: "destructive",
+        })
         throw new Error("Location ID is required")
       }
       
@@ -167,11 +222,25 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       console.log('Sending combo data:', comboData)
       await createCombo(comboData)
       
+      // Show success message
+      toast({
+        title: "Combo Created",
+        description: "Combo has been created successfully.",
+      })
+      
       onSuccess?.()
     } catch (error: any) {
       console.error("Failed to save combo:", error)
       console.error("Error details:", error?.response?.data)
-      alert(error.message)
+      
+      // Show error message if not already shown by validation
+      if (!error.message?.includes("required") && !error.message?.includes("must be")) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to create combo. Please try again.",
+          variant: "destructive",
+        })
+      }
     }
   }
 

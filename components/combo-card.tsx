@@ -21,20 +21,48 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
+  // Safety check for undefined combo
+  if (!combo) {
+    console.warn('ComboCard: combo prop is undefined')
+    return null
+  }
+
   const getFirstProductImage = () => {
-    for (const item of combo.comboItems) {
-      if (item.product.attachments && item.product.attachments.length > 0) {
-        return item.product.attachments[0].url
+    try {
+      if (!combo?.comboItems || !Array.isArray(combo.comboItems)) {
+        return '/placeholder.svg'
       }
+      
+      for (const item of combo.comboItems) {
+        if (item?.product?.attachments && Array.isArray(item.product.attachments) && item.product.attachments.length > 0) {
+          return item.product.attachments[0]?.url || '/placeholder.svg'
+        }
+      }
+      return '/placeholder.svg'
+    } catch (error) {
+      console.error('Error getting first product image:', error)
+      return '/placeholder.svg'
     }
-    return '/placeholder.svg'
   }
 
   const getProductNames = () => {
-    return combo.comboItems.map(item => {
-      const quantity = item.quantity || 1
-      return quantity > 1 ? `${item.product.productName} (${quantity})` : item.product.productName
-    }).join(', ')
+    try {
+      if (!combo?.comboItems || !Array.isArray(combo.comboItems)) {
+        return 'No products available'
+      }
+      
+      return combo.comboItems
+        .filter(item => item?.product?.productName) // Filter out items without product names
+        .map(item => {
+          const quantity = item.quantity || 1
+          const productName = item.product?.productName || 'Unknown Product'
+          return quantity > 1 ? `${productName} (${quantity})` : productName
+        })
+        .join(', ')
+    } catch (error) {
+      console.error('Error getting product names:', error)
+      return 'Error loading products'
+    }
   }
 
   const handleCardClick = () => {
@@ -76,7 +104,7 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
           <div className="absolute top-2 left-2">
                           <Badge variant="secondary" className="bg-white/90 text-gray-800 text-xs">
                 <Package className="w-3 h-3 mr-1" />
-                {combo.comboItems.reduce((total, item) => total + (item.quantity || 1), 0)} items
+                {combo?.comboItems?.reduce((total, item) => total + (item?.quantity || 1), 0) || 0} items
               </Badge>
           </div>
 
@@ -197,7 +225,7 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
               <div className="absolute top-3 left-3">
                               <Badge variant="secondary" className="bg-white/90 text-gray-800">
                 <Package className="w-4 h-4 mr-1" />
-                {combo.comboItems.reduce((total, item) => total + (item.quantity || 1), 0)} items
+                {combo?.comboItems?.reduce((total, item) => total + (item?.quantity || 1), 0) || 0} items
               </Badge>
               </div>
               
@@ -216,12 +244,12 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
                 Included Items
               </h3>
               <div className="grid gap-4">
-                {combo.comboItems.map((item, index) => (
+                {combo?.comboItems?.filter(item => item?.product)?.map((item, index) => (
                   <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
                       <img
-                        src={item.product.attachments?.[0]?.url || '/placeholder.svg'}
-                        alt={item.product.productName}
+                        src={item?.product?.attachments?.[0]?.url || '/placeholder.svg'}
+                        alt={item?.product?.productName || 'Product'}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
@@ -229,22 +257,22 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
                         }}
                       />
                     </div>
-                                         <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0">
                        <h4 className="font-semibold text-gray-800 dark:text-gray-200 truncate">
-                         {item.product.productName}
-                         {item.quantity > 1 && (
+                         {item?.product?.productName || 'Unknown Product'}
+                         {(item?.quantity || 1) > 1 && (
                            <span className="ml-2 text-sm text-gray-500">× {item.quantity}</span>
                          )}
                        </h4>
                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                         Price: ${item.product.retailPrice || 0}
-                         {item.quantity > 1 && (
-                           <span className="ml-1">× {item.quantity} = ${(item.product.retailPrice * item.quantity).toFixed(2)}</span>
+                         Price: ${item?.product?.retailPrice || 0}
+                         {(item?.quantity || 1) > 1 && (
+                           <span className="ml-1">× {item.quantity} = ${((item?.product?.retailPrice || 0) * (item?.quantity || 1)).toFixed(2)}</span>
                          )}
                        </p>
                      </div>
                   </div>
-                ))}
+                )) || <p className="text-gray-500">No products available</p>}
               </div>
             </div>
 

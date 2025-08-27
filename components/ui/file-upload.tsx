@@ -16,31 +16,44 @@ interface FileUploadProps {
   maxSize?: number // in MB
   className?: string
   disabled?: boolean
+  onValidationError?: (message: string) => void
 }
 
 export function FileUpload({
   onFileSelect,
   onFileRemove,
   selectedFile,
-  accept = "image/*",
-  maxSize = 5, // 5MB default
+  accept = "image/jpeg,image/jpg,image/png",
+  maxSize = 2, // 2MB default
   className,
-  disabled = false
+  disabled = false,
+  onValidationError
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+    // Validate file type - only allow PNG, JPG, JPEG
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
+    if (!allowedTypes.includes(file.type)) {
+      const errorMessage = 'Please select an image file (PNG, JPG, JPEG only)'
+      if (onValidationError) {
+        onValidationError(errorMessage)
+      } else {
+        alert(errorMessage)
+      }
       return
     }
 
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
-      alert(`File size must be less than ${maxSize}MB`)
+      const errorMessage = `File size must be less than ${maxSize}MB`
+      if (onValidationError) {
+        onValidationError(errorMessage)
+      } else {
+        alert(errorMessage)
+      }
       return
     }
 

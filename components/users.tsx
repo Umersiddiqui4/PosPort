@@ -234,10 +234,28 @@ export default function Users() {
     }
   }, [activeTab])
 
-  // Fetch companies for dropdown
+  // Fetch companies for dropdown (skip for COMPANY_OWNER)
+  const shouldFetchCompanies = currentUser?.role !== "COMPANY_OWNER"
   const { data: companiesData } = useQuery({
-    queryKey: ["companies", "all-for-user-edit"],
-    queryFn: () => getCompanies("", 1, 100),
+    queryKey: shouldFetchCompanies ? ["companies", "all-for-user-edit"] : ["company", currentUser?.companyId],
+    queryFn: async () => {
+      if (shouldFetchCompanies) {
+        return getCompanies("", 1, 100)
+      }
+      // For COMPANY_OWNER, return their own company
+      return {
+        data: currentUser?.companyId ? [{ id: currentUser.companyId, name: "My Company" }] : [],
+        meta: {
+          page: 1,
+          take: 100,
+          itemCount: currentUser?.companyId ? 1 : 0,
+          pageCount: 1,
+          hasPreviousPage: false,
+          hasNextPage: false,
+        },
+      }
+    },
+    enabled: !!currentUser,
   })
   const companies = companiesData?.data || []
 

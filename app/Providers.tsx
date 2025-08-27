@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from "@/components/theme-provider"
-import { useState } from "react"
+import { CatalogProvider } from "@/lib/contexts/CatalogContext"
+import { useState, useEffect } from "react"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -35,6 +36,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }),
   )
 
+  // Make queryClient globally available for cache invalidation
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.queryClient = queryClient
+    }
+  }, [queryClient])
+
   return (
     <ThemeProvider
       attribute="class"
@@ -44,7 +52,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       storageKey="theme"
     >
       <QueryClientProvider client={queryClient}>
-        {children}
+        <CatalogProvider>
+          {children}
+        </CatalogProvider>
         <Toaster />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

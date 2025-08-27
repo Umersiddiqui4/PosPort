@@ -8,6 +8,7 @@ import { CheckCircle, Upload } from "lucide-react"
 import { useAttachments } from "@/hooks/use-attachments"
 import { useUserDataStore } from "@/lib/store"
 import { getValidCategory } from "@/lib/Api/uploadAttachment"
+import { useToast } from "@/hooks/use-toast"
 
 interface SuccessUploadPopupProps {
   isOpen: boolean
@@ -30,13 +31,30 @@ export function SuccessUploadPopup({
   const [isUploading, setIsUploading] = useState(false)
   const { uploadAttachment } = useAttachments()
   const user = useUserDataStore((state) => state.user)
+  const { toast } = useToast()
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
+    toast({
+      title: "Image Selected",
+      description: `${file.name} has been selected for upload.`,
+    })
   }
 
   const handleFileRemove = () => {
     setSelectedFile(null)
+    toast({
+      title: "Image Removed",
+      description: "Selected image has been removed.",
+    })
+  }
+
+  const handleImageValidationError = (message: string) => {
+    toast({
+      title: "Invalid Image",
+      description: message,
+      variant: "destructive",
+    })
   }
 
   const handleUpload = async () => {
@@ -58,9 +76,35 @@ export function SuccessUploadPopup({
       })
 
       onUploadSuccess?.(response.data.fileUrl)
+      
+      toast({
+        title: "Image Uploaded",
+        description: "Image has been uploaded successfully.",
+      })
+      
       onClose()
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed:", error)
+      
+      let errorMessage = "Failed to upload image. Please try again."
+      
+      if (error.response?.status === 413) {
+        errorMessage = "Image file is too large. Please select an image smaller than 2MB."
+      } else if (error.response?.status === 415) {
+        errorMessage = "Unsupported image format. Please use PNG, JPG, or JPEG only."
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid image file. Please check the file and try again."
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      toast({
+        title: "Upload Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsUploading(false)
     }
@@ -93,7 +137,8 @@ export function SuccessUploadPopup({
             onFileSelect={handleFileSelect}
             onFileRemove={handleFileRemove}
             selectedFile={selectedFile}
-            maxSize={5}
+            maxSize={2}
+            onValidationError={handleImageValidationError}
           />
 
           <div className="flex gap-2 pt-4">

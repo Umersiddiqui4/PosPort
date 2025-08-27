@@ -1,20 +1,19 @@
 import api from "@/utils/axios"
+import { Combo } from "@/hooks/use-combos"
 
-export interface CreateComboRequest {
+export interface UpdateComboRequest {
   name: string
   description: string
   bundlePrice: number
   shouldShowSeparatePrice: boolean
   status: string
-  companyId: string
-  locationId: string
   products: Array<{
     productId: string
     quantity: number
   }>
 }
 
-export interface CreateComboResponse {
+export interface UpdateComboResponse {
   id: string
   name: string
   description: string
@@ -29,7 +28,7 @@ export interface CreateComboResponse {
   comboItems: any[]
 }
 
-export const createCombo = async (data: CreateComboRequest): Promise<CreateComboResponse> => {
+export const updateCombo = async (id: string, data: UpdateComboRequest): Promise<UpdateComboResponse> => {
   try {
     // Prepare the request data - only send fields that the API expects
     const requestData = {
@@ -38,29 +37,25 @@ export const createCombo = async (data: CreateComboRequest): Promise<CreateCombo
       bundlePrice: Number(data.bundlePrice), // Ensure it's a number
       shouldShowSeparatePrice: Boolean(data.shouldShowSeparatePrice), // Ensure it's a boolean
       status: data.status,
-      companyId: data.companyId,
-      locationId: data.locationId,
       products: data.products
     }
     
-    console.log('Sending combo request:', requestData)
+    console.log('Sending combo update request:', { id, requestData })
     console.log('Request data types:', {
       name: typeof requestData.name,
       description: typeof requestData.description,
       bundlePrice: typeof requestData.bundlePrice,
       shouldShowSeparatePrice: typeof requestData.shouldShowSeparatePrice,
       status: typeof requestData.status,
-      companyId: typeof requestData.companyId,
-      locationId: typeof requestData.locationId,
       products: Array.isArray(requestData.products)
     })
     
-    const response = await api.post<CreateComboResponse>('/combos', requestData)
-    console.log('Combo created successfully:', response.data)
+    const response = await api.put<UpdateComboResponse>(`/combos/${id}`, requestData)
+    console.log('Combo updated successfully:', response.data)
     return response.data
   } catch (error: any) {
-    console.error('Combo creation error:', error?.response?.data)
+    console.error('Combo update error:', error?.response?.data)
     console.error('Full error response:', error?.response)
-    throw new Error(error?.response?.data?.message || "Failed to create combo")
+    throw new Error(error?.response?.data?.message || "Failed to update combo")
   }
 }

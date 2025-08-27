@@ -7,6 +7,7 @@ export interface ComboItem {
   updatedAt: string
   comboId: string
   productId: string
+  quantity: number
   product: {
     id: string
     createdAt: string

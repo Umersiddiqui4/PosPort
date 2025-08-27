@@ -31,7 +31,10 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
   }
 
   const getProductNames = () => {
-    return combo.comboItems.map(item => item.product.productName).join(', ')
+    return combo.comboItems.map(item => {
+      const quantity = item.quantity || 1
+      return quantity > 1 ? `${item.product.productName} (${quantity})` : item.product.productName
+    }).join(', ')
   }
 
   const handleCardClick = () => {
@@ -71,10 +74,10 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
             }}
           />
           <div className="absolute top-2 left-2">
-            <Badge variant="secondary" className="bg-white/90 text-gray-800 text-xs">
-              <Package className="w-3 h-3 mr-1" />
-              {combo.comboItems.length} items
-            </Badge>
+                          <Badge variant="secondary" className="bg-white/90 text-gray-800 text-xs">
+                <Package className="w-3 h-3 mr-1" />
+                {combo.comboItems.reduce((total, item) => total + (item.quantity || 1), 0)} items
+              </Badge>
           </div>
 
           
@@ -192,10 +195,10 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
                 }}
               />
               <div className="absolute top-3 left-3">
-                <Badge variant="secondary" className="bg-white/90 text-gray-800">
-                  <Package className="w-4 h-4 mr-1" />
-                  {combo.comboItems.length} items
-                </Badge>
+                              <Badge variant="secondary" className="bg-white/90 text-gray-800">
+                <Package className="w-4 h-4 mr-1" />
+                {combo.comboItems.reduce((total, item) => total + (item.quantity || 1), 0)} items
+              </Badge>
               </div>
               
             </div>
@@ -229,9 +232,15 @@ export default function ComboCard({ combo, onAddToCart, isInCart = false, onEdit
                                          <div className="flex-1 min-w-0">
                        <h4 className="font-semibold text-gray-800 dark:text-gray-200 truncate">
                          {item.product.productName}
+                         {item.quantity > 1 && (
+                           <span className="ml-2 text-sm text-gray-500">× {item.quantity}</span>
+                         )}
                        </h4>
                        <p className="text-sm text-gray-600 dark:text-gray-400">
                          Price: ${item.product.retailPrice || 0}
+                         {item.quantity > 1 && (
+                           <span className="ml-1">× {item.quantity} = ${(item.product.retailPrice * item.quantity).toFixed(2)}</span>
+                         )}
                        </p>
                      </div>
                   </div>

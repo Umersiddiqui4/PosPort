@@ -70,11 +70,13 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
     status: combo?.status || "active",
     companyId: user?.companyId || "",
     locationId: catalogData?.locationId || user?.locationId || "",
-    productIds: combo?.comboItems?.map(item => item.productId) || []
+    products: combo?.comboItems?.map(item => ({
+      productId: item.productId,
+      quantity: item.quantity || 1
+    })) || []
   })
 
-  // Track product quantities separately
-  const [productQuantities, setProductQuantities] = useState<Record<string, number>>({})
+  // Product quantities are now stored directly in formData.products
 
   const isEditing = !!combo
 
@@ -107,7 +109,6 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
     
     try {
       console.log('Form data before validation:', formData)
-      console.log('Product quantities:', productQuantities)
       
       // Validate required fields
       if (!formData.name.trim()) {
@@ -122,15 +123,18 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       if (isNaN(bundlePrice)) {
         throw new Error("Bundle price must be a valid number")
       }
-      if (formData.productIds.length === 0) {
+      if (formData.products.length === 0) {
         throw new Error("Please select at least one product")
       }
       
-      // Validate product IDs
-      console.log('Selected product IDs:', formData.productIds)
-      for (const productId of formData.productIds) {
-        if (!productId || typeof productId !== 'string') {
+      // Validate products
+      console.log('Selected products:', formData.products)
+      for (const product of formData.products) {
+        if (!product.productId || typeof product.productId !== 'string') {
           throw new Error("Invalid product ID format")
+        }
+        if (!product.quantity || product.quantity <= 0) {
+          throw new Error("Product quantity must be greater than 0")
         }
       }
       if (!formData.companyId) {
@@ -153,13 +157,12 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
       console.log('- User Role:', user?.role)
       console.log('- Should Fetch Companies:', shouldFetchCompanies)
       console.log('- Location ID:', formData.locationId)
-      console.log('- Product IDs:', formData.productIds)
+      console.log('- Products:', formData.products)
 
-      // Create combo with product quantities
+      // Create combo with products array
       const comboData = {
         ...formData,
-        bundlePrice: Number(formData.bundlePrice), // Ensure it's a number
-        productQuantities
+        bundlePrice: Number(formData.bundlePrice) // Ensure it's a number
       }
       console.log('Sending combo data:', comboData)
       await createCombo(comboData)
@@ -180,41 +183,40 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
   }
 
   const handleProductToggle = (productId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      productIds: prev.productIds.includes(productId)
-        ? prev.productIds.filter(id => id !== productId)
-        : [...prev.productIds, productId]
-    }))
-    
-    // Initialize quantity to 1 when adding a product
-    if (!formData.productIds.includes(productId)) {
-      setProductQuantities(prev => ({
-        ...prev,
-        [productId]: 1
-      }))
-    } else {
-      // Remove quantity when removing product
-      setProductQuantities(prev => {
-        const newQuantities = { ...prev }
-        delete newQuantities[productId]
-        return newQuantities
-      })
-    }
+    setFormData(prev => {
+      const existingProduct = prev.products.find(p => p.productId === productId)
+      if (existingProduct) {
+        // Remove product
+        return {
+          ...prev,
+          products: prev.products.filter(p => p.productId !== productId)
+        }
+      } else {
+        // Add product with quantity 1
+        return {
+          ...prev,
+          products: [...prev.products, { productId, quantity: 1 }]
+        }
+      }
+    })
   }
 
   const handleQuantityChange = (productId: string, quantity: number) => {
-    setProductQuantities(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [productId]: quantity
+      products: prev.products.map(p => 
+        p.productId === productId ? { ...p, quantity } : p
+      )
     }))
   }
 
-  const selectedProducts = products.filter(product => formData.productIds.includes(product.id))
+  const selectedProducts = products.filter(product => 
+    formData.products.some(p => p.productId === product.id)
+  )
   
   // Calculate total items including quantities
-  const totalSelectedItems = formData.productIds.reduce((total, productId) => {
-    return total + (productQuantities[productId] || 1)
+  const totalSelectedItems = formData.products.reduce((total, product) => {
+    return total + product.quantity
   }, 0)
 
   return (
@@ -353,7 +355,7 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
             Add Products
           </Button>
           
-          {formData.productIds.length > 0 && (
+          {formData.products.length > 0 && (
             <div className="border rounded-lg p-4">
               <h4 className="font-medium text-sm mb-3">Selected Products ({totalSelectedItems} items)</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -367,7 +369,7 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{product.name}</p>
                       <p className="text-xs text-gray-500">
-                        {product.retailPrice.toFixed(2)} PKR × {productQuantities[product.id] || 1}
+                        {product.retailPrice.toFixed(2)} PKR × {formData.products.find(p => p.productId === product.id)?.quantity || 1}
                       </p>
                     </div>
                     <Button
@@ -403,10 +405,10 @@ export default function ComboForm({ combo, onSuccess, onCancel }: ComboFormProps
     <ProductSelectionPopup
       isOpen={isProductPopupOpen}
       onClose={() => setIsProductPopupOpen(false)}
-      selectedProductIds={formData.productIds}
+      selectedProductIds={formData.products.map(p => p.productId)}
       onProductToggle={handleProductToggle}
       locationId={formData.locationId}
-      selectedProductQuantities={productQuantities}
+      selectedProductQuantities={formData.products.reduce((acc, p) => ({ ...acc, [p.productId]: p.quantity }), {})}
       onQuantityChange={handleQuantityChange}
     />
   </>

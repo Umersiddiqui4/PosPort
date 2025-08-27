@@ -6,6 +6,7 @@ import { useCombos, Combo } from '@/hooks/use-combos'
 import { useComboOperations } from '@/hooks/use-combo-operations'
 import ComboCard from './combo-card'
 import ComboForm from './combo-form'
+import { EditComboForm } from './edit-combo-form'
 
 interface ComboSectionProps {
   onAddComboToCart: (combo: Combo) => void
@@ -19,6 +20,23 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
   const { deleteCombo, isDeleting } = useComboOperations()
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingCombo, setEditingCombo] = useState<Combo | null>(null)
+
+  const handleEditCombo = (combo: Combo) => {
+    setEditingCombo(combo)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleEditSuccess = () => {
+    setIsEditDialogOpen(false)
+    setEditingCombo(null)
+  }
+
+  const handleEditCancel = () => {
+    setIsEditDialogOpen(false)
+    setEditingCombo(null)
+  }
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -119,7 +137,7 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
               combo={combo}
               onAddToCart={onAddComboToCart}
               isInCart={combosInCart.includes(combo.id)}
-              onEdit={onEditCombo}
+              onEdit={handleEditCombo}
               onDelete={deleteCombo}
               isDeleting={isDeleting}
             />
@@ -144,6 +162,22 @@ export default function ComboSection({ onAddComboToCart, combosInCart, onEditCom
           }}
           onCancel={() => setIsCreateDialogOpen(false)}
         />
+      </DialogContent>
+    </Dialog>
+
+    {/* Edit Combo Dialog */}
+    <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Combo</DialogTitle>
+        </DialogHeader>
+        {editingCombo && (
+          <EditComboForm
+            combo={editingCombo}
+            onSuccess={handleEditSuccess}
+            onCancel={handleEditCancel}
+          />
+        )}
       </DialogContent>
     </Dialog>
   </>

@@ -797,6 +797,7 @@ console.log(filteredProducts,"filteredProducts");
                   console.log('Edit combo:', combo)
                   // TODO: Implement combo editing
                 }}
+                locationId={catalogData?.locationId}
               />
             </div>
             

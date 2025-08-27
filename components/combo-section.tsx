@@ -13,10 +13,11 @@ interface ComboSectionProps {
   combosInCart: string[]
   onEditCombo?: (combo: Combo) => void
   onDeleteCombo?: (comboId: string) => void
+  locationId?: string
 }
 
-export default function ComboSection({ onAddComboToCart, combosInCart, onEditCombo, onDeleteCombo }: ComboSectionProps) {
-  const { combos, isLoading, error } = useCombos(1, 10)
+export default function ComboSection({ onAddComboToCart, combosInCart, onEditCombo, onDeleteCombo, locationId }: ComboSectionProps) {
+  const { combos, isLoading, error } = useCombos(1, 10, locationId)
   const { deleteCombo, isDeleting } = useComboOperations()
   const scrollContainerRef = React.useRef<HTMLDivElement>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)

@@ -55,15 +55,23 @@ export interface ComboResponse {
   statusCode: number
 }
 
-const fetchCombos = async (page: number = 1, take: number = 1000): Promise<ComboResponse> => {
-  const response = await api.get<ComboResponse>(`/combos?page=${page}&take=${1000}`)
+const fetchCombos = async (page: number = 1, take: number = 1000, locationId?: string): Promise<ComboResponse> => {
+  let url = `/combos?page=${page}&take=${take}`
+  
+  // Add locationId filter if provided
+  if (locationId) {
+    url += `&locationId=${locationId}`
+  }
+  
+  const response = await api.get<ComboResponse>(url)
   return response.data
 }
 
-export const useCombos = (page: number = 1, take: number = 1000) => {
+export const useCombos = (page: number = 1, take: number = 1000, locationId?: string) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['combos', page, take],
-    queryFn: () => fetchCombos(page, take),
+    queryKey: ['combos', page, take, locationId],
+    queryFn: () => fetchCombos(page, take, locationId),
+    enabled: !!locationId, // Only fetch if locationId is provided
   })
 
   return {

@@ -65,9 +65,13 @@ export const uploadAttachment = async (attachmentData: UploadAttachmentRequest):
       fileType: attachmentData.file.type
     });
 
-    // Only file goes in FormData
+    // Add metadata to FormData
     const formData = new FormData();
     formData.append('file', attachmentData.file);
+    formData.append('tenantId', attachmentData.tenantId);
+    formData.append('entityId', attachmentData.entityId);
+    formData.append('entityType', attachmentData.entityType);
+    formData.append('category', attachmentData.category);
 
     // Debug FormData contents
     console.log('FormData contents:');
@@ -75,21 +79,10 @@ export const uploadAttachment = async (attachmentData: UploadAttachmentRequest):
       console.log(`${key}:`, value);
     }
 
-    // Other parameters go as query parameters
-    const queryParams = {
-      tenantId: attachmentData.tenantId,
-      entityId: attachmentData.entityId,
-      entityType: attachmentData.entityType,
-      category: attachmentData.category,
-    };
-
-    console.log('Query parameters:', queryParams);
-
     const response = await api.post<UploadAttachmentResponse>("/attachments/upload/image", formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      params: queryParams,
     });
     
     return response.data;

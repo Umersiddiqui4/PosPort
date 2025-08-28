@@ -795,8 +795,8 @@ console.log(assignedUsers, "assignedUsers");
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            {/* Terminate Sessions - Only for POSPORT_ADMIN and COMPANY_OWNER */}
-                            {(currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") && (
+                            {/* Terminate Sessions - Only for POSPORT_ADMIN */}
+                            {currentUser?.role === "POSPORT_ADMIN" && (
                               <DropdownMenuItem 
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -946,8 +946,8 @@ console.log(assignedUsers, "assignedUsers");
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
                               </DropdownMenuItem>
-                              {/* Terminate Sessions - Only for POSPORT_ADMIN and COMPANY_OWNER */}
-                              {(currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") && (
+                              {/* Terminate Sessions - Only for POSPORT_ADMIN */}
+                              {currentUser?.role === "POSPORT_ADMIN" && (
                                 <DropdownMenuItem 
                                   onClick={(e) => {
                                     e.stopPropagation()

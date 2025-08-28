@@ -15,6 +15,7 @@ import {
   Shield,
   BookOpen,
   Menu,
+  Package,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -32,7 +33,7 @@ const baseMenuItems = [
   // { id: "history", label: "History Transaction", icon: History },
   // { id: "report", label: "Report", icon: FileText },
   { id: "manage-store", label: "Manage Store", icon: Store, href: "/manage-store" },
-  // { id: "product-list", label: "Product List", icon: Package },
+  { id: "product-list", label: "Product List", icon: Package, href: "/product-list" },
   // { id: "customer", label: "Customers", icon: Users },
   { id: "catalogs", label: "Catalogs", icon: BookOpen, href: "/catalogs" },
   { id: "users", label: "Users", icon: User, href: "/users" },

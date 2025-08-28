@@ -2,16 +2,18 @@
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Edit, Trash2, Package, Calendar, TrendingUp, BarChart3, Clock, MapPin, Tag, DollarSign, AlertCircle } from "lucide-react"
+import { ArrowLeft, Edit, Trash2, Package, Calendar, TrendingUp, BarChart3, Clock, MapPin, Tag, DollarSign, AlertCircle, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { useProductById } from "@/hooks/use-product-by-id"
+import { useProductLifetimeDetails } from "@/hooks/use-product-lifetime-details"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import LifetimeDetailsForm from "@/components/lifetime-details-form"
 
 export default function ProductDetail() {
   const params = useParams()
@@ -19,11 +21,23 @@ export default function ProductDetail() {
   const { toast } = useToast()
   const { user } = useCurrentUser()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isLifetimeFormOpen, setIsLifetimeFormOpen] = useState(false)
+  const [lifetimeFormMode, setLifetimeFormMode] = useState<"create" | "edit">("create")
   
   const productId = params.id as string
   
   // Fetch product details
   const { data: product, isLoading, error } = useProductById(productId)
+  
+  // Fetch lifetime details
+  const { 
+    lifetimeDetails, 
+    isLoading: lifetimeLoading, 
+    error: lifetimeError,
+    createLifetimeDetails,
+    updateLifetimeDetails,
+    deleteLifetimeDetails
+  } = useProductLifetimeDetails(productId)
   
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
 
@@ -44,7 +58,16 @@ export default function ProductDetail() {
     router.push("/product-list")
   }
 
-  if (isLoading) {
+  const handleOpenLifetimeForm = (mode: "create" | "edit") => {
+    setLifetimeFormMode(mode)
+    setIsLifetimeFormOpen(true)
+  }
+
+  const handleCloseLifetimeForm = () => {
+    setIsLifetimeFormOpen(false)
+  }
+
+  if (isLoading || lifetimeLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a72dd]"></div>
@@ -239,6 +262,86 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Lifetime Details Section */}
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-purple-500" />
+                Product Lifetime Details
+                {canManageProducts && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenLifetimeForm(lifetimeDetails ? "edit" : "create")}
+                    className="ml-auto"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {lifetimeDetails ? "Edit" : "Add"}
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {lifetimeError ? (
+                <div className="text-center py-8 text-red-500">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Error loading lifetime details</p>
+                  <p className="text-sm text-gray-500">Please try again later</p>
+                </div>
+              ) : lifetimeDetails ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Expiry Date:</span>
+                      <span className="font-medium">
+                        {lifetimeDetails.expiry ? new Date(lifetimeDetails.expiry).toLocaleDateString() : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Shelf Life:</span>
+                      <span className="font-medium">{lifetimeDetails.shelfLife || "N/A"}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Lifetime Details ID:</span>
+                      <span className="font-mono text-sm">{lifetimeDetails.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                      <span className="font-medium">
+                        {lifetimeDetails.createdAt ? new Date(lifetimeDetails.createdAt).toLocaleDateString() : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
+                      <span className="font-medium">
+                        {lifetimeDetails.updatedAt ? new Date(lifetimeDetails.updatedAt).toLocaleDateString() : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No lifetime details found</p>
+                  <p className="text-sm">Lifetime details will appear here once added</p>
+                  {canManageProducts && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenLifetimeForm("create")}
+                      className="mt-4"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Lifetime Details
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Attachments Section */}
           {product.attachments && product.attachments.length > 0 && (
@@ -454,6 +557,15 @@ export default function ProductDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Lifetime Details Form */}
+      <LifetimeDetailsForm
+        isOpen={isLifetimeFormOpen}
+        onClose={handleCloseLifetimeForm}
+        productId={productId}
+        lifetimeDetails={lifetimeDetails}
+        mode={lifetimeFormMode}
+      />
     </div>
   )
 }

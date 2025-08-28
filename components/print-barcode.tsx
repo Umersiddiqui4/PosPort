@@ -128,15 +128,15 @@ export default function PrintBarcode({
         fontSize={16}
         className="bg-white p-4 rounded-lg border"
       />
-      <Button
-        onClick={handlePrint}
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-2"
-      >
-        <Printer className="w-4 h-4" />
-        Print Barcode
-      </Button>
+                  <Button
+              onClick={handlePrint}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 w-full sm:w-auto"
+            >
+              <Printer className="w-4 h-4" />
+              Print Barcode
+            </Button>
     </div>
   )
 }

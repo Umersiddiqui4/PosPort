@@ -111,25 +111,30 @@ export default function ProductDetail() {
   return (
     <div className="space-y-6 p-6 h-full overflow-y-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={handleBack} className="p-2">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{product.name}</h1>
             <p className="text-gray-600 dark:text-gray-300">Product Details</p>
           </div>
         </div>
         {canManageProducts && (
-          <div className="flex items-center gap-2">
-            <Button onClick={handleEdit} variant="outline">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <Button 
+              onClick={handleEdit} 
+              variant="outline"
+              className="bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
+            >
               <Edit className="w-4 h-4 mr-2" />
               Edit
             </Button>
             <Button 
               onClick={() => setIsDeleteDialogOpen(true)} 
               variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
@@ -139,7 +144,7 @@ export default function ProductDetail() {
       </div>
 
       {/* Product Overview Card */}
-      <Card className="dark:bg-gray-800 dark:border-gray-700">
+      <Card className="dark:bg-gray-800 dark:border-gray-700 mb-8">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Product Image */}
@@ -218,25 +223,34 @@ export default function ProductDetail() {
       </Card>
 
       {/* Tabs */}
-      <Tabs defaultValue="lifetime" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="lifetime" className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Lifetime Detail
+      <Tabs defaultValue="lifetime" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 gap-1 p-1 mb-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <TabsTrigger 
+            value="lifetime" 
+            className="flex items-center justify-center gap-1 text-xs px-1 py-2"
+          >
+            <Clock className="w-3 h-3" />
+            <span>Lifetime</span>
           </TabsTrigger>
-          <TabsTrigger value="tracking" className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Tracking Detail
+          <TabsTrigger 
+            value="tracking" 
+            className="flex items-center justify-center gap-1 text-xs px-1 py-2"
+          >
+            <TrendingUp className="w-3 h-3" />
+            <span>Tracking</span>
           </TabsTrigger>
-          <TabsTrigger value="inventory" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Inventory
+          <TabsTrigger 
+            value="inventory" 
+            className="flex items-center gap-1 text-xs px-1 py-2"
+          >
+            <BarChart3 className="w-3 h-3" />
+            <span>Stock</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Lifetime Detail Tab */}
-        <TabsContent value="lifetime" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="lifetime" className="space-y-4 mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -245,21 +259,21 @@ export default function ProductDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Created Date:</span>
-                  <span className="font-medium">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Created Date:</span>
+                  <span className="font-medium text-sm sm:text-base">
                     {product.createdAt ? new Date(product.createdAt).toLocaleDateString() : "N/A"}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
-                  <span className="font-medium">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Last Updated:</span>
+                  <span className="font-medium text-sm sm:text-base">
                     {product.updatedAt ? new Date(product.updatedAt).toLocaleDateString() : "N/A"}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Product ID:</span>
-                  <span className="font-mono text-sm">{product.id}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Product ID:</span>
+                  <span className="font-mono text-xs sm:text-sm break-all">{product.id}</span>
                 </div>
               </CardContent>
             </Card>
@@ -272,17 +286,17 @@ export default function ProductDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Location ID:</span>
-                  <span className="font-mono text-sm">{product.locationId || "N/A"}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Location ID:</span>
+                  <span className="font-mono text-xs sm:text-sm break-all">{product.locationId || "N/A"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Company ID:</span>
-                  <span className="font-mono text-sm">{product.companyId || "N/A"}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Company ID:</span>
+                  <span className="font-mono text-xs sm:text-sm break-all">{product.companyId || "N/A"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-300">Catalog ID:</span>
-                  <span className="font-mono text-sm">{product.catalogId || "N/A"}</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Catalog ID:</span>
+                  <span className="font-mono text-xs sm:text-sm break-all">{product.catalogId || "N/A"}</span>
                 </div>
               </CardContent>
             </Card>
@@ -290,22 +304,24 @@ export default function ProductDetail() {
 
           {/* Lifetime Details Section */}
           <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-purple-500" />
-                Product Lifetime Details
+            <CardHeader className="pb-4">
+              <div className="flex flex-col gap-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-purple-500" />
+                  <span className="text-base sm:text-lg">Product Lifetime Details</span>
+                </CardTitle>
                 {canManageProducts && (
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleOpenLifetimeForm(lifetimeDetails ? "edit" : "create")}
-                    className="ml-auto"
+                    className="w-full sm:w-auto sm:self-end bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     {lifetimeDetails ? "Edit" : "Add"}
                   </Button>
                 )}
-              </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
               {lifetimeError ? (
@@ -315,33 +331,33 @@ export default function ProductDetail() {
                   <p className="text-sm text-gray-500">Please try again later</p>
                 </div>
               ) : lifetimeDetails ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Expiry Date:</span>
-                      <span className="font-medium">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Expiry Date:</span>
+                      <span className="font-medium text-sm sm:text-base">
                         {lifetimeDetails.expiry ? new Date(lifetimeDetails.expiry).toLocaleDateString() : "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Shelf Life:</span>
-                      <span className="font-medium">{lifetimeDetails.shelfLife || "N/A"}</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Shelf Life:</span>
+                      <span className="font-medium text-sm sm:text-base">{lifetimeDetails.shelfLife || "N/A"}</span>
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Lifetime Details ID:</span>
-                      <span className="font-mono text-sm">{lifetimeDetails.id}</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Lifetime Details ID:</span>
+                      <span className="font-mono text-xs sm:text-sm break-all">{lifetimeDetails.id}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Created:</span>
-                      <span className="font-medium">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Created:</span>
+                      <span className="font-medium text-sm sm:text-base">
                         {lifetimeDetails.createdAt ? new Date(lifetimeDetails.createdAt).toLocaleDateString() : "N/A"}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
-                      <span className="font-medium">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Last Updated:</span>
+                      <span className="font-medium text-sm sm:text-base">
                         {lifetimeDetails.updatedAt ? new Date(lifetimeDetails.updatedAt).toLocaleDateString() : "N/A"}
                       </span>
                     </div>
@@ -357,7 +373,7 @@ export default function ProductDetail() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleOpenLifetimeForm("create")}
-                      className="mt-4"
+                      className="mt-4 w-full sm:w-auto bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Lifetime Details
@@ -401,25 +417,27 @@ export default function ProductDetail() {
         </TabsContent>
 
         {/* Tracking Detail Tab */}
-        <TabsContent value="tracking" className="space-y-4">
+        <TabsContent value="tracking" className="space-y-4 mt-6">
           {/* Tracking Details Section */}
           <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-green-500" />
-                Product Tracking Details
+            <CardHeader className="pb-4">
+              <div className="flex flex-col gap-3">
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-green-500" />
+                  <span className="text-base sm:text-lg">Product Tracking Details</span>
+                </CardTitle>
                 {canManageProducts && (
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleOpenTrackingForm(trackingDetails ? "edit" : "create")}
-                    className="ml-auto"
+                    className="w-full sm:w-auto sm:self-end bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     {trackingDetails ? "Edit" : "Add"}
                   </Button>
                 )}
-              </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
               {trackingError ? (
@@ -433,40 +451,42 @@ export default function ProductDetail() {
                   {/* Barcode Display */}
                   <div className="flex flex-col items-center">
                     <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Product Barcode</h4>
-                    <PrintBarcode 
-                      value={trackingDetails.barCode}
-                      productName={product.name}
-                      sku={trackingDetails.sku}
-                      className="bg-white p-4 rounded-lg border"
-                    />
+                    <div className="w-full max-w-md">
+                      <PrintBarcode 
+                        value={trackingDetails.barCode}
+                        productName={product.name}
+                        sku={trackingDetails.sku}
+                        className="bg-white p-2 sm:p-4 rounded-lg border w-full"
+                      />
+                    </div>
                   </div>
                   
                   {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Barcode:</span>
-                        <span className="font-medium font-mono">{trackingDetails.barCode}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Barcode:</span>
+                        <span className="font-medium font-mono text-sm sm:text-base break-all">{trackingDetails.barCode}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">SKU:</span>
-                        <span className="font-medium">{trackingDetails.sku}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">SKU:</span>
+                        <span className="font-medium text-sm sm:text-base break-all">{trackingDetails.sku}</span>
                       </div>
                     </div>
                     <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Tracking Details ID:</span>
-                        <span className="font-mono text-sm">{trackingDetails.id}</span>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Tracking Details ID:</span>
+                        <span className="font-mono text-xs sm:text-sm break-all">{trackingDetails.id}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Created:</span>
-                        <span className="font-medium">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Created:</span>
+                        <span className="font-medium text-sm sm:text-base">
                           {trackingDetails.createdAt ? new Date(trackingDetails.createdAt).toLocaleDateString() : "N/A"}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
-                        <span className="font-medium">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Last Updated:</span>
+                        <span className="font-medium text-sm sm:text-base">
                           {trackingDetails.updatedAt ? new Date(trackingDetails.updatedAt).toLocaleDateString() : "N/A"}
                         </span>
                       </div>
@@ -483,7 +503,7 @@ export default function ProductDetail() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleOpenTrackingForm("create")}
-                      className="mt-4"
+                      className="mt-4 w-full sm:w-auto bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Add Tracking Details
@@ -580,7 +600,7 @@ export default function ProductDetail() {
         </TabsContent>
 
         {/* Inventory Tab */}
-        <TabsContent value="inventory" className="space-y-4">
+        <TabsContent value="inventory" className="space-y-4 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>

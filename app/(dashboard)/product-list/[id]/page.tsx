@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Edit, Trash2, Package, Calendar, TrendingUp, BarChart3, Clock, MapPin, Tag, DollarSign, AlertCircle, Plus } from "lucide-react"
+import { ArrowLeft, Edit, Trash2, Package, Calendar, TrendingUp, BarChart3, Clock, MapPin, DollarSign, AlertCircle, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +18,6 @@ import { useToast } from "@/hooks/use-toast"
 import LifetimeDetailsForm from "@/components/lifetime-details-form"
 import TrackingDetailsForm from "@/components/tracking-details-form"
 import InventoryForm from "@/components/inventory-form"
-import BarcodeDisplay from "@/components/barcode-display"
 import PrintBarcode from "@/components/print-barcode"
 
 export default function ProductDetail() {
@@ -43,31 +42,21 @@ export default function ProductDetail() {
   const { 
     lifetimeDetails, 
     isLoading: lifetimeLoading, 
-    error: lifetimeError,
-    createLifetimeDetails,
-    updateLifetimeDetails,
-    deleteLifetimeDetails
+    error: lifetimeError
   } = useProductLifetimeDetails(productId)
   
   // Fetch tracking details
   const { 
     trackingDetails, 
     isLoading: trackingLoading, 
-    error: trackingError,
-    createTrackingDetails,
-    updateTrackingDetails,
-    deleteTrackingDetails
+    error: trackingError
   } = useProductTrackingDetails(productId)
   
   // Fetch inventory details
   const { 
     inventory, 
     isLoading: inventoryLoading, 
-    error: inventoryError,
-    createInventory,
-    updateInventory,
-    updateStockQuantity,
-    deleteInventory
+    error: inventoryError
   } = useProductInventory(productId)
   
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
@@ -415,7 +404,7 @@ export default function ProductDetail() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {product.attachments.map((attachment, index) => (
+                  {product.attachments.map((attachment) => (
                     <div key={attachment.id} className="space-y-2">
                       <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700">
                         <img

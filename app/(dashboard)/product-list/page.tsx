@@ -1,30 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Plus, Filter, Grid, List, Package, Eye } from "lucide-react"
+import { Search, Plus, Grid, List, Package, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useProducts } from "@/hooks/use-products"
-import { useUserDataStore } from "@/lib/store"
-import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/hooks/use-products"
-import BarcodeDisplay from "@/components/barcode-display"
 import CompactBarcode from "@/components/compact-barcode"
 
 export default function ProductList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [locationId, setLocationId] = useState<string | undefined>(undefined)
+  const [currentPage] = useState(1)
+  const [locationId] = useState<string | undefined>(undefined)
   
   const router = useRouter()
-  const { toast } = useToast()
-  const currentUser = useUserDataStore((state) => state.user)
   
   // Fetch products
   const { products, isLoading, error } = useProducts(currentPage, 50, locationId)

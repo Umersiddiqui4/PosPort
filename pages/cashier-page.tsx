@@ -85,18 +85,18 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
     catalogData,
     isLoading: catalogLoading,
     locationId,
+    categories,
+    products: catalogProducts,
+    filteredProducts,
     updateCatalog,
     updateCategory
   } = useCatalogContext()
   
-  // Use the products API with category filtering
-  const { products: apiProducts, isLoading: productsLoading, deleteProduct } = useProducts(1, 1000) // Get more products for filtering
-  
-  // Use the catalogs API
+  // Use the catalogs API for catalog selection
   const { catalogs, isLoading: catalogsLoading } = useCatalogs()
   
-  // Use the categories API
-  const { data: categories = [], isLoading: categoriesLoading } = useProductCategories()
+  // Use the products API only for delete operations
+  const { deleteProduct } = useProducts(1, 1000)
   
   // Listen for catalog changes and invalidate queries
   useCatalogChangeListener()
@@ -155,25 +155,28 @@ export default function CashierPage({ onSidebarToggle }: CashierPageProps) {
     console.log("Updated params:", updatedParams)
     return updatedParams
   }, [])
-  console.log(apiProducts, "apiProducts");
+  console.log(catalogProducts, "catalogProducts");
   
-  // Transform API products to match the expected format
+  // Transform catalog products to match the expected format
   const productList = useMemo(() => {
-    return apiProducts.map((apiProduct: APIProduct): Product => ({
-      attachments:apiProduct.attachments,
-      id: apiProduct.id,
-      name: apiProduct.productName || "Unknown Product",
-      price: apiProduct.retailPrice || 0,
-      image: apiProduct.image || "/placeholder.svg",
-      cost: apiProduct.cost || 0,
+    console.log("CashierPage: Transforming catalog products", { catalogProductsCount: catalogProducts.length, selectedCategoryId })
+    const transformed = catalogProducts.map((catalogProduct): Product => ({
+      attachments: catalogProduct.attachments,
+      id: catalogProduct.id,
+      name: catalogProduct.productName || "Unknown Product",
+      price: catalogProduct.retailPrice || 0,
+      image: "/placeholder.svg", // Default image since API doesn't provide image
+      cost: catalogProduct.cost || 0,
       quantity: 0,
-      productName: apiProduct.productName,
-      category: apiProduct.category || "General",
-      description: apiProduct.description,
-      status: apiProduct.status,
-      categoryId: (apiProduct as any).categoryId
+      productName: catalogProduct.productName,
+      category: "General", // Default category since API doesn't provide category name
+      description: catalogProduct.description,
+      status: catalogProduct.status as "active" | "inactive" | "draft" || "active",
+      categoryId: catalogProduct.categoryId
     }))
-  }, [apiProducts])
+    console.log("CashierPage: Transformed products", { transformedCount: transformed.length, sampleProduct: transformed[0] })
+    return transformed
+  }, [catalogProducts])
 
   // Product management state
   const [isCreateProductDialogOpen, setIsCreateProductDialogOpen] = useState(false)
@@ -208,23 +211,21 @@ useEffect(() => {
     }
   }, [cart.length])
 
-  // Memoized filtered products with category filtering
-  const filteredProducts = useMemo(() => {
-    const filtered = productList.filter((product) => {
+  // Use filtered products from catalog context and apply search filter
+  const searchFilteredProducts = useMemo(() => {
+    return productList.filter((product) => {
       // Filter by categoryId if selected (skip if "all" is selected)
       const matchesCategoryId = !selectedCategoryId || selectedCategoryId === "all" || 
-        product.categoryId === selectedCategoryId ||
-        product.category === selectedCategory // Fallback to category name
+        product.categoryId === selectedCategoryId
       
       // Filter by search query
       const matchesSearch = (product.name || product.productName || "").toLowerCase().includes(searchQuery.toLowerCase())
       
       return matchesCategoryId && matchesSearch
     })
-    
-    return filtered
-  }, [productList, selectedCategoryId, selectedCategory, searchQuery])
-console.log(filteredProducts,"filteredProducts");
+  }, [productList, selectedCategoryId, searchQuery])
+  
+  console.log(searchFilteredProducts, "searchFilteredProducts");
   // Debug logging (only in development)
   if (process.env.NODE_ENV === 'development') {
     console.log("Debug Info:", {
@@ -233,10 +234,9 @@ console.log(filteredProducts,"filteredProducts");
       selectedCategory,
       totalProducts: productList.length,
       productsWithCategoryId: productList.filter(p => p.categoryId).length,
-      productsWithCategory: productList.filter(p => p.category).length,
-      filteredProductsCount: filteredProducts.length,
+      filteredProductsCount: searchFilteredProducts.length,
       sampleProduct: productList[0],
-      sampleFilteredProduct: filteredProducts[0]
+      sampleFilteredProduct: searchFilteredProducts[0]
     })
   }
 
@@ -417,14 +417,14 @@ console.log(filteredProducts,"filteredProducts");
   const handleDeleteProduct = useCallback(async (productId: string) => {
     try {
       // Find the product to get its attachments
-      const product = apiProducts.find(p => p.id === productId)
+      const product = catalogProducts.find((p: any) => p.id === productId)
       const attachments = product?.attachments && Array.isArray(product.attachments) ? product.attachments : undefined
       
       await deleteProduct.mutateAsync({ id: productId, attachments })
     } catch (error) {
       console.error("Failed to delete product:", error)
     }
-  }, [deleteProduct, apiProducts])
+  }, [deleteProduct, catalogProducts])
 
   const handleCreateProductSuccess = useCallback(() => {
     console.log("Product creation successful, restoring original URL")
@@ -506,24 +506,28 @@ console.log(filteredProducts,"filteredProducts");
 
   // Catalog and category selection handlers
   const handleCatalogSelect = useCallback((catalogId: string) => {
-    console.log("CashierPage: Catalog selection", { catalogId })
+    console.log("CashierPage: Catalog selection", { catalogId, currentSelectedCatalog: selectedCatalog })
     updateCatalog(catalogId)
-  }, [updateCatalog])
+  }, [updateCatalog, selectedCatalog])
 
   const handleCategorySelect = useCallback((categoryId: string) => {
-    console.log("CashierPage: Category selection", { categoryId })
+    console.log("CashierPage: Category selection", { categoryId, currentSelectedCategoryId: selectedCategoryId, availableCategories: categories.length })
     
     // Find category name for display
     const category = categories.find(cat => cat.id === categoryId)
     const categoryName = category?.categoryName || "All Product"
     
+    console.log("CashierPage: Found category", { category, categoryName })
     updateCategory(categoryId, categoryName)
-  }, [categories, updateCategory])
+  }, [categories, updateCategory, selectedCategoryId])
 
   // Filter categories for selected catalog
   const filteredCategories = useMemo(() => {
+    console.log("CashierPage: Filtering categories", { selectedCatalog, totalCategories: categories.length })
     if (!selectedCatalog || selectedCatalog === "all") return []
-    return categories.filter(category => category.menuId === selectedCatalog)
+    const filtered = categories.filter(category => category.menuId === selectedCatalog)
+    console.log("CashierPage: Filtered categories", { filteredCount: filtered.length, sampleCategory: filtered[0] })
+    return filtered
   }, [categories, selectedCatalog])
 
   const renderHeader = () => (
@@ -641,10 +645,10 @@ console.log(filteredProducts,"filteredProducts");
             <Select 
               value={selectedCategoryId || "all"} 
               onValueChange={handleCategorySelect}
-              disabled={!selectedCatalog || selectedCatalog === "all" || categoriesLoading}
+              disabled={!selectedCatalog || selectedCatalog === "all" || catalogLoading}
             >
               <SelectTrigger className="flex-1 h-10 sm:h-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:border-[#1a72dd] dark:focus:border-blue-400 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-200 shadow-sm dark:text-gray-200">
-                <SelectValue placeholder={!selectedCatalog || selectedCatalog === "all" ? "Select catalog first" : categoriesLoading ? "Loading categories..." : "Select Category"}>
+                <SelectValue placeholder={!selectedCatalog || selectedCatalog === "all" ? "Select catalog first" : catalogLoading ? "Loading categories..." : "Select Category"}>
                   {selectedCategoryId && selectedCategoryId !== "all" && categories.find(c => c.id === selectedCategoryId)?.categoryName}
                 </SelectValue>
               </SelectTrigger>
@@ -662,7 +666,7 @@ console.log(filteredProducts,"filteredProducts");
                     className="rounded-lg hover:bg-[#1a72dd]/10 focus:bg-[#1a72dd]/10 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span style={{ color: category.color }}>{category.icon}</span>
+                      <span>📁</span>
                       {category.categoryName}
                     </div>
                   </SelectItem>
@@ -711,7 +715,7 @@ console.log(filteredProducts,"filteredProducts");
               />
             </div>
             
-            {productsLoading && apiProducts.length === 0 ? (
+            {catalogLoading && catalogProducts.length === 0 ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a72dd] mx-auto mb-4"></div>
@@ -720,7 +724,7 @@ console.log(filteredProducts,"filteredProducts");
               </div>
             ) : (
               <ProductGrid
-                products={filteredProducts}
+                products={searchFilteredProducts}
                 cartItems={cart}
                 onQuantityChange={handleQuantityChange}
                 onAddToCart={handleAddToCart}

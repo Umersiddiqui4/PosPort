@@ -121,7 +121,7 @@ function AddProductModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
     mutationFn: addProductApi,
     onSuccess: () => {
       toast({ title: "Product added", description: "Product has been added successfully." });
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["catalog"] }); // Invalidate catalog instead of products
       onClose();
       setFormData({ name: "", category: "", price: "", stock: "", status: "Active", description: "" });
     },

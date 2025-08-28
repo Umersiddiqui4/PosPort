@@ -202,12 +202,11 @@ export default function ProductForm({ product, onSuccess, onCancel, selectedCate
             description: "Product image has been uploaded successfully.",
           })
           
-          // Refetch product data to get updated information including new attachment
+          // Refetch catalog data to get updated information including new attachment
           if (createdProductId) {
-            // For both creating and editing, invalidate queries to refetch updated data
-            queryClient.invalidateQueries({ queryKey: ["product", createdProductId] })
-            queryClient.invalidateQueries({ queryKey: ["products"] })
-            console.log('Product data refetched after image upload')
+            // For both creating and editing, invalidate catalog queries to refetch updated data
+            queryClient.invalidateQueries({ queryKey: ["catalog"] })
+            console.log('Catalog data refetched after image upload')
           }
         } catch (error: any) {
           console.error("Failed to upload image:", error)

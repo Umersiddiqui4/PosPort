@@ -31,7 +31,8 @@ export function useProducts(page: number = 1, take: number = 1000, locationId?: 
   const createProductMutation = useMutation({
     mutationFn: (productData: CreateProductRequest) => createProduct(productData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
+      // Invalidate catalog queries instead of product queries since catalog contains all product data
+      queryClient.invalidateQueries({ queryKey: ["catalog"] })
       toast({
         title: "Success",
         description: "Product created successfully",
@@ -50,7 +51,8 @@ export function useProducts(page: number = 1, take: number = 1000, locationId?: 
   const updateProductMutation = useMutation({
     mutationFn: ({ id, ...productData }: { id: string } & UpdateProductRequest) => updateProduct(id, productData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
+      // Invalidate catalog queries instead of product queries since catalog contains all product data
+      queryClient.invalidateQueries({ queryKey: ["catalog"] })
       toast({
         title: "Success",
         description: "Product updated successfully",
@@ -70,7 +72,8 @@ export function useProducts(page: number = 1, take: number = 1000, locationId?: 
     mutationFn: ({ id, attachments }: { id: string; attachments?: Array<{ id: string }> }) => 
       deleteProduct(id, attachments),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
+      // Invalidate catalog queries instead of product queries since catalog contains all product data
+      queryClient.invalidateQueries({ queryKey: ["catalog"] })
       toast({
         title: "Success",
         description: "Product and attachments deleted successfully",

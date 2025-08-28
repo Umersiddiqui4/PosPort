@@ -18,6 +18,13 @@ const api = axios.create({
 // Request interceptor with enhanced token handling
 api.interceptors.request.use(
   (config) => {
+    // Debug: Log API requests to help identify unnecessary calls
+    console.log('API Request:', { 
+      method: config.method?.toUpperCase(), 
+      url: config.url,
+      timestamp: new Date().toISOString()
+    });
+
     // Add CSRF token if available (only if server supports it)
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (csrfToken) {
@@ -113,7 +120,8 @@ api.interceptors.response.use(
         api.defaults.headers.common["Authorization"] = `Bearer ${access.token}`;
 
         originalRequest.headers["Authorization"] = `Bearer ${access.token}`;
-        return api(originalRequest);
+        // Use axios directly instead of api to avoid interceptor loops
+        return axios(originalRequest);
 
       } catch (refreshError) {
         // Check if we have temporary Google OAuth tokens

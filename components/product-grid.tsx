@@ -76,7 +76,7 @@ const ProductCard = memo(
           <div className="flex gap-3 sm:gap-4 lg:gap-5">
             <div className="relative overflow-hidden rounded-xl flex-shrink-0">
               <img
-                src={product.image || "/placeholder.svg"}
+                src={product.attachments?.[0]?.url || "/placeholder.svg"}
                 alt={product.name}
                 className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-cover transition-transform duration-300 group-hover:scale-110"
                 loading="lazy"
@@ -514,7 +514,7 @@ export default function ProductGrid({
               <Button
                 onClick={onCreateProduct}
                 disabled={isCreatingProduct}
-                className="bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-6 py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-[#1a72dd] mt-2 to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-6 py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
               >
                 {isCreatingProduct ? (
                   <>
@@ -556,25 +556,7 @@ export default function ProductGrid({
                     : "No products match your current selection. Try changing the category."
                 }
               </p>
-              {canManageProducts && onCreateProduct && (
-                <Button
-                  onClick={onCreateProduct}
-                  disabled={isCreatingProduct}
-                  className="mt-4 bg-gradient-to-r from-[#1a72dd] to-[#1557b8] hover:from-[#1557b8] hover:to-[#1a72dd] rounded-full px-6 py-2 font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
-                >
-                  {isCreatingProduct ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Loading Catalog...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Product
-                    </>
-                  )}
-                </Button>
-              )}
+             
             </div>
           )}
         </section>

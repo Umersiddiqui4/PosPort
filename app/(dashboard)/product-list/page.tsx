@@ -12,6 +12,8 @@ import { useProducts } from "@/hooks/use-products"
 import { useUserDataStore } from "@/lib/store"
 import { useToast } from "@/hooks/use-toast"
 import type { Product } from "@/hooks/use-products"
+import BarcodeDisplay from "@/components/barcode-display"
+import CompactBarcode from "@/components/compact-barcode"
 
 export default function ProductList() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -227,6 +229,17 @@ export default function ProductList() {
                         <span className="text-lg font-bold text-[#1a72dd] dark:text-blue-400">
                           {product.retailPrice} PKR
                         </span>
+                      </div>
+                      {/* Demo Barcode - Replace with actual tracking details when available */}
+                      <div className="mt-2">
+                        <CompactBarcode 
+                          value={product.id || "DEMO-123"} 
+                          width={1}
+                          height={30}
+                          fontSize={8}
+                          showText={false}
+                          className="bg-white p-2 rounded border"
+                        />
                       </div>
                     </div>
                   </div>

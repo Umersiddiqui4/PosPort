@@ -10,10 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { useProductById } from "@/hooks/use-product-by-id"
 import { useProductLifetimeDetails } from "@/hooks/use-product-lifetime-details"
+import { useProductTrackingDetails } from "@/hooks/use-product-tracking-details"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import LifetimeDetailsForm from "@/components/lifetime-details-form"
+import TrackingDetailsForm from "@/components/tracking-details-form"
+import BarcodeDisplay from "@/components/barcode-display"
+import PrintBarcode from "@/components/print-barcode"
 
 export default function ProductDetail() {
   const params = useParams()
@@ -23,6 +27,8 @@ export default function ProductDetail() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isLifetimeFormOpen, setIsLifetimeFormOpen] = useState(false)
   const [lifetimeFormMode, setLifetimeFormMode] = useState<"create" | "edit">("create")
+  const [isTrackingFormOpen, setIsTrackingFormOpen] = useState(false)
+  const [trackingFormMode, setTrackingFormMode] = useState<"create" | "edit">("create")
   
   const productId = params.id as string
   
@@ -38,6 +44,16 @@ export default function ProductDetail() {
     updateLifetimeDetails,
     deleteLifetimeDetails
   } = useProductLifetimeDetails(productId)
+  
+  // Fetch tracking details
+  const { 
+    trackingDetails, 
+    isLoading: trackingLoading, 
+    error: trackingError,
+    createTrackingDetails,
+    updateTrackingDetails,
+    deleteTrackingDetails
+  } = useProductTrackingDetails(productId)
   
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
 
@@ -67,7 +83,16 @@ export default function ProductDetail() {
     setIsLifetimeFormOpen(false)
   }
 
-  if (isLoading || lifetimeLoading) {
+  const handleOpenTrackingForm = (mode: "create" | "edit") => {
+    setTrackingFormMode(mode)
+    setIsTrackingFormOpen(true)
+  }
+
+  const handleCloseTrackingForm = () => {
+    setIsTrackingFormOpen(false)
+  }
+
+  if (isLoading || lifetimeLoading || trackingLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a72dd]"></div>
@@ -377,6 +402,99 @@ export default function ProductDetail() {
 
         {/* Tracking Detail Tab */}
         <TabsContent value="tracking" className="space-y-4">
+          {/* Tracking Details Section */}
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-green-500" />
+                Product Tracking Details
+                {canManageProducts && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenTrackingForm(trackingDetails ? "edit" : "create")}
+                    className="ml-auto"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {trackingDetails ? "Edit" : "Add"}
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {trackingError ? (
+                <div className="text-center py-8 text-red-500">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Error loading tracking details</p>
+                  <p className="text-sm text-gray-500">Please try again later</p>
+                </div>
+              ) : trackingDetails ? (
+                <div className="space-y-6">
+                  {/* Barcode Display */}
+                  <div className="flex flex-col items-center">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Product Barcode</h4>
+                    <PrintBarcode 
+                      value={trackingDetails.barCode}
+                      productName={product.name}
+                      sku={trackingDetails.sku}
+                      className="bg-white p-4 rounded-lg border"
+                    />
+                  </div>
+                  
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Barcode:</span>
+                        <span className="font-medium font-mono">{trackingDetails.barCode}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">SKU:</span>
+                        <span className="font-medium">{trackingDetails.sku}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Tracking Details ID:</span>
+                        <span className="font-mono text-sm">{trackingDetails.id}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Created:</span>
+                        <span className="font-medium">
+                          {trackingDetails.createdAt ? new Date(trackingDetails.createdAt).toLocaleDateString() : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 dark:text-gray-300">Last Updated:</span>
+                        <span className="font-medium">
+                          {trackingDetails.updatedAt ? new Date(trackingDetails.updatedAt).toLocaleDateString() : "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No tracking details found</p>
+                  <p className="text-sm">Tracking details will appear here once added</p>
+                  {canManageProducts && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenTrackingForm("create")}
+                      className="mt-4"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Tracking Details
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Sales Performance Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
@@ -565,6 +683,15 @@ export default function ProductDetail() {
         productId={productId}
         lifetimeDetails={lifetimeDetails}
         mode={lifetimeFormMode}
+      />
+
+      {/* Tracking Details Form */}
+      <TrackingDetailsForm
+        isOpen={isTrackingFormOpen}
+        onClose={handleCloseTrackingForm}
+        productId={productId}
+        trackingDetails={trackingDetails}
+        mode={trackingFormMode}
       />
     </div>
   )

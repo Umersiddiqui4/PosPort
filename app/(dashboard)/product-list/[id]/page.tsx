@@ -11,11 +11,13 @@ import { Separator } from "@/components/ui/separator"
 import { useProductById } from "@/hooks/use-product-by-id"
 import { useProductLifetimeDetails } from "@/hooks/use-product-lifetime-details"
 import { useProductTrackingDetails } from "@/hooks/use-product-tracking-details"
+import { useProductInventory } from "@/hooks/use-product-inventory"
 import { useCurrentUser } from "@/hooks/useCurrentUser"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import LifetimeDetailsForm from "@/components/lifetime-details-form"
 import TrackingDetailsForm from "@/components/tracking-details-form"
+import InventoryForm from "@/components/inventory-form"
 import BarcodeDisplay from "@/components/barcode-display"
 import PrintBarcode from "@/components/print-barcode"
 
@@ -29,8 +31,10 @@ export default function ProductDetail() {
   const [lifetimeFormMode, setLifetimeFormMode] = useState<"create" | "edit">("create")
   const [isTrackingFormOpen, setIsTrackingFormOpen] = useState(false)
   const [trackingFormMode, setTrackingFormMode] = useState<"create" | "edit">("create")
+  const [isInventoryFormOpen, setIsInventoryFormOpen] = useState(false)
+  const [inventoryFormMode, setInventoryFormMode] = useState<"create" | "edit">("create")
   
-  const productId = params.id as string
+  const productId = params?.id as string
   
   // Fetch product details
   const { data: product, isLoading, error } = useProductById(productId)
@@ -54,6 +58,17 @@ export default function ProductDetail() {
     updateTrackingDetails,
     deleteTrackingDetails
   } = useProductTrackingDetails(productId)
+  
+  // Fetch inventory details
+  const { 
+    inventory, 
+    isLoading: inventoryLoading, 
+    error: inventoryError,
+    createInventory,
+    updateInventory,
+    updateStockQuantity,
+    deleteInventory
+  } = useProductInventory(productId)
   
   const canManageProducts = user?.role === "POSPORT_ADMIN" || user?.role === "COMPANY_OWNER"
 
@@ -92,7 +107,16 @@ export default function ProductDetail() {
     setIsTrackingFormOpen(false)
   }
 
-  if (isLoading || lifetimeLoading || trackingLoading) {
+  const handleOpenInventoryForm = (mode: "create" | "edit") => {
+    setInventoryFormMode(mode)
+    setIsInventoryFormOpen(true)
+  }
+
+  const handleCloseInventoryForm = () => {
+    setIsInventoryFormOpen(false)
+  }
+
+  if (isLoading || lifetimeLoading || trackingLoading || inventoryLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1a72dd]"></div>
@@ -172,19 +196,15 @@ export default function ProductDetail() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="flex items-center gap-2">
-                   <DollarSign className="w-4 h-4 text-[#1a72dd]" />
-                   <div>
-                     <p className="text-sm text-gray-600 dark:text-gray-300">Price</p>
-                     <p className="font-semibold text-gray-900 dark:text-gray-100">
-                       {product.retailPrice} PKR
-                     </p>
-                   </div>
-                 </div>
-                
-                
-                
-                
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-[#1a72dd]" />
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Price</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
+                      {product.retailPrice} PKR
+                    </p>
+                  </div>
+                </div>
                 
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-purple-500" />
@@ -601,74 +621,104 @@ export default function ProductDetail() {
 
         {/* Inventory Tab */}
         <TabsContent value="inventory" className="space-y-4 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
+          {/* Inventory Details Section */}
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="pb-4">
+              <div className="flex flex-col gap-3">
                 <CardTitle className="flex items-center gap-2">
                   <Package className="w-5 h-5 text-blue-500" />
-                  Current Inventory
+                  <span className="text-base sm:text-lg">Product Inventory</span>
                 </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                                 <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                   <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">0</p>
-                   <p className="text-sm text-gray-600 dark:text-gray-300">Reserved</p>
-                 </div>
-                
-              </CardContent>
-            </Card>
-
-            <Card className="dark:bg-gray-800 dark:border-gray-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-500" />
-                  Inventory History
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Last Restocked:</span>
-                    <span className="font-medium">N/A</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Restock Quantity:</span>
-                    <span className="font-medium">0</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Days Since Restock:</span>
-                    <span className="font-medium">N/A</span>
-                  </div>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Average Daily Usage:</span>
-                    <span className="font-medium">0</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-300">Estimated Days Left:</span>
-                    <span className="font-medium">N/A</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Stock Alerts */}
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                Stock Alerts
-              </CardTitle>
+                {canManageProducts && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenInventoryForm(inventory ? "edit" : "create")}
+                    className="w-full sm:w-auto sm:self-end bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {inventory ? "Edit" : "Add"}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No stock alerts at this time</p>
-                <p className="text-sm">Alerts will appear here when stock levels are low</p>
-              </div>
+              {inventoryError ? (
+                <div className="text-center py-8 text-red-500">
+                  <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Error loading inventory</p>
+                  <p className="text-sm text-gray-500">Please try again later</p>
+                </div>
+              ) : inventory ? (
+                <div className="space-y-6">
+                  {/* Stock Overview */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{inventory.currentStock}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Current Stock</p>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                      <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">{inventory.reservedStock}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Reserved</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <p className="text-3xl font-bold text-green-600 dark:text-green-400">{inventory.currentStock - inventory.reservedStock}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Available</p>
+                    </div>
+                  </div>
+                  
+                  {/* Inventory Details */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Reorder Level:</span>
+                        <span className="font-medium text-sm sm:text-base">{inventory.reorderLevel}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Min Reorder Quantity:</span>
+                        <span className="font-medium text-sm sm:text-base">{inventory.minimumReorderQuantity}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Max Stock Capacity:</span>
+                        <span className="font-medium text-sm sm:text-base">{inventory.maxStockCapacity}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Cost Per Unit:</span>
+                        <span className="font-medium text-sm sm:text-base">{inventory.costPerUnit} PKR</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Inventory ID:</span>
+                        <span className="font-mono text-xs sm:text-sm break-all">{inventory.id}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
+                        <span className="text-gray-600 dark:text-gray-300 text-sm sm:text-base">Last Updated:</span>
+                        <span className="font-medium text-sm sm:text-base">
+                          {inventory.updatedAt ? new Date(inventory.updatedAt).toLocaleDateString() : "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No inventory found</p>
+                  <p className="text-sm">Inventory details will appear here once added</p>
+                  {canManageProducts && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleOpenInventoryForm("create")}
+                      className="mt-4 w-full sm:w-auto bg-white hover:bg-gray-50 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Inventory
+                    </Button>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -712,6 +762,15 @@ export default function ProductDetail() {
         productId={productId}
         trackingDetails={trackingDetails}
         mode={trackingFormMode}
+      />
+
+      {/* Inventory Form */}
+      <InventoryForm
+        isOpen={isInventoryFormOpen}
+        onClose={handleCloseInventoryForm}
+        productId={productId}
+        inventory={inventory}
+        mode={inventoryFormMode}
       />
     </div>
   )

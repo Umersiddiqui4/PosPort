@@ -23,13 +23,14 @@ export default function AccountPage() {
   const [formData, setFormData] = useState({
     password: "",
     newPassword: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    shouldLogoutAllSessions: false
   })
   const { toast } = useToast()
   const handleLogout = useLogout()
   const { user } = useCurrentUser()
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -59,19 +60,23 @@ export default function AccountPage() {
     try {
       await changePassword({
         password: formData.newPassword,
-        confirmPassword: formData.confirmPassword
+        confirmPassword: formData.confirmPassword,
+        shouldLogoutAllSessions: formData.shouldLogoutAllSessions
       })
       
       toast({
         title: "Success",
-        description: "Password changed successfully"
+        description: formData.shouldLogoutAllSessions 
+          ? "Password changed successfully. All devices have been logged out." 
+          : "Password changed successfully"
       })
       
       setIsPasswordDialogOpen(false)
       setFormData({
         password: "",
         newPassword: "",
-        confirmPassword: ""
+        confirmPassword: "",
+        shouldLogoutAllSessions: false
       })
     } catch (error: any) {
       toast({
@@ -254,6 +259,23 @@ export default function AccountPage() {
                             )}
                           </Button>
                         </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="logout-all-devices"
+                            checked={formData.shouldLogoutAllSessions}
+                            onChange={(e) => handleInputChange("shouldLogoutAllSessions", e.target.checked)}
+                            className="w-4 h-4 text-[#1a72dd] bg-gray-100 border-gray-300 rounded focus:ring-[#1a72dd] focus:ring-2"
+                          />
+                          <Label htmlFor="logout-all-devices" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Logout all devices after password change
+                          </Label>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 ml-6">
+                          When enabled, this will force logout from all devices and require re-authentication
+                        </p>
                       </div>
                     </div>
                     <div className="flex justify-end space-x-2">

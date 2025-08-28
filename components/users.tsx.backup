@@ -129,6 +129,13 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
+  
+  // Terminate user sessions state
+  const [isTerminateModalOpen, setIsTerminateModalOpen] = useState(false)
+  const [selectedUserToTerminate, setSelectedUserToTerminate] = useState<User | null>(null)
+  const [isTerminating, setIsTerminating] = useState(false)
+  const [showUndoButton, setShowUndoButton] = useState(false)
+  const [undoTimeout, setUndoTimeout] = useState<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<string>("users")
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false)
@@ -236,6 +243,15 @@ export default function Users() {
       resetSearch()
     }
   }, [activeTab])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (undoTimeout) {
+        clearTimeout(undoTimeout)
+      }
+    }
+  }, [undoTimeout])
 
   // Fetch companies for dropdown (skip for COMPANY_OWNER)
   const shouldFetchCompanies = currentUser?.role !== "COMPANY_OWNER"
@@ -411,19 +427,109 @@ console.log(assignedUsers, "assignedUsers");
     setIsDeleteDialogOpen(true)
   }
 
-  const handleTerminateUser = async (user: User) => {
+  // Terminate user sessions functions
+  const openTerminateModal = () => {
+    setIsTerminateModalOpen(true)
+  }
+
+  const handleTerminateUser = (user: User) => {
+    setSelectedUserToTerminate(user)
+    setIsTerminateModalOpen(false)
+    
+    // Show confirmation toast
+    toast({
+      title: "Confirm Termination",
+      description: `Do you want to terminate ${user.firstName} ${user.lastName}?`,
+      action: (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              // Cancel termination
+              setSelectedUserToTerminate(null)
+              toast({
+                title: "Cancelled",
+                description: "User termination cancelled",
+              })
+            }}
+          >
+            No
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              // Start termination process
+              startTerminationProcess(user)
+            }}
+          >
+            Yes
+          </Button>
+        </div>
+      ),
+    })
+  }
+
+  const startTerminationProcess = (user: User) => {
+    // Show undo button for 1 minute
+    setShowUndoButton(true)
+    
+    // Set timeout to actually terminate after 1 minute
+    const timeout = setTimeout(() => {
+      executeTermination(user)
+    }, 60000) // 60 seconds = 1 minute
+    
+    setUndoTimeout(timeout)
+    
+    toast({
+      title: "Termination Started",
+      description: `${user.firstName} ${user.lastName} will be terminated in 1 minute. Click UNDO to cancel.`,
+    })
+  }
+
+  const handleUndo = () => {
+    if (undoTimeout) {
+      clearTimeout(undoTimeout)
+      setUndoTimeout(null)
+    }
+    setShowUndoButton(false)
+    setSelectedUserToTerminate(null)
+    
+    toast({
+      title: "Termination Cancelled",
+      description: "User termination has been cancelled",
+    })
+  }
+
+  const executeTermination = async (user: User) => {
+    setIsTerminating(true)
     try {
       await terminateUserSessions({ userId: user.id })
+      
       toast({
-        title: "Success",
-        description: `${user.firstName} ${user.lastName} has been logged out from all devices`,
+        title: "User Terminated",
+        description: `${user.firstName} ${user.lastName} has been terminated successfully`,
       })
+      
+      // Refresh users list
+      if (activeTab === "users") {
+        // Refetch users data
+        window.location.reload()
+      } else {
+        // Refetch assigned users data
+        window.location.reload()
+      }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to terminate user sessions",
+        description: error.response?.data?.message || "Failed to terminate user",
         variant: "destructive",
       })
+    } finally {
+      setIsTerminating(false)
+      setShowUndoButton(false)
+      setSelectedUserToTerminate(null)
+      setUndoTimeout(null)
     }
   }
 
@@ -464,14 +570,15 @@ console.log(assignedUsers, "assignedUsers");
             }
           </p>
         </div>
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#1a72dd] hover:bg-[#1557b8]">
-              <Plus className="w-4 h-4 mr-2" />
-              {currentUser?.role === "COMPANY_OWNER" ? "Add Store Keeper" : "Add User"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+        <div className="flex gap-2">
+          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-[#1a72dd] hover:bg-[#1557b8]">
+                <Plus className="w-4 h-4 mr-2" />
+                {currentUser?.role === "COMPANY_OWNER" ? "Add Store Keeper" : "Add User"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
                 {currentUser?.role === "COMPANY_OWNER" ? "Add New Store Keeper" : "Add New User"}
@@ -612,6 +719,18 @@ console.log(assignedUsers, "assignedUsers");
             </form>
           </DialogContent>
         </Dialog>
+        
+        {/* Terminate User Sessions Button - Only for POSPORT_ADMIN and COMPANY_OWNER */}
+        {(currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") && (
+          <Dialog open={isTerminateModalOpen} onOpenChange={setIsTerminateModalOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-50 hover:border-red-600">
+                <Shield className="w-4 h-4 mr-2" />
+                Terminate Sessions
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        )}
       </div>
 
       {/* Statistics Cards */}
@@ -795,19 +914,6 @@ console.log(assignedUsers, "assignedUsers");
                               <Edit className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            {/* Terminate Sessions - Only for POSPORT_ADMIN and COMPANY_OWNER */}
-                            {(currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") && (
-                              <DropdownMenuItem 
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleTerminateUser(user)
-                                }} 
-                                className="text-orange-600 dark:text-orange-400 dark:hover:bg-orange-900/20"
-                              >
-                                <Shield className="w-4 h-4 mr-2" />
-                                Terminate Sessions
-                              </DropdownMenuItem>
-                            )}
                             <DropdownMenuItem 
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -946,19 +1052,6 @@ console.log(assignedUsers, "assignedUsers");
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
                               </DropdownMenuItem>
-                              {/* Terminate Sessions - Only for POSPORT_ADMIN and COMPANY_OWNER */}
-                              {(currentUser?.role === "POSPORT_ADMIN" || currentUser?.role === "COMPANY_OWNER") && (
-                                <DropdownMenuItem 
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleTerminateUser(user)
-                                  }} 
-                                  className="text-orange-600 dark:text-orange-400 dark:hover:bg-orange-900/20"
-                                >
-                                  <Shield className="w-4 h-4 mr-2" />
-                                  Terminate Sessions
-                                </DropdownMenuItem>
-                              )}
                               <DropdownMenuItem 
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -1176,6 +1269,70 @@ console.log(assignedUsers, "assignedUsers");
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Terminate User Sessions Modal */}
+      <Dialog open={isTerminateModalOpen} onOpenChange={setIsTerminateModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Terminate User Sessions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Select a user to terminate all their active sessions. This will force them to log out from all devices.
+            </p>
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                  onClick={() => handleTerminateUser(user)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#1a72dd] rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                        {user.firstName} {user.lastName}
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{user.email}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user.role}</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-500 text-red-500 hover:bg-red-50 hover:border-red-600"
+                  >
+                    Terminate
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsTerminateModalOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating Undo Button */}
+      {showUndoButton && selectedUserToTerminate && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={handleUndo}
+            className="bg-red-500 hover:bg-red-600 text-white shadow-lg animate-pulse"
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            UNDO - Cancel Termination
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

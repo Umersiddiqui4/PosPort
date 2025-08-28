@@ -8,6 +8,7 @@ import type { AxiosResponse } from "axios";
 export interface ChangePasswordRequest {
   password: string;
   confirmPassword: string;
+  shouldLogoutAllSessions: boolean;
 }
 
 export interface ChangePasswordResponse {

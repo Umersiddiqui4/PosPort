@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -136,8 +136,8 @@
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -145,21 +145,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -171,7 +157,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -207,8 +207,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use client"
 &nbsp;
-import { CreditCard, Banknote } from <span class="cstat-no" title="statement not covered" >"lucide-react"</span>
-import { Button } from <span class="cstat-no" title="statement not covered" >"@/components/ui/button"</span>
+import { CreditCard, Banknote } from "lucide-react"
+import { Button } from "@/components/ui/button"
 &nbsp;
 interface PaymentMethodProps {
   totalAmount: number
@@ -216,7 +216,7 @@ interface PaymentMethodProps {
   onExactAmount: () =&gt; void
 }
 &nbsp;
-export default function <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >PaymentMethod({</span></span> totalAmount, onPaymentSelect, onExactAmount }: PaymentMethodProps) {
+export default function PaymentMethod({ totalAmount, onPaymentSelect, onExactAmount }: PaymentMethodProps) {
   return (
     &lt;div className="bg-gradient-to-br from-white to-gray-50 p-6 min-h-screen"&gt;
       &lt;div className="text-center mb-8"&gt;
@@ -230,7 +230,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         &lt;Button
           variant="outline"
           className="w-full h-20 flex items-center justify-between px-6 text-left bg-white hover:bg-[#1a72dd] hover:text-white border-2 border-gray-200 rounded-2xl transition-all shadow-sm"
-          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >o</span>nPaymentSelect("cash")}</span>
+          onClick={() =&gt; onPaymentSelect("cash")}
         &gt;
           &lt;div className="flex items-center gap-4"&gt;
             &lt;Banknote className="w-8 h-8 text-[#1a72dd]" /&gt;
@@ -242,7 +242,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         &lt;Button
           variant="outline"
           className="w-full h-20 flex items-center justify-between px-6 text-left bg-white hover:bg-[#1a72dd] hover:text-white border-2 border-gray-200 rounded-2xl transition-all shadow-sm"
-          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >o</span>nPaymentSelect("card")}</span>
+          onClick={() =&gt; onPaymentSelect("card")}
         &gt;
           &lt;div className="flex items-center gap-4"&gt;
             &lt;CreditCard className="w-8 h-8 text-[#1a72dd]" /&gt;
@@ -283,7 +283,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-15T14:44:49.118Z
+                at 2025-08-29T11:23:39.324Z
             </div>
         <script src="../prettify.js"></script>
         <script>

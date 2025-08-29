@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/128</span>
+                <span class='fraction'>0/137</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/44</span>
+                <span class='fraction'>0/55</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/126</span>
+                <span class='fraction'>0/135</span>
             </div>
         
             
@@ -665,7 +665,26 @@
 <a name='L600'></a><a href='#L600'>600</a>
 <a name='L601'></a><a href='#L601'>601</a>
 <a name='L602'></a><a href='#L602'>602</a>
-<a name='L603'></a><a href='#L603'>603</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L603'></a><a href='#L603'>603</a>
+<a name='L604'></a><a href='#L604'>604</a>
+<a name='L605'></a><a href='#L605'>605</a>
+<a name='L606'></a><a href='#L606'>606</a>
+<a name='L607'></a><a href='#L607'>607</a>
+<a name='L608'></a><a href='#L608'>608</a>
+<a name='L609'></a><a href='#L609'>609</a>
+<a name='L610'></a><a href='#L610'>610</a>
+<a name='L611'></a><a href='#L611'>611</a>
+<a name='L612'></a><a href='#L612'>612</a>
+<a name='L613'></a><a href='#L613'>613</a>
+<a name='L614'></a><a href='#L614'>614</a>
+<a name='L615'></a><a href='#L615'>615</a>
+<a name='L616'></a><a href='#L616'>616</a>
+<a name='L617'></a><a href='#L617'>617</a>
+<a name='L618'></a><a href='#L618'>618</a>
+<a name='L619'></a><a href='#L619'>619</a>
+<a name='L620'></a><a href='#L620'>620</a>
+<a name='L621'></a><a href='#L621'>621</a>
+<a name='L622'></a><a href='#L622'>622</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -720,6 +739,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -809,12 +829,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1300,7 +1338,7 @@ import { Input } from <span class="cstat-no" title="statement not covered" >"@/c
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from <span class="cstat-no" title="statement not covered" >"@/components/ui/select"</span>
 import { useUsers } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-users"</span>
 import { useAssignUserToLocation, useLocationUsers, useUnassignUserFromLocation, useUpdateLocationUser } from <span class="cstat-no" title="statement not covered" >"@/hooks/useLocation";</span>
-import { toast } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-toast"</span>
+import { useToast } from <span class="cstat-no" title="statement not covered" >"@/hooks/use-toast"</span>
 &nbsp;
 // Add a helper function for random background color
 function <span class="fstat-no" title="function not covered" >getRandomBgColor(s</span>tr: string) {
@@ -1318,6 +1356,7 @@ function <span class="fstat-no" title="function not covered" >getRandomBgColor(s
 }
 &nbsp;
 export default function <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >LocationUsersPage() {</span></span>
+  const { toast } = <span class="cstat-no" title="statement not covered" >useToast()</span>
   const params = <span class="cstat-no" title="statement not covered" >useParams()</span>
   const router = <span class="cstat-no" title="statement not covered" >useRouter()</span>
   const companyId = <span class="cstat-no" title="statement not covered" >params?.id as string</span>
@@ -1414,11 +1453,29 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         title: "Success",
         description: "User assigned to location successfully",
       })
-    } catch (error) {
-<span class="cstat-no" title="statement not covered" >      console.error("Error assigning user:", error)</span>
+    } catch (error: any) {
+      // Try to get the error message from different possible sources
+      let errorMessage = <span class="cstat-no" title="statement not covered" >""</span>
+<span class="cstat-no" title="statement not covered" >      if (error?.response?.data?.message) {</span>
+<span class="cstat-no" title="statement not covered" >        errorMessage = error.response.data.message</span>
+      } else <span class="cstat-no" title="statement not covered" >if (error?.message) {</span>
+<span class="cstat-no" title="statement not covered" >        errorMessage = error.message</span>
+      } else <span class="cstat-no" title="statement not covered" >if (typeof error === 'string') {</span>
+<span class="cstat-no" title="statement not covered" >        errorMessage = error</span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        errorMessage = "Failed to assign user to location"</span>
+      }
+      
+      const isAlreadyAssigned = <span class="cstat-no" title="statement not covered" >errorMessage.toLowerCase().includes("already") || </span>
+                               errorMessage.toLowerCase().includes("400") ||
+                               errorMessage.toLowerCase().includes("bad request")
+      
 <span class="cstat-no" title="statement not covered" >      toast({</span>
-        title: "Error",
-        description: (error as any)?.response?.data?.message || "Failed to assign user to location",
+        title: isAlreadyAssigned ? "User already assigned" : "Error",
+        description:
+          isAlreadyAssigned
+            ? "This user is already assigned to a location. Please choose another user."
+            : errorMessage,
         variant: "destructive",
       })
     }
@@ -1876,7 +1933,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-15T14:44:49.118Z
+                at 2025-08-29T11:23:39.324Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>

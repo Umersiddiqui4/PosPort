@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/2</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
-                <span class="quiet">Functions</span>
                 <span class='fraction'>0/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/4</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>0/12</span>
             </div>
         
             
@@ -131,7 +131,9 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,6 +159,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,6 +187,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -225,7 +229,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
 &nbsp;
   return (
     &lt;div className="flex h-screen bg-gradient-to-br from-[#f7f8fa] to-[#e8f4fd] dark:from-[#1a1a1a] dark:to-[#2a2a2a] overflow-hidden"&gt;
-      &lt;Navbar isMobileOpen={isMobileSidebarOpen} onMobileToggle={handleMobileToggle} isCollapsed={isSidebarCollapsed} /&gt;
+      &lt;Navbar isMobileOpen={isMobileSidebarOpen} onMobileToggle={handleMobileToggle} isCollapsed={isSidebarCollapsed} onCollapseToggle={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etIsSidebarCollapsed(!isSidebarCollapsed)} /&gt;</span>
 &nbsp;
       {/* Main Content */}
       &lt;main
@@ -246,17 +250,19 @@ export default function <span class="cstat-no" title="statement not covered" ><s
           &lt;/Button&gt;
         &lt;/div&gt;
 &nbsp;
-        {/* Desktop Hamburger Button */}
-        &lt;div className="hidden md:block fixed top-4 left-4 z-50"&gt;
-          &lt;Button
-            variant="ghost"
-            size="icon"
-            onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etIsSidebarCollapsed(!isSidebarCollapsed)}</span>
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
-          &gt;
-            &lt;Menu className="w-5 h-5" /&gt;
-          &lt;/Button&gt;
-        &lt;/div&gt;
+        {/* Desktop Hamburger Button (only when sidebar is collapsed) */}
+        {<span class="branch-0 cbranch-no" title="branch not covered" >isSidebarCollapsed &amp;&amp; (</span>
+          &lt;div className="hidden md:block fixed top-4 left-4 z-50"&gt;
+            &lt;Button
+              variant="ghost"
+              size="icon"
+              onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etIsSidebarCollapsed(!isSidebarCollapsed)}</span>
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:bg-white dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full w-10 h-10"
+            &gt;
+              &lt;Menu className="w-5 h-5" /&gt;
+            &lt;/Button&gt;
+          &lt;/div&gt;
+        )}
 &nbsp;
         &lt;div className="h-full"&gt;
           &lt;ErrorBoundary&gt;
@@ -274,7 +280,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-15T14:44:49.118Z
+                at 2025-08-29T11:23:39.324Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

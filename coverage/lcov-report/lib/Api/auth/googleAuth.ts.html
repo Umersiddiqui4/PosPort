@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">21.05% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>4/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">33.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>1/3</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">23.52% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>4/17</span>
             </div>
         
             
@@ -144,24 +144,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -206,11 +206,11 @@ export interface GoogleAuthResponse {
 }
 &nbsp;
 // Google OAuth Configuration
-const GOOGLE_CLIENT_ID = <span class="cstat-no" title="statement not covered" >"635968216240-82pue6vqbqhpguflseef9h5hmmq92t65.apps.googleusercontent.com";</span>
-const GOOGLE_REDIRECT_URI = <span class="cstat-no" title="statement not covered" >typeof window !== 'undefined' ? `${window.location.origin}/google-callback` : 'http://localhost:3001/google-callback';</span>
+const GOOGLE_CLIENT_ID = "635968216240-82pue6vqbqhpguflseef9h5hmmq92t65.apps.googleusercontent.com";
+const GOOGLE_REDIRECT_URI = typeof window !== 'undefined' ? `${window.location.origin}/google-callback` : <span class="branch-1 cbranch-no" title="branch not covered" >'http://localhost:3001/google-callback';</span>
 &nbsp;
 // Function to initiate Google OAuth directly
-export const <span class="cstat-no" title="statement not covered" >initiateGoogleAuth </span>= <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
+export const <span class="cstat-no" title="statement not covered" >initiateGoogleAuth </span>= <span class="fstat-no" title="function not covered" >() =&gt; {</span>
   const googleAuthUrl = <span class="cstat-no" title="statement not covered" >`https://accounts.google.com/o/oauth2/v2/auth?` +</span>
     `client_id=${GOOGLE_CLIENT_ID}&amp;` +
     `redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}&amp;` +
@@ -223,7 +223,7 @@ export const <span class="cstat-no" title="statement not covered" >initiateGoogl
 };
 &nbsp;
 // Function to exchange authorization code for tokens
-export const <span class="cstat-no" title="statement not covered" >exchangeCodeForTokens </span>= <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (c</span>ode: string): Promise&lt;GoogleAuthResponse&gt; =&gt; {</span>
+export const <span class="cstat-no" title="statement not covered" >exchangeCodeForTokens </span>= <span class="fstat-no" title="function not covered" >async (c</span>ode: string): Promise&lt;GoogleAuthResponse&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const response = <span class="cstat-no" title="statement not covered" >await fetch('/api/auth/google/token', {</span>
       method: 'POST',
@@ -256,7 +256,7 @@ export const <span class="cstat-no" title="statement not covered" >exchangeCodeF
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-29T11:23:39.324Z
+                at 2025-08-29T13:30:59.931Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -1,0 +1,2874 @@
+openapi: 3.0.3
+info:
+  title: Restaurant Management System API
+  version: v1
+  description: |
+    Complete API for managing restaurants, locations, products, catalogs, and user operations.
+    This API provides comprehensive functionality for restaurant management including
+    user authentication, company management, location operations, product catalog management,
+    and real-time notifications through webhooks.
+
+    ## Features
+    - JWT-based authentication with Google OAuth support
+    - Multi-tenant architecture with company and location management
+    - Comprehensive product and category management
+    - File upload capabilities for images
+    - Webhook support for real-time notifications
+    - Rate limiting and pagination support
+
+  contact:
+    name: API Support
+    email: api-support@posport.io
+    url: https://docs.posport.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.posport.io/api/v1
+    description: Production server
+  - url: https://dev-api.posport.io/api/v1
+    description: Development server
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Authorization header using the Bearer scheme
+
+  schemas:
+    # Error Response
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        status:
+          type: integer
+          description: HTTP status code
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field name that caused the error
+              message:
+                type: string
+                description: Field-specific error message
+
+    # Success Response Wrapper
+    SuccessResponse:
+      type: object
+      properties:
+        data:
+          description: Response data
+        message:
+          type: string
+          description: Success message
+        status:
+          type: integer
+          description: HTTP status code
+          example: 200
+
+    # Pagination Metadata
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        limit:
+          type: integer
+          description: Items per page
+          example: 10
+        total:
+          type: integer
+          description: Total number of items
+          example: 100
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 10
+        hasNextPage:
+          type: boolean
+          description: Whether there is a next page
+          example: true
+        hasPreviousPage:
+          type: boolean
+          description: Whether there is a previous page
+          example: false
+
+    # User Role Enum
+    UserRole:
+      type: string
+      enum:
+        - COMPANY_OWNER
+        - LOCATION_MANAGER
+        - CASHIER
+        - STAFF
+      description: User role in the system
+
+    # User Schema
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique user identifier
+          example: "user-123"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        firstName:
+          type: string
+          description: User's first name
+          example: "John"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Doe"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        companyId:
+          type: string
+          description: Associated company ID
+          example: "company-123"
+        isEmailVerified:
+          type: boolean
+          description: Whether email is verified
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: User creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: User last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Company Schema
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique company identifier
+          example: "company-123"
+        name:
+          type: string
+          description: Company name
+          example: "Pizza Palace Inc."
+        email:
+          type: string
+          format: email
+          description: Company contact email
+          example: "contact@pizzapalace.com"
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1234567890"
+        address:
+          type: string
+          description: Company address
+          example: "123 Main St"
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          description: Company status
+          example: "active"
+        createdAt:
+          type: string
+          format: date-time
+          description: Company creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Company last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Location Schema
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique location identifier
+          example: "location-123"
+        locationName:
+          type: string
+          description: Location name
+          example: "Pizza Palace Downtown"
+        address:
+          type: string
+          description: Street address
+          example: "123 Main St"
+        city:
+          type: string
+          description: City name
+          example: "New York"
+        state:
+          type: string
+          description: State or province
+          example: "NY"
+        country:
+          type: string
+          description: Country name
+          example: "USA"
+        postalCode:
+          type: string
+          description: Postal code
+          example: "10001"
+        phone:
+          type: string
+          description: Location phone number
+          example: "+1234567890"
+        email:
+          type: string
+          format: email
+          description: Location contact email
+          example: "downtown@pizzapalace.com"
+        qrCode:
+          type: string
+          description: QR code for location
+          example: "LOC-1234567890-ABC123"
+        companyId:
+          type: string
+          description: Associated company ID
+          example: "company-123"
+        createdAt:
+          type: string
+          format: date-time
+          description: Location creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Location last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Product Schema
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique product identifier
+          example: "product-123"
+        name:
+          type: string
+          description: Product name
+          example: "Margherita Pizza"
+        description:
+          type: string
+          description: Product description
+          example: "Classic tomato and mozzarella pizza"
+        price:
+          type: number
+          format: float
+          description: Product price
+          example: 12.99
+        categoryId:
+          type: string
+          description: Associated category ID
+          example: "category-123"
+        locationId:
+          type: string
+          description: Associated location ID
+          example: "location-123"
+        image:
+          type: string
+          format: uri
+          description: Product image URL
+          example: "https://example.com/pizza.jpg"
+        isAvailable:
+          type: boolean
+          description: Whether product is available
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Product creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Product last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Category Schema
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique category identifier
+          example: "category-123"
+        name:
+          type: string
+          description: Category name
+          example: "Pizzas"
+        description:
+          type: string
+          description: Category description
+          example: "All pizza varieties"
+        catalogId:
+          type: string
+          description: Associated catalog ID
+          example: "catalog-123"
+        image:
+          type: string
+          format: uri
+          description: Category image URL
+          example: "https://example.com/pizza-category.jpg"
+        isActive:
+          type: boolean
+          description: Whether category is active
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Category creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Category last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Catalog Schema
+    Catalog:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique catalog identifier
+          example: "catalog-123"
+        name:
+          type: string
+          description: Catalog name
+          example: "Pizza Palace Menu"
+        description:
+          type: string
+          description: Catalog description
+          example: "Complete menu for Pizza Palace"
+        userId:
+          type: string
+          description: Associated user ID
+          example: "user-123"
+        isActive:
+          type: boolean
+          description: Whether catalog is active
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Catalog creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Catalog last update timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Authentication Tokens
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          type: object
+          properties:
+            token:
+              type: string
+              description: JWT access token
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            expiresIn:
+              type: string
+              description: Access token expiration time
+              example: "15m"
+        refresh:
+          type: object
+          properties:
+            token:
+              type: string
+              description: JWT refresh token
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            expiresIn:
+              type: string
+              description: Refresh token expiration time
+              example: "7d"
+
+    # Login Request
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email
+          example: "user@example.com"
+        password:
+          type: string
+          description: User password
+          example: "password123"
+
+    # Google OAuth Request
+    GoogleOAuthRequest:
+      type: object
+      required:
+        - code
+        - redirectUri
+      properties:
+        code:
+          type: string
+          description: Google OAuth authorization code
+          example: "google-oauth-code"
+        redirectUri:
+          type: string
+          format: uri
+          description: OAuth redirect URI
+          example: "http://localhost:3000/auth/callback"
+
+    # Refresh Token Request
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: JWT refresh token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    # User Create Request
+    UserCreateRequest:
+      type: object
+      required:
+        - email
+        - firstName
+        - lastName
+        - role
+        - companyId
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email
+          example: "newuser@example.com"
+        firstName:
+          type: string
+          description: User's first name
+          example: "Jane"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Smith"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        companyId:
+          type: string
+          description: Associated company ID
+          example: "company-123"
+        password:
+          type: string
+          description: User password
+          example: "password123"
+
+    # User Update Request
+    UserUpdateRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: User's first name
+          example: "Jane"
+        lastName:
+          type: string
+          description: User's last name
+          example: "Doe"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        isEmailVerified:
+          type: boolean
+          description: Whether email is verified
+
+    # Company Create Request
+    CompanyCreateRequest:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+        - address
+      properties:
+        name:
+          type: string
+          description: Company name
+          example: "New Restaurant Corp."
+        email:
+          type: string
+          format: email
+          description: Company contact email
+          example: "contact@newrestaurant.com"
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1234567890"
+        address:
+          type: string
+          description: Company address
+          example: "456 Oak Ave"
+
+    # Company Update Request
+    CompanyUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Company name
+          example: "Updated Restaurant Corp."
+        email:
+          type: string
+          format: email
+          description: Company contact email
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1987654321"
+        address:
+          type: string
+          description: Company address
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          description: Company status
+
+    # Location Create Request
+    LocationCreateRequest:
+      type: object
+      required:
+        - locationName
+        - address
+        - city
+        - state
+        - country
+        - postalCode
+        - phone
+        - email
+        - companyId
+      properties:
+        locationName:
+          type: string
+          description: Location name
+          example: "Pizza Palace Uptown"
+        address:
+          type: string
+          description: Street address
+          example: "456 Oak Ave"
+        city:
+          type: string
+          description: City name
+          example: "New York"
+        state:
+          type: string
+          description: State or province
+          example: "NY"
+        country:
+          type: string
+          description: Country name
+          example: "USA"
+        postalCode:
+          type: string
+          description: Postal code
+          example: "10002"
+        phone:
+          type: string
+          description: Location phone number
+          example: "+1234567890"
+        email:
+          type: string
+          format: email
+          description: Location contact email
+          example: "uptown@pizzapalace.com"
+        companyId:
+          type: string
+          description: Associated company ID
+          example: "company-123"
+
+    # Location Update Request
+    LocationUpdateRequest:
+      type: object
+      properties:
+        locationName:
+          type: string
+          description: Location name
+          example: "Pizza Palace Downtown Updated"
+        address:
+          type: string
+          description: Street address
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State or province
+        country:
+          type: string
+          description: Country name
+        postalCode:
+          type: string
+          description: Postal code
+        phone:
+          type: string
+          description: Location phone number
+          example: "+1987654321"
+        email:
+          type: string
+          format: email
+          description: Location contact email
+
+    # Product Create Request
+    ProductCreateRequest:
+      type: object
+      required:
+        - name
+        - price
+        - categoryId
+        - locationId
+      properties:
+        name:
+          type: string
+          description: Product name
+          example: "Pepperoni Pizza"
+        description:
+          type: string
+          description: Product description
+          example: "Spicy pepperoni pizza with cheese"
+        price:
+          type: number
+          format: float
+          description: Product price
+          example: 14.99
+        categoryId:
+          type: string
+          description: Associated category ID
+          example: "category-123"
+        locationId:
+          type: string
+          description: Associated location ID
+          example: "location-123"
+        image:
+          type: string
+          format: uri
+          description: Product image URL
+          example: "https://example.com/pepperoni.jpg"
+
+    # Product Update Request
+    ProductUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Product name
+          example: "Pepperoni Pizza Deluxe"
+        description:
+          type: string
+          description: Product description
+        price:
+          type: number
+          format: float
+          description: Product price
+          example: 16.99
+        categoryId:
+          type: string
+          description: Associated category ID
+        locationId:
+          type: string
+          description: Associated location ID
+        image:
+          type: string
+          format: uri
+          description: Product image URL
+        isAvailable:
+          type: boolean
+          description: Whether product is available
+
+    # Category Create Request
+    CategoryCreateRequest:
+      type: object
+      required:
+        - name
+        - catalogId
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "Beverages"
+        description:
+          type: string
+          description: Category description
+          example: "All drink options"
+        catalogId:
+          type: string
+          description: Associated catalog ID
+          example: "catalog-123"
+        image:
+          type: string
+          format: uri
+          description: Category image URL
+          example: "https://example.com/beverages.jpg"
+
+    # Category Update Request
+    CategoryUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "Hot Beverages"
+        description:
+          type: string
+          description: Category description
+          example: "Coffee, tea, and hot drinks"
+        image:
+          type: string
+          format: uri
+          description: Category image URL
+        isActive:
+          type: boolean
+          description: Whether category is active
+
+    # Catalog Create Request
+    CatalogCreateRequest:
+      type: object
+      required:
+        - name
+        - userId
+      properties:
+        name:
+          type: string
+          description: Catalog name
+          example: "New Restaurant Menu"
+        description:
+          type: string
+          description: Catalog description
+          example: "Menu for the new restaurant"
+        userId:
+          type: string
+          description: Associated user ID
+          example: "user-123"
+
+    # Catalog Update Request
+    CatalogUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Catalog name
+          example: "Updated Restaurant Menu"
+        description:
+          type: string
+          description: Catalog description
+          example: "Updated menu description"
+        isActive:
+          type: boolean
+          description: Whether catalog is active
+
+    # File Upload Response
+    FileUploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Uploaded file URL
+          example: "https://cdn.example.com/images/product-123.jpg"
+        filename:
+          type: string
+          description: Original filename
+          example: "product-123.jpg"
+        size:
+          type: integer
+          description: File size in bytes
+          example: 1024000
+        mimeType:
+          type: string
+          description: File MIME type
+          example: "image/jpeg"
+
+    # Webhook Schema
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique webhook identifier
+          example: "webhook-123"
+        url:
+          type: string
+          format: uri
+          description: Webhook endpoint URL
+          example: "https://your-app.com/webhooks"
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - user.created
+              - user.updated
+              - user.deleted
+              - order.created
+              - order.updated
+              - order.completed
+          description: List of webhook events to subscribe to
+        isActive:
+          type: boolean
+          description: Whether webhook is active
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Webhook creation timestamp
+          example: "2024-01-01T00:00:00Z"
+
+    # Webhook Create Request
+    WebhookCreateRequest:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Webhook endpoint URL
+          example: "https://your-app.com/webhooks"
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - user.created
+              - user.updated
+              - user.deleted
+              - order.created
+              - order.updated
+              - order.completed
+          description: List of webhook events to subscribe to
+          example: ["user.created", "order.completed"]
+        secret:
+          type: string
+          description: Webhook secret for signature verification
+          example: "webhook-secret-key"
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      summary: Authenticate user with email and password
+      description: Login with email and password to receive JWT tokens
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          tokens:
+                            $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Bad request - Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/google/token:
+    post:
+      summary: Exchange Google OAuth code for tokens
+      description: Exchange Google OAuth authorization code for JWT tokens
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleOAuthRequest'
+      responses:
+        '200':
+          description: Token exchange successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          tokens:
+                            $ref: '#/components/schemas/AuthTokens'
+        '400':
+          description: Bad request - Invalid OAuth code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid OAuth code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Refresh access token using refresh token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          access:
+                            type: object
+                            properties:
+                              token:
+                                type: string
+                                description: New JWT access token
+                              expiresIn:
+                                type: string
+                                description: Access token expiration time
+        '400':
+          description: Bad request - Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      description: Logout user and invalidate tokens
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # User Management Endpoints
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieve a paginated list of users with optional filtering
+      tags:
+        - User Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for name or email
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/UserRole'
+          description: Filter by user role
+        - name: companyId
+          in: query
+          schema:
+            type: string
+          description: Filter by company ID
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new user
+      description: Create a new user account
+      tags:
+        - User Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      tags:
+        - User Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update user
+      description: Update an existing user's information
+      tags:
+        - User Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete user
+      description: Delete a user account
+      tags:
+        - User Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Company Management Endpoints
+  /companies:
+    get:
+      summary: Get all companies
+      description: Retrieve a paginated list of companies with optional filtering
+      tags:
+        - Company Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for company name
+      responses:
+        '200':
+          description: Companies retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Company'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new company
+      description: Create a new company
+      tags:
+        - Company Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreateRequest'
+      responses:
+        '201':
+          description: Company created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /companies/{id}:
+    get:
+      summary: Get company by ID
+      description: Retrieve a specific company by its ID
+      tags:
+        - Company Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Company ID
+      responses:
+        '200':
+          description: Company retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update company
+      description: Update an existing company's information
+      tags:
+        - Company Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Company ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyUpdateRequest'
+      responses:
+        '200':
+          description: Company updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Company'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete company
+      description: Delete a company
+      tags:
+        - Company Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Company ID
+      responses:
+        '200':
+          description: Company deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Location Management Endpoints
+  /locations:
+    get:
+      summary: Get all locations
+      description: Retrieve a paginated list of locations with optional filtering
+      tags:
+        - Location Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for location name
+        - name: companyId
+          in: query
+          schema:
+            type: string
+          description: Filter by company ID
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+      responses:
+        '200':
+          description: Locations retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Location'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new location
+      description: Create a new location for a company
+      tags:
+        - Location Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreateRequest'
+      responses:
+        '201':
+          description: Location created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Location'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /locations/{id}:
+    get:
+      summary: Get location by ID
+      description: Retrieve a specific location by its ID
+      tags:
+        - Location Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Location ID
+      responses:
+        '200':
+          description: Location retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Location'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Location not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update location
+      description: Update an existing location's information
+      tags:
+        - Location Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Location ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Location updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Location'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Location not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete location
+      description: Delete a location
+      tags:
+        - Location Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Location ID
+      responses:
+        '200':
+          description: Location deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Location not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Product Management Endpoints
+  /products:
+    get:
+      summary: Get all products
+      description: Retrieve a paginated list of products with optional filtering
+      tags:
+        - Product Management
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for product name
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+          description: Filter by category ID
+        - name: locationId
+          in: query
+          schema:
+            type: string
+          description: Filter by location ID
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new product
+      description: Create a new product in the catalog
+      tags:
+        - Product Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+     responses:
+       '201':
+         description: Product created successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Product'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ /products/{id}:
+   get:
+     summary: Get product by ID
+     description: Retrieve a specific product by its ID
+     tags:
+       - Product Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Product ID
+     responses:
+       '200':
+         description: Product retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Product'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Product not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   put:
+     summary: Update product
+     description: Update an existing product's information
+     tags:
+       - Product Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Product ID
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/ProductUpdateRequest'
+     responses:
+       '200':
+         description: Product updated successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Product'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Product not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   delete:
+     summary: Delete product
+     description: Delete a product from the catalog
+     tags:
+       - Product Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Product ID
+     responses:
+       '200':
+         description: Product deleted successfully
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/SuccessResponse'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Product not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ # Category Management Endpoints
+ /categories:
+   get:
+     summary: Get all categories
+     description: Retrieve a paginated list of categories with optional filtering
+     tags:
+       - Category Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: page
+         in: query
+         schema:
+           type: integer
+           default: 1
+         description: Page number
+       - name: limit
+         in: query
+         schema:
+           type: integer
+           default: 10
+         description: Items per page
+       - name: search
+         in: query
+         schema:
+           type: string
+         description: Search term for category name
+       - name: catalogId
+         in: query
+         schema:
+           type: string
+         description: Filter by catalog ID
+     responses:
+       '200':
+         description: Categories retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       type: array
+                       items:
+                         $ref: '#/components/schemas/Category'
+                     meta:
+                       $ref: '#/components/schemas/PaginationMeta'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   post:
+     summary: Create a new category
+     description: Create a new category in a catalog
+     tags:
+       - Category Management
+     security:
+       - bearerAuth: []
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/CategoryCreateRequest'
+     responses:
+       '201':
+         description: Category created successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Category'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ /categories/{id}:
+   get:
+     summary: Get category by ID
+     description: Retrieve a specific category by its ID
+     tags:
+       - Category Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Category ID
+     responses:
+       '200':
+         description: Category retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Category'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Category not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   put:
+     summary: Update category
+     description: Update an existing category's information
+     tags:
+       - Category Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Category ID
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/CategoryUpdateRequest'
+     responses:
+       '200':
+         description: Category updated successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Category'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Category not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   delete:
+     summary: Delete category
+     description: Delete a category from the catalog
+     tags:
+       - Category Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Category ID
+     responses:
+       '200':
+         description: Category deleted successfully
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/SuccessResponse'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Category not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ # Catalog Management Endpoints
+ /catalogs:
+   get:
+     summary: Get all catalogs
+     description: Retrieve a paginated list of catalogs with optional filtering
+     tags:
+       - Catalog Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: page
+         in: query
+         schema:
+           type: integer
+           default: 1
+         description: Page number
+       - name: limit
+         in: query
+         schema:
+           type: integer
+           default: 10
+         description: Items per page
+       - name: search
+         in: query
+         schema:
+           type: string
+         description: Search term for catalog name
+       - name: userId
+         in: query
+         schema:
+           type: string
+         description: Filter by user ID
+     responses:
+       '200':
+         description: Catalogs retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       type: array
+                       items:
+                         $ref: '#/components/schemas/Catalog'
+                     meta:
+                       $ref: '#/components/schemas/PaginationMeta'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   post:
+     summary: Create a new catalog
+     description: Create a new catalog for organizing products and categories
+     tags:
+       - Catalog Management
+     security:
+       - bearerAuth: []
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/CatalogCreateRequest'
+     responses:
+       '201':
+         description: Catalog created successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Catalog'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ /catalogs/{id}:
+   get:
+     summary: Get catalog by ID
+     description: Retrieve a specific catalog by its ID
+     tags:
+       - Catalog Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Catalog ID
+     responses:
+       '200':
+         description: Catalog retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Catalog'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Catalog not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   put:
+     summary: Update catalog
+     description: Update an existing catalog's information
+     tags:
+       - Catalog Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Catalog ID
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/CatalogUpdateRequest'
+     responses:
+       '200':
+         description: Catalog updated successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Catalog'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Catalog not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   delete:
+     summary: Delete catalog
+     description: Delete a catalog and all its associated categories and products
+     tags:
+       - Catalog Management
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Catalog ID
+     responses:
+       '200':
+         description: Catalog deleted successfully
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/SuccessResponse'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '403':
+         description: Forbidden
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Catalog not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ # File Upload Endpoints
+ /upload/image:
+   post:
+     summary: Upload image file
+     description: Upload product, category, or user images
+     tags:
+       - File Upload
+     security:
+       - bearerAuth: []
+     requestBody:
+       required: true
+       content:
+         multipart/form-data:
+           schema:
+             type: object
+             properties:
+               file:
+                 type: string
+                 format: binary
+                 description: Image file to upload
+               type:
+                 type: string
+                 enum: [product, category, user]
+                 description: Type of image being uploaded
+     responses:
+       '200':
+         description: Image uploaded successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/FileUploadResponse'
+       '400':
+         description: Bad request - Invalid file or file type
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '413':
+         description: File too large
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Unsupported file format
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ # Webhook Management Endpoints
+ /webhooks:
+   post:
+     summary: Create webhook
+     description: Create a new webhook for real-time notifications
+     tags:
+       - Webhooks
+     security:
+       - bearerAuth: []
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/WebhookCreateRequest'
+     responses:
+       '201':
+         description: Webhook created successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Webhook'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+ /webhooks/{id}:
+   get:
+     summary: Get webhook by ID
+     description: Retrieve a specific webhook by its ID
+     tags:
+       - Webhooks
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Webhook ID
+     responses:
+       '200':
+         description: Webhook retrieved successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Webhook'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Webhook not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   put:
+     summary: Update webhook
+     description: Update an existing webhook's configuration
+     tags:
+       - Webhooks
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Webhook ID
+     requestBody:
+       required: true
+       content:
+         application/json:
+           schema:
+             $ref: '#/components/schemas/WebhookCreateRequest'
+     responses:
+       '200':
+         description: Webhook updated successfully
+         content:
+           application/json:
+             schema:
+               allOf:
+                 - $ref: '#/components/schemas/SuccessResponse'
+                 - type: object
+                   properties:
+                     data:
+                       $ref: '#/components/schemas/Webhook'
+       '400':
+         description: Bad request
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Webhook not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '422':
+         description: Validation error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+   delete:
+     summary: Delete webhook
+     description: Delete a webhook configuration
+     tags:
+       - Webhooks
+     security:
+       - bearerAuth: []
+     parameters:
+       - name: id
+         in: path
+         required: true
+         schema:
+           type: string
+         description: Webhook ID
+     responses:
+       '200':
+         description: Webhook deleted successfully
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/SuccessResponse'
+       '401':
+         description: Unauthorized
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+       '404':
+         description: Webhook not found
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+
+# Tags for API Documentation
+tags:
+ - name: Authentication
+   description: User authentication and authorization endpoints
+ - name: User Management
+   description: User account management operations
+ - name: Company Management
+   description: Company and organization management
+ - name: Location Management
+   description: Restaurant location management
+ - name: Product Management
+   description: Product catalog management
+ - name: Category Management
+   description: Product category management
+ - name: Catalog Management
+   description: Product catalog organization
+ - name: File Upload
+   description: File upload operations
+ - name: Webhooks
+   description: Webhook configuration and management
+
+# External Documentation
+externalDocs:
+ description: Complete API Documentation
+ url: https://docs.posport.io

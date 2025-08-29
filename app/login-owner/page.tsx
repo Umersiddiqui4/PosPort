@@ -1,3 +1,4 @@
+"use client"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,7 @@ import '@/styles/globals.css'
 import { useLogin } from "@/hooks/useLogin"
 import { useUserDataStore } from "@/lib/store"
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from 'next/navigation';
 
 interface LoginForm {
   email: string;
@@ -19,6 +21,7 @@ export default function LoginOwnerPage() {
   const login = useUserDataStore((state) => state.login);
   const { mutate, data, isSuccess } = useLogin();
   const { toast } = useToast();
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState<LoginForm>({
     email: '',
@@ -41,16 +44,14 @@ export default function LoginOwnerPage() {
           }
         }
       };
-      
+
       login(internalData);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.href = "/";
-        }
+        router.push("/");
       }, 700);
     }
-  }, [isSuccess, login, toast, data]);
+  }, [isSuccess, login, toast, data, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,9 +67,7 @@ export default function LoginOwnerPage() {
   };
 
   function screenChange(screen: string) {
-    if (typeof window !== 'undefined') {
-      window.location.href = `/${screen}`;
-    }
+    router.push(`/${screen}`);
   }
 
   return (

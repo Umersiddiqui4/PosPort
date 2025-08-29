@@ -18,7 +18,9 @@ describe('Alert Components', () => {
 
       rerender(<Alert variant="destructive">Destructive Alert</Alert>)
       alert = screen.getByRole('alert')
-      expect(alert).toHaveClass('border-destructive')
+      expect(alert).toHaveClass('border-destructive/50')
+      expect(alert).toHaveClass('text-destructive')
+      expect(alert).toHaveClass('dark:border-destructive')
     })
 
     it('should apply custom className', () => {

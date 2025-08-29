@@ -1,3 +1,4 @@
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
@@ -8,10 +9,11 @@ import { ArrowLeft } from "lucide-react"
 import '@/styles/globals.css'
 import { useLogin } from '@/hooks/useLogin';
 import { useUserDataStore } from "@/lib/store";
-import Box from '@mui/material/Box'; 
+import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 import { useToast } from "@/components/ui/use-toast";
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useRouter } from 'next/navigation';
 
 interface LoginForm {
   email: string;
@@ -23,13 +25,14 @@ export default function LoginEmployeePage() {
   const { mutate, data, isSuccess, error, isPending } = useLogin();
   const { toast } = useToast();
   const { handleGoogleLogin } = useGoogleAuth();
+  const router = useRouter();
   const [form, setForm] = useState<LoginForm>({
     email: '',
     password: '',
   });
 
   console.log(login, "login");
-  
+
 
   useEffect(() => {
     if (isSuccess && data) {
@@ -47,16 +50,14 @@ export default function LoginEmployeePage() {
           }
         }
       };
-      
+
       login(internalData);
       toast({ title: "Login successful", description: "Redirecting..." });
       setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.href = "/";
-        }
+        router.push("/");
       }, 700);
     }
-  }, [isSuccess, login, toast, data]);
+  }, [isSuccess, login, toast, data, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,9 +73,7 @@ export default function LoginEmployeePage() {
   };
 
   function screenChange(screen: string) {
-    if (typeof window !== 'undefined') {
-      window.location.href = `/${screen}`;
-    }
+    router.push(`/${screen}`);
   }
 
 
@@ -138,18 +137,18 @@ export default function LoginEmployeePage() {
 
               {/* </div> */}
             </div>
-     <Button
-  disabled={isPending}
-  type="submit"
-  className="w-full bg-blue-600 hover:bg-blue-700 align-middle text-white py-3 rounded-xl font-semibold mt-6 flex items-center justify-center gap-2"
->
-  {isPending && !error ? (
-    <Box sx={{ width: '60%' }}>
-      <LinearProgress color='inherit' />
-    </Box> 
-  ): "Login"}
-  
-</Button>
+      <Button
+   disabled={isPending}
+   type="submit"
+   className="w-full bg-blue-600 hover:bg-blue-700 align-middle text-white py-3 rounded-xl font-semibold mt-6 flex items-center justify-center gap-2"
+ >
+   {isPending && !error ? (
+     <Box sx={{ width: '60%' }}>
+       <LinearProgress color='inherit' />
+     </Box>
+   ): "Login"}
+
+ </Button>
 
             {/* Divider */}
             <div className="relative my-6">

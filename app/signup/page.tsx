@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
@@ -5,13 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
-import Box from '@mui/material/Box'; 
+import Box from '@mui/material/Box';
 import '@/styles/globals.css'
 import { useSignup } from "@/hooks/useSignUp"
 import { LinearProgress } from "@mui/material"
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from 'next/navigation';
 
 interface SignupForm {
   email: string;
@@ -25,6 +28,7 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const { mutate: signup, isPending, isSuccess, error } = useSignup();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [form, setForm] = useState<SignupForm>({
     email: '',
@@ -38,17 +42,13 @@ export default function Signup() {
     if (isSuccess) {
       toast({ title: "Signup successful", description: "Redirecting to login..." });
       setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.href = "/login";
-        }
+        router.push("/login");
       }, 700);
     }
-  }, [isSuccess, toast]);
+  }, [isSuccess, toast, router]);
 
   function screenChange(screen: string) {
-    if (typeof window !== 'undefined') {
-      window.location.href = `/${screen}`;
-    }
+    router.push(`/${screen}`);
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

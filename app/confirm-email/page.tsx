@@ -14,7 +14,7 @@ export default function EmailVerified() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromUrl = urlParams.get("hash") || urlParams.get("token");
     setToken(tokenFromUrl);

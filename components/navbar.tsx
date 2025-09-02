@@ -16,6 +16,7 @@ import {
   BookOpen,
   Menu,
   Package,
+  MapPin,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -40,7 +41,7 @@ const baseMenuItems = [
   { id: "roles", label: "Roles", icon: Shield, href: "/roles" },
   { id: "account", label: "Account", icon: User, href: "/account" },
   { id: "support", label: "Support", icon: HelpCircle, href: "#" },
-  { id: "location", label: "Location", icon: HelpCircle, href: "/companies/1/locations" },
+  { id: "location", label: "Location", icon: MapPin, href: "/companies/1/locations" },
 ];
 
 export default function Navbar({ isMobileOpen, onMobileToggle, isCollapsed = false, onCollapseToggle }: NavbarProps) {

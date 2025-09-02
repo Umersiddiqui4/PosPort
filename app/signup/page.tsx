@@ -83,10 +83,10 @@ export default function Signup() {
           <div className="space-y-8">
             <div>
               <h2 className="text-4xl font-bold mb-4 leading-tight">
-                Join the Restaurant Revolution
+                Join the Store Management Revolution
               </h2>
               <p className="text-xl text-blue-100 leading-relaxed">
-                Create your account and start managing your restaurant operations with our comprehensive platform designed for growth and efficiency.
+                Create your account and start managing your store operations with our comprehensive platform designed for growth and efficiency.
               </p>
             </div>
 
@@ -139,7 +139,7 @@ export default function Signup() {
               <Logo size="xl" variant="default" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Join the restaurant revolution with our comprehensive platform
+              Join the store management revolution with our comprehensive platform
             </p>
           </div>
 
@@ -156,7 +156,7 @@ export default function Signup() {
                   Create Your Account
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Join PosPort and start managing your restaurant operations
+                  Join PosPort and start managing your store operations
                 </p>
                 {error && (
                   <div className="mt-2">

@@ -88,10 +88,10 @@ export default function LoginEmployeePage() {
           <div className="space-y-8">
             <div>
               <h2 className="text-4xl font-bold mb-4 leading-tight">
-                Streamline Your Restaurant Operations
+                Streamline Your Store Operations
               </h2>
               <p className="text-xl text-blue-100 leading-relaxed">
-                Manage inventory, track sales, and grow your business with our comprehensive restaurant management platform.
+                Manage inventory, track sales, and grow your business with our comprehensive store management platform.
               </p>
             </div>
 
@@ -102,7 +102,7 @@ export default function LoginEmployeePage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Multi-Location Support</h3>
-                  <p className="text-blue-100">Manage multiple restaurants from one dashboard</p>
+                  <p className="text-blue-100">Manage multiple stores from one dashboard</p>
                 </div>
               </div>
 
@@ -144,7 +144,7 @@ export default function LoginEmployeePage() {
               <Logo size="xl" variant="default" />
             </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Streamline your restaurant operations with our comprehensive platform
+              Streamline your store operations with our comprehensive platform
             </p>
           </div>
 

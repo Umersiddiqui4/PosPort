@@ -9,9 +9,9 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "PosPort - Restaurant Management System",
-  description: "Streamline your restaurant operations with our comprehensive management platform. Manage inventory, track sales, and grow your business with PosPort.",
-  keywords: ["restaurant management", "POS system", "inventory management", "restaurant software", "business management"],
+  title: "PosPort - Store Management System",
+  description: "Streamline your store operations with our comprehensive management platform. Manage inventory, track sales, and grow your business with PosPort.",
+  keywords: ["store management", "POS system", "inventory management", "retail software", "business management"],
   authors: [{ name: "Umer Siddiqui" }],
   creator: "Umer Siddiqui",
   publisher: "PosPort",
@@ -22,8 +22,8 @@ export const metadata = {
   },
   metadataBase: new URL('https://posport.io'),
   openGraph: {
-    title: "PosPort - Restaurant Management System",
-    description: "Streamline your restaurant operations with our comprehensive management platform.",
+    title: "PosPort - Store Management System",
+    description: "Streamline your store operations with our comprehensive management platform.",
     url: 'https://posport.io',
     siteName: 'PosPort',
     images: [
@@ -31,7 +31,7 @@ export const metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'PosPort Restaurant Management System',
+        alt: 'PosPort Store Management System',
       },
     ],
     locale: 'en_US',
@@ -39,8 +39,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "PosPort - Restaurant Management System",
-    description: "Streamline your restaurant operations with our comprehensive management platform.",
+    title: "PosPort - Store Management System",
+    description: "Streamline your store operations with our comprehensive management platform.",
     images: ['/og-image.png'],
   },
   robots: {

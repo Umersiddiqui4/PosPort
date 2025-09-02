@@ -82,7 +82,7 @@ export function Logo({
             'text-xs leading-none',
             variantClass.subtitle
           )}>
-            Restaurant Management
+            Store Management
           </p>
         </div>
       )}

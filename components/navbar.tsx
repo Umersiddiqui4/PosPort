@@ -40,7 +40,7 @@ const baseMenuItems = [
   { id: "users", label: "Users", icon: User, href: "/users" },
   { id: "roles", label: "Roles", icon: Shield, href: "/roles" },
   { id: "account", label: "Account", icon: User, href: "/account" },
-  { id: "support", label: "Support", icon: HelpCircle, href: "#" },
+  { id: "support", label: "Support", icon: HelpCircle, href: "/support" },
   { id: "location", label: "Location", icon: MapPin, href: "/companies/1/locations" },
 ];
 

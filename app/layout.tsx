@@ -9,8 +9,54 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "PosPort",
-  description: "Created by Umer Siddiqui",
+  title: "PosPort - Restaurant Management System",
+  description: "Streamline your restaurant operations with our comprehensive management platform. Manage inventory, track sales, and grow your business with PosPort.",
+  keywords: ["restaurant management", "POS system", "inventory management", "restaurant software", "business management"],
+  authors: [{ name: "Umer Siddiqui" }],
+  creator: "Umer Siddiqui",
+  publisher: "PosPort",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://posport.io'),
+  openGraph: {
+    title: "PosPort - Restaurant Management System",
+    description: "Streamline your restaurant operations with our comprehensive management platform.",
+    url: 'https://posport.io',
+    siteName: 'PosPort',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'PosPort Restaurant Management System',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "PosPort - Restaurant Management System",
+    description: "Streamline your restaurant operations with our comprehensive management platform.",
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
